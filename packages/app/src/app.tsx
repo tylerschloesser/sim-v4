@@ -8,9 +8,11 @@ interface SquareProps {
 }
 
 function Square({ x, y }: SquareProps) {
+  const id = `${x}.${y}`
   return (
     <div
       className={styles.square}
+      data-id={id}
       style={
         {
           '--x': x,
