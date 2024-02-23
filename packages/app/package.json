@@ -7,6 +7,10 @@
   },
   "dependencies": {
     "@tyle/webpack-config": "^1.0.11",
+    "@types/react": "^18.2.58",
+    "@types/react-dom": "^18.2.19",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.2"
