@@ -102,4 +102,16 @@ function init({
     },
     { signal },
   )
+
+  container.addEventListener('pointerdown', (ev) => {
+    if (ev.target instanceof Element) {
+      const square = ev.target.closest('[data-id]')
+      if (square) {
+        invariant(square instanceof HTMLElement)
+        const id = square.dataset['id']
+        invariant(id)
+        console.log(`id: ${id}`)
+      }
+    }
+  })
 }
