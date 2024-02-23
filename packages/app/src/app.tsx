@@ -122,15 +122,26 @@ function init({
     { signal },
   )
 
-  container.addEventListener('pointerdown', (ev) => {
-    if (ev.target instanceof Element) {
-      const square = ev.target.closest('[data-id]')
-      if (square) {
-        invariant(square instanceof HTMLElement)
-        const id = square.dataset['id']
-        invariant(id)
-        console.log(`id: ${id}`)
+  container.addEventListener(
+    'pointerdown',
+    (ev) => {
+      if (ev.target instanceof Element) {
+        const square = ev.target.closest('[data-id]')
+        if (square) {
+          invariant(square instanceof HTMLElement)
+          const id = square.dataset['id']
+          invariant(id)
+          console.log(`id: ${id}`)
+        }
       }
-    }
-  })
+    },
+    { signal },
+  )
+
+  // prettier-ignore
+  {
+    container.addEventListener('touchcancel', (ev) => { ev.preventDefault() }, { signal, passive: false })
+    container.addEventListener('touchend', (ev) => { ev.preventDefault() }, { signal, passive: false })
+    container.addEventListener('touchstart', (ev) => { ev.preventDefault() }, { signal, passive: false })
+  }
 }
