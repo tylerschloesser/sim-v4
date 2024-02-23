@@ -14,15 +14,21 @@
   --size: 50vmin;
 
   position: absolute;
-  top: 0;
-  left: 0;
+  top: calc(var(--y) * var(--size));
+  left: calc(var(--x) * var(--size));
 
   box-sizing: border-box;
   width: var(--size);
   height: var(--size);
   padding: 2vmin;
 
-  background: red;
+  &::after {
+    display: block;
+    content: '';
+    width: 100%;
+    height: 100%;
 
-  border-radius: 1vmin;
+    background: red;
+    border-radius: 1vmin;
+  }
 }

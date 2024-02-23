@@ -32,7 +32,26 @@ export function App() {
   return (
     <div className={styles.app} ref={container}>
       <div className={styles.world} ref={world}>
-        <div className={styles.square} ref={square} />
+        <div
+          className={styles.square}
+          ref={square}
+          style={
+            {
+              '--x': 0,
+              '--y': 0,
+            } as React.CSSProperties
+          }
+        />
+        <div
+          className={styles.square}
+          ref={square}
+          style={
+            {
+              '--x': 1,
+              '--y': 0,
+            } as React.CSSProperties
+          }
+        />
       </div>
     </div>
   )
@@ -65,18 +84,18 @@ function init({
       }
 
       let translateY = parseFloat(
-        square.dataset['translateY'] ?? '0',
+        world.dataset['translateY'] ?? '0',
       )
       translateY += ev.movementY
-      square.dataset['translateY'] = `${translateY}`
+      world.dataset['translateY'] = `${translateY}`
 
       let translateX = parseFloat(
-        square.dataset['translateX'] ?? '0',
+        world.dataset['translateX'] ?? '0',
       )
       translateX += ev.movementX
-      square.dataset['translateX'] = `${translateX}`
+      world.dataset['translateX'] = `${translateX}`
 
-      square.style.setProperty(
+      world.style.setProperty(
         'transform',
         `translate3d(${translateX}px, ${translateY}px, 0)`,
       )
