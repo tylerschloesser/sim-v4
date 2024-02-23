@@ -1,4 +1,4 @@
-import { memoize } from 'lodash-es'
+import { clamp, memoize } from 'lodash-es'
 import Prando from 'prando'
 import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
@@ -87,9 +87,29 @@ function init({
   world: HTMLDivElement
   signal: AbortSignal
 }): void {
+  const transform = {
+    x: 0,
+    y: 0,
+    scale: 1,
+  }
+
+  function updateTransform() {
+    world.style.setProperty(
+      'transform',
+      `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale})`,
+    )
+  }
+
   container.addEventListener(
     'wheel',
     (ev) => {
+      transform.scale = clamp(
+        transform.scale - ev.deltaY / 1000,
+        0.1,
+        2,
+      )
+      updateTransform()
+
       ev.preventDefault()
     },
     { signal, passive: false },
@@ -102,22 +122,10 @@ function init({
         return
       }
 
-      let translateY = parseFloat(
-        world.dataset['translateY'] ?? '0',
-      )
-      translateY += ev.movementY
-      world.dataset['translateY'] = `${translateY}`
+      transform.x += ev.movementX
+      transform.y += ev.movementY
 
-      let translateX = parseFloat(
-        world.dataset['translateX'] ?? '0',
-      )
-      translateX += ev.movementX
-      world.dataset['translateX'] = `${translateX}`
-
-      world.style.setProperty(
-        'transform',
-        `translate3d(${translateX}px, ${translateY}px, 0)`,
-      )
+      updateTransform()
     },
     { signal },
   )
