@@ -13,12 +13,12 @@ const getColor = memoize((_id: string) => {
 })
 
 interface SquareProps {
+  id: string
   x: number
   y: number
 }
 
-function Square({ x, y }: SquareProps) {
-  const id = `${x}.${y}`
+function Square({ id, x, y }: SquareProps) {
   return (
     <div
       className={styles.square}
@@ -58,11 +58,19 @@ export function App() {
     }
   }, [])
 
+  const squares = new Array<JSX.Element>()
+
+  for (let x = -1; x <= 1; x++) {
+    for (let y = -1; y <= 1; y++) {
+      const id = `${x}.${y}`
+      squares.push(<Square key={id} id={id} x={x} y={y} />)
+    }
+  }
+
   return (
     <div className={styles.app} ref={container}>
       <div className={styles.world} ref={world}>
-        <Square x={0} y={0} />
-        <Square x={1} y={0} />
+        {squares}
       </div>
     </div>
   )
