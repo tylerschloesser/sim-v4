@@ -4,6 +4,7 @@ import styles from './app.module.scss'
 
 export function App() {
   const container = useRef<HTMLDivElement>(null)
+  const world = useRef<HTMLDivElement>(null)
   const square = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -11,55 +12,17 @@ export function App() {
     const { signal } = controller
 
     invariant(container.current)
-
-    container.current.addEventListener(
-      'wheel',
-      (ev) => {
-        ev.preventDefault()
-      },
-      { signal, passive: false },
-    )
-
-    container.current.addEventListener(
-      'pointermove',
-      (ev) => {
-        invariant(square.current)
-        if (!ev.buttons) {
-          return
-        }
-
-        let translateY = parseFloat(
-          square.current.dataset['translateY'] ?? '0',
-        )
-        translateY += ev.movementY
-        square.current.dataset['translateY'] =
-          `${translateY}`
-
-        let translateX = parseFloat(
-          square.current.dataset['translateX'] ?? '0',
-        )
-        translateX += ev.movementX
-        square.current.dataset['translateX'] =
-          `${translateX}`
-
-        square.current.style.setProperty(
-          'transform',
-          `translate3d(${translateX}px, ${translateY}px, 0)`,
-        )
-
-        ev.preventDefault()
-      },
-      { signal },
-    )
-
+    invariant(world.current)
     invariant(square.current)
-    square.current.addEventListener(
-      'pointerdown',
-      () => {
-        console.log('hit square')
-      },
-      { signal },
-    )
+
+    init({
+      container: container.current,
+      world: world.current,
+      square: square.current,
+      signal,
+    })
+
+    invariant(container.current)
 
     return () => {
       controller.abort()
@@ -68,7 +31,66 @@ export function App() {
 
   return (
     <div className={styles.app} ref={container}>
-      <div className={styles.square} ref={square}></div>
+      <div className={styles.world} ref={world}>
+        <div className={styles.square} ref={square} />
+      </div>
     </div>
+  )
+}
+
+function init({
+  container,
+  world,
+  square,
+  signal,
+}: {
+  container: HTMLDivElement
+  world: HTMLDivElement
+  square: HTMLDivElement
+  signal: AbortSignal
+}): void {
+  container.addEventListener(
+    'wheel',
+    (ev) => {
+      ev.preventDefault()
+    },
+    { signal, passive: false },
+  )
+
+  container.addEventListener(
+    'pointermove',
+    (ev) => {
+      if (!ev.buttons) {
+        return
+      }
+
+      let translateY = parseFloat(
+        square.dataset['translateY'] ?? '0',
+      )
+      translateY += ev.movementY
+      square.dataset['translateY'] = `${translateY}`
+
+      let translateX = parseFloat(
+        square.dataset['translateX'] ?? '0',
+      )
+      translateX += ev.movementX
+      square.dataset['translateX'] = `${translateX}`
+
+      square.style.setProperty(
+        'transform',
+        `translate3d(${translateX}px, ${translateY}px, 0)`,
+      )
+
+      ev.preventDefault()
+    },
+    { signal },
+  )
+
+  square.addEventListener(
+    'pointerdown',
+    () => {
+      console.log('hit square')
+    },
+    { signal },
   )
 }
