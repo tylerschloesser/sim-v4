@@ -16,5 +16,5 @@ new WebAppV1(app, {
     root: 'slg.dev',
   },
   region: Region.US_WEST_2,
-  stackIdPrefix: 'SimV1',
+  stackIdPrefix: 'SimV4',
 })
