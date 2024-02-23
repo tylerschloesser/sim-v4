@@ -2,10 +2,28 @@ import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 
+interface SquareProps {
+  x: number
+  y: number
+}
+
+function Square({ x, y }: SquareProps) {
+  return (
+    <div
+      className={styles.square}
+      style={
+        {
+          '--x': x,
+          '--y': y,
+        } as React.CSSProperties
+      }
+    />
+  )
+}
+
 export function App() {
   const container = useRef<HTMLDivElement>(null)
   const world = useRef<HTMLDivElement>(null)
-  const square = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -13,12 +31,10 @@ export function App() {
 
     invariant(container.current)
     invariant(world.current)
-    invariant(square.current)
 
     init({
       container: container.current,
       world: world.current,
-      square: square.current,
       signal,
     })
 
@@ -32,26 +48,8 @@ export function App() {
   return (
     <div className={styles.app} ref={container}>
       <div className={styles.world} ref={world}>
-        <div
-          className={styles.square}
-          ref={square}
-          style={
-            {
-              '--x': 0,
-              '--y': 0,
-            } as React.CSSProperties
-          }
-        />
-        <div
-          className={styles.square}
-          ref={square}
-          style={
-            {
-              '--x': 1,
-              '--y': 0,
-            } as React.CSSProperties
-          }
-        />
+        <Square x={0} y={0} />
+        <Square x={1} y={0} />
       </div>
     </div>
   )
@@ -60,12 +58,10 @@ export function App() {
 function init({
   container,
   world,
-  square,
   signal,
 }: {
   container: HTMLDivElement
   world: HTMLDivElement
-  square: HTMLDivElement
   signal: AbortSignal
 }): void {
   container.addEventListener(
@@ -101,14 +97,6 @@ function init({
       )
 
       ev.preventDefault()
-    },
-    { signal },
-  )
-
-  square.addEventListener(
-    'pointerdown',
-    () => {
-      console.log('hit square')
     },
     { signal },
   )
