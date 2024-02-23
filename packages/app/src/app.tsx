@@ -1,11 +1,14 @@
-import { memoize, random } from 'lodash-es'
+import { memoize } from 'lodash-es'
+import Prando from 'prando'
 import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 
+const rng = new Prando(1)
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getColor = memoize((_id: string) => {
-  const h = random(0, 360)
+  const h = rng.nextInt(0, 360)
   return `hsl(${h}, 50%, 50%)`
 })
 
