@@ -2,6 +2,12 @@
   "name": "@sim-v4/cdk",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "cdk deploy --all"
+  },
+  "dependencies": {
+    "@tyle/cdk": "^1.0.6",
+    "aws-cdk": "^2.130.0",
+    "aws-cdk-lib": "^2.130.0",
+    "construct": "^1.0.0"
   }
 }
