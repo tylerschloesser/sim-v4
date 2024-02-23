@@ -60,7 +60,7 @@ export function App() {
 
   const squares = new Array<JSX.Element>()
 
-  const r = 3
+  const r = 4
 
   for (let x = -r; x <= r; x++) {
     for (let y = -r; y <= r; y++) {
