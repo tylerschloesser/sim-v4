@@ -1,6 +1,9 @@
 {
   "name": "@sim-v4/root",
   "scripts": {
+    "start": "npm start -w packages/app",
+    "build": "npm run build -w packages/app",
+    "deploy": "npm run deploy -w packages/cdk",
     "test": "npm run test:prettier && npm run test:lint",
     "test:prettier": "prettier --check . --log-level warn",
     "test:lint": "eslint .",
