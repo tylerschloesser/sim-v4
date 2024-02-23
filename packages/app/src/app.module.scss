@@ -1,3 +1,19 @@
 .app {
+  position: relative;
   height: 100svh;
+
+  touch-action: none;
+  user-select: none;
+}
+
+.square {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 50vmin;
+  height: 50vmin;
+  background: red;
+
+  border-radius: 1vmin;
 }
