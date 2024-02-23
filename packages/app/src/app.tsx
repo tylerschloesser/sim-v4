@@ -60,8 +60,10 @@ export function App() {
 
   const squares = new Array<JSX.Element>()
 
-  for (let x = -1; x <= 1; x++) {
-    for (let y = -1; y <= 1; y++) {
+  const r = 2
+
+  for (let x = -r; x <= r; x++) {
+    for (let y = -r; y <= r; y++) {
       const id = `${x}.${y}`
       squares.push(<Square key={id} id={id} x={x} y={y} />)
     }
