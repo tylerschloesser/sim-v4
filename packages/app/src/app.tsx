@@ -99,38 +99,50 @@ function init({
   world: HTMLDivElement
   signal: AbortSignal
 }): void {
-  const camera = {
-    x: 0.5,
-    y: 0.5,
-    zoom: 0.5,
-  }
+  const camera = new Proxy(
+    {
+      x: 0.5,
+      y: 0.5,
+      zoom: 0.5,
+    },
+    {
+      set(target, prop, value) {
+        switch (prop) {
+          case 'x':
+            target.x = value
+            world.style.setProperty('--cx', `${target.x}px`)
+            break
+          case 'y':
+            target.y = value
+            world.style.setProperty('--cy', `${target.y}px`)
+            break
+          case 'zoom':
+            target.zoom = value
+            world.style.setProperty(
+              '--zoom',
+              `${target.zoom}`,
+            )
+            break
+          default:
+            invariant(false)
+        }
+        return true
+      },
+    },
+  )
 
   world.style.setProperty('--cx', `${camera.x}`)
   world.style.setProperty('--cy', `${camera.x}`)
   world.style.setProperty('--zoom', `${camera.zoom}`)
 
-  const transform = {
-    x: 0,
-    y: 0,
-    scale: 1,
-  }
-
-  function updateTransform() {
-    world.style.setProperty(
-      'transform',
-      `scale(${transform.scale}) translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    )
-  }
-
   app.addEventListener(
     'wheel',
     (ev) => {
-      transform.scale = clamp(
-        transform.scale - ev.deltaY / 1000,
-        0.1,
-        2,
+      camera.zoom = clamp(
+        camera.zoom - ev.deltaY / 1000,
+        0,
+        1,
       )
-      updateTransform()
 
       ev.preventDefault()
     },
@@ -144,10 +156,8 @@ function init({
         return
       }
 
-      transform.x += ev.movementX
-      transform.y += ev.movementY
-
-      updateTransform()
+      camera.x += ev.movementX
+      camera.y += ev.movementY
     },
     { signal },
   )

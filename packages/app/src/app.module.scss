@@ -14,6 +14,8 @@
   --square-size: calc(var(--vmin) / 2);
 
   position: absolute;
+
+  transform: translate3d(var(--cx), var(--cy), 0);
 }
 
 .square {
