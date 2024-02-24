@@ -7,12 +7,10 @@
   touch-action: none;
   user-select: none;
 
-  --vmin: min(var(--vx), var(--vy));
+  overflow: hidden;
 }
 
 .world {
-  --square-size: calc(var(--vmin) / 2);
-
   position: absolute;
 
   transform: translate3d(

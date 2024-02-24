@@ -103,7 +103,7 @@ export function App() {
 
   const squares = new Array<JSX.Element>()
 
-  const r = 0
+  const r = 1
 
   for (let x = -r; x <= r; x++) {
     for (let y = -r; y <= r; y++) {
@@ -145,7 +145,6 @@ function init({
     map((viewport) => {
       return Math.max(viewport.w, viewport.h) * 0.5
     }),
-    // startWith(0),
   )
 
   const drag$: Observable<{ dx: number; dy: number }> =
@@ -169,8 +168,8 @@ function init({
         }
       },
       {
-        x: 0,
-        y: 0,
+        x: -0.5,
+        y: -0.5,
         zoom: 0.5,
       },
     ),
