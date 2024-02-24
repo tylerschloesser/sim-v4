@@ -90,37 +90,35 @@ export function App() {
   )
 }
 
-function init({
-  app,
-  world,
-  signal,
-}: {
-  app: HTMLDivElement
-  world: HTMLDivElement
-  signal: AbortSignal
-}): void {
-  const camera = new Proxy(
+function newCamera(world: HTMLDivElement) {
+  return new Proxy(
     {
-      x: 0.5,
-      y: 0.5,
-      zoom: 0.5,
+      x: 0,
+      y: 0,
+      zoom: 0,
     },
     {
       set(target, prop, value) {
         switch (prop) {
           case 'x':
             target.x = value
-            world.style.setProperty('--cx', `${target.x}px`)
+            world.style.setProperty(
+              '--cx',
+              `${target.x.toFixed(2)}px`,
+            )
             break
           case 'y':
             target.y = value
-            world.style.setProperty('--cy', `${target.y}px`)
+            world.style.setProperty(
+              '--cy',
+              `${target.y.toFixed(2)}px`,
+            )
             break
           case 'zoom':
             target.zoom = value
             world.style.setProperty(
               '--zoom',
-              `${target.zoom}`,
+              `${target.zoom.toFixed(2)}`,
             )
             break
           default:
@@ -130,10 +128,22 @@ function init({
       },
     },
   )
+}
 
-  world.style.setProperty('--cx', `${camera.x}`)
-  world.style.setProperty('--cy', `${camera.x}`)
-  world.style.setProperty('--zoom', `${camera.zoom}`)
+function init({
+  app,
+  world,
+  signal,
+}: {
+  app: HTMLDivElement
+  world: HTMLDivElement
+  signal: AbortSignal
+}): void {
+  const camera = newCamera(world)
+
+  camera.x = 0.5
+  camera.y = 0.5
+  camera.zoom = 0.5
 
   app.addEventListener(
     'wheel',
