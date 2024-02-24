@@ -45,6 +45,17 @@ export function App() {
     invariant(app.current)
     invariant(world.current)
 
+    const ro = new ResizeObserver((entries) => {
+      invariant(entries.length === 1)
+      const [entry] = entries
+      invariant(entry)
+      invariant(app.current)
+      const { width, height } = entry.contentRect
+      app.current.style.setProperty('--vx', `${width}px`)
+      app.current.style.setProperty('--vy', `${height}px`)
+    })
+    ro.observe(app.current)
+
     init({
       app: app.current,
       world: world.current,
@@ -55,6 +66,7 @@ export function App() {
 
     return () => {
       controller.abort()
+      ro.disconnect()
     }
   }, [])
 
