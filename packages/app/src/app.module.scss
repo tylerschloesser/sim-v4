@@ -15,7 +15,11 @@
 
   position: absolute;
 
-  transform: translate3d(var(--cx), var(--cy), 0);
+  transform: translate3d(
+    calc(var(--cx) * 1px),
+    calc(var(--cy) * 1px),
+    0
+  );
 }
 
 .square {

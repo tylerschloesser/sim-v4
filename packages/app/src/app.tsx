@@ -102,17 +102,11 @@ function newCamera(world: HTMLDivElement) {
         switch (prop) {
           case 'x':
             target.x = value
-            world.style.setProperty(
-              '--cx',
-              `${target.x.toFixed(2)}px`,
-            )
+            world.style.setProperty('--cx', `${target.x}`)
             break
           case 'y':
             target.y = value
-            world.style.setProperty(
-              '--cy',
-              `${target.y.toFixed(2)}px`,
-            )
+            world.style.setProperty('--cy', `${target.y}`)
             break
           case 'zoom':
             target.zoom = value
@@ -141,8 +135,8 @@ function init({
 }): void {
   const camera = newCamera(world)
 
-  camera.x = 0.5
-  camera.y = 0.5
+  camera.x = 0
+  camera.y = 0
   camera.zoom = 0.5
 
   app.addEventListener(
