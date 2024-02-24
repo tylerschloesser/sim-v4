@@ -105,6 +105,10 @@ function init({
     zoom: 0.5,
   }
 
+  world.style.setProperty('--cx', `${camera.x}`)
+  world.style.setProperty('--cy', `${camera.x}`)
+  world.style.setProperty('--zoom', `${camera.zoom}`)
+
   const transform = {
     x: 0,
     y: 0,

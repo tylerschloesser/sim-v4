@@ -6,22 +6,24 @@
 
   touch-action: none;
   user-select: none;
+
+  --vmin: min(var(--vx), var(--vy));
 }
 
 .world {
+  --square-size: calc(var(--vmin) / 2);
+
   position: absolute;
 }
 
 .square {
-  --size: 50vmin;
-
   position: absolute;
-  top: calc(var(--y) * var(--size));
-  left: calc(var(--x) * var(--size));
+  top: calc(var(--y) * var(--square-size));
+  left: calc(var(--x) * var(--square-size));
 
   box-sizing: border-box;
-  width: var(--size);
-  height: var(--size);
+  width: var(--square-size);
+  height: var(--square-size);
   padding: 2vmin;
 
   &::after {
