@@ -14,10 +14,11 @@
   position: absolute;
 
   transform: translate3d(
-    calc(var(--cx)),
-    calc(var(--cy)),
-    0
-  );
+      calc(var(--cx)),
+      calc(var(--cy)),
+      0
+    )
+    scale(var(--scale));
 }
 
 .square {

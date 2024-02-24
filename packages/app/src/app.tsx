@@ -1,4 +1,4 @@
-import { isEqual, memoize } from 'lodash-es'
+import { clamp, isEqual, memoize } from 'lodash-es'
 import Prando from 'prando'
 import { useEffect, useRef } from 'react'
 import {
@@ -173,7 +173,15 @@ function init({
         }
       } else if (ev instanceof WheelEvent) {
         ev.preventDefault()
-        return camera
+
+        return {
+          ...camera,
+          zoom: clamp(
+            camera.zoom + -ev.deltaY / 1000,
+            0,
+            1,
+          ),
+        }
       } else {
         invariant(false)
       }
@@ -203,7 +211,7 @@ function init({
           y: viewport.h / 2 + camera.y * squareSize,
           z: 0,
         },
-        scale: 0.5,
+        scale: 0.1 + camera.zoom * 0.9,
       }
 
       return transform
@@ -214,39 +222,8 @@ function init({
   transform$.subscribe(({ translate, scale }) => {
     world.style.setProperty('--cx', `${translate.x}px`)
     world.style.setProperty('--cy', `${translate.y}px`)
-    world.style.setProperty('--scale', scale.toFixed(2))
+    world.style.setProperty('--scale', scale.toFixed(4))
   })
-
-  // fromEvent<WheelEvent>(app, 'wheel', {
-  //   passive: false,
-  // }).pipe()
-
-  // app.addEventListener(
-  //   'wheel',
-  //   (ev) => {
-  //     camera.setZoom(
-  //       clamp(camera.zoom - ev.deltaY / 1000, 0, 1),
-  //     )
-
-  //     ev.preventDefault()
-  //   },
-  //   { signal, passive: false },
-  // )
-
-  // app.addEventListener(
-  //   'pointermove',
-  //   (ev) => {
-  //     if (!ev.buttons) {
-  //       return
-  //     }
-
-  //     camera.setPosition(
-  //       camera.x + ev.movementX,
-  //       camera.y + ev.movementY,
-  //     )
-  //   },
-  //   { signal },
-  // )
 
   app.addEventListener(
     'pointerdown',
