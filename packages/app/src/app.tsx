@@ -35,23 +35,23 @@ function Square({ id, x, y }: SquareProps) {
 }
 
 export function App() {
-  const container = useRef<HTMLDivElement>(null)
+  const app = useRef<HTMLDivElement>(null)
   const world = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
     const { signal } = controller
 
-    invariant(container.current)
+    invariant(app.current)
     invariant(world.current)
 
     init({
-      container: container.current,
+      app: app.current,
       world: world.current,
       signal,
     })
 
-    invariant(container.current)
+    invariant(app.current)
 
     return () => {
       controller.abort()
@@ -60,7 +60,7 @@ export function App() {
 
   const squares = new Array<JSX.Element>()
 
-  const r = 4
+  const r = 0
 
   for (let x = -r; x <= r; x++) {
     for (let y = -r; y <= r; y++) {
@@ -70,7 +70,7 @@ export function App() {
   }
 
   return (
-    <div className={styles.app} ref={container}>
+    <div className={styles.app} ref={app}>
       <div className={styles.world} ref={world}>
         {squares}
       </div>
@@ -79,14 +79,20 @@ export function App() {
 }
 
 function init({
-  container,
+  app,
   world,
   signal,
 }: {
-  container: HTMLDivElement
+  app: HTMLDivElement
   world: HTMLDivElement
   signal: AbortSignal
 }): void {
+  const camera = {
+    x: 0.5,
+    y: 0.5,
+    zoom: 0.5,
+  }
+
   const transform = {
     x: 0,
     y: 0,
@@ -96,11 +102,11 @@ function init({
   function updateTransform() {
     world.style.setProperty(
       'transform',
-      `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale})`,
+      `scale(${transform.scale}) translate3d(${transform.x}px, ${transform.y}px, 0)`,
     )
   }
 
-  container.addEventListener(
+  app.addEventListener(
     'wheel',
     (ev) => {
       transform.scale = clamp(
@@ -115,7 +121,7 @@ function init({
     { signal, passive: false },
   )
 
-  container.addEventListener(
+  app.addEventListener(
     'pointermove',
     (ev) => {
       if (!ev.buttons) {
@@ -130,7 +136,7 @@ function init({
     { signal },
   )
 
-  container.addEventListener(
+  app.addEventListener(
     'pointerdown',
     (ev) => {
       if (ev.target instanceof Element) {
@@ -148,8 +154,8 @@ function init({
 
   // prettier-ignore
   {
-    container.addEventListener('touchcancel', (ev) => { ev.preventDefault() }, { signal, passive: false })
-    container.addEventListener('touchend', (ev) => { ev.preventDefault() }, { signal, passive: false })
-    container.addEventListener('touchstart', (ev) => { ev.preventDefault() }, { signal, passive: false })
+    app.addEventListener('touchcancel', (ev) => { ev.preventDefault() }, { signal, passive: false })
+    app.addEventListener('touchend', (ev) => { ev.preventDefault() }, { signal, passive: false })
+    app.addEventListener('touchstart', (ev) => { ev.preventDefault() }, { signal, passive: false })
   }
 }
