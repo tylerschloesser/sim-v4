@@ -51,6 +51,7 @@ export function App() {
       invariant(entry)
       invariant(app.current)
       const { width, height } = entry.contentRect
+
       app.current.style.setProperty('--vx', `${width}px`)
       app.current.style.setProperty('--vy', `${height}px`)
     })
@@ -90,38 +91,40 @@ export function App() {
   )
 }
 
-function newCamera(world: HTMLDivElement) {
-  return new Proxy(
-    {
-      x: 0,
-      y: 0,
-      zoom: 0,
-    },
-    {
-      set(target, prop, value) {
-        switch (prop) {
-          case 'x':
-            target.x = value
-            world.style.setProperty('--cx', `${target.x}`)
-            break
-          case 'y':
-            target.y = value
-            world.style.setProperty('--cy', `${target.y}`)
-            break
-          case 'zoom':
-            target.zoom = value
-            world.style.setProperty(
-              '--zoom',
-              `${target.zoom.toFixed(2)}`,
-            )
-            break
-          default:
-            invariant(false)
-        }
-        return true
-      },
-    },
-  )
+class Camera {
+  private readonly world: HTMLDivElement
+
+  x: number = 0
+  y: number = 0
+  zoom: number = 0
+
+  constructor(
+    world: HTMLDivElement,
+    x: number,
+    y: number,
+    zoom: number,
+  ) {
+    this.world = world
+    this.setPosition(x, y)
+    this.setZoom(zoom)
+  }
+
+  setPosition(x: number, y: number) {
+    this.x = x
+    this.world.style.setProperty('--cx', `${x}`)
+    this.y = y
+    this.world.style.setProperty('--cy', `${y}`)
+  }
+
+  setZoom(zoom: number) {
+    invariant(zoom >= 0)
+    invariant(zoom <= 1)
+    this.zoom = zoom
+    this.world.style.setProperty(
+      '--zoom',
+      `${zoom.toFixed(2)}`,
+    )
+  }
 }
 
 function init({
@@ -133,19 +136,13 @@ function init({
   world: HTMLDivElement
   signal: AbortSignal
 }): void {
-  const camera = newCamera(world)
-
-  camera.x = 0
-  camera.y = 0
-  camera.zoom = 0.5
+  const camera = new Camera(world, 0, 0, 0.5)
 
   app.addEventListener(
     'wheel',
     (ev) => {
-      camera.zoom = clamp(
-        camera.zoom - ev.deltaY / 1000,
-        0,
-        1,
+      camera.setZoom(
+        clamp(camera.zoom - ev.deltaY / 1000, 0, 1),
       )
 
       ev.preventDefault()
@@ -160,8 +157,10 @@ function init({
         return
       }
 
-      camera.x += ev.movementX
-      camera.y += ev.movementY
+      camera.setPosition(
+        camera.x + ev.movementX,
+        camera.y + ev.movementY,
+      )
     },
     { signal },
   )
