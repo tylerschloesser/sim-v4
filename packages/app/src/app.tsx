@@ -9,6 +9,7 @@ import {
   filter,
   fromEvent,
   map,
+  merge,
   scan,
   shareReplay,
   startWith,
@@ -130,6 +131,12 @@ interface Transform {
   scale: number
 }
 
+const initialCamera: Camera = {
+  x: -0.5,
+  y: -0.5,
+  zoom: 0.5,
+}
+
 function init({
   app,
   world,
@@ -147,32 +154,31 @@ function init({
     }),
   )
 
-  const drag$: Observable<{ dx: number; dy: number }> =
-    fromEvent<PointerEvent>(app, 'pointermove').pipe(
-      filter((ev) => ev.buttons !== 0),
-      map((ev) => ({
-        dx: ev.movementX,
-        dy: ev.movementY,
-      })),
-      startWith({ dx: 0, dy: 0 }),
-    )
-
-  const camera$ = drag$.pipe(
+  const camera$ = merge(
+    fromEvent<WheelEvent>(app, 'wheel', { passive: false }),
+    fromEvent<PointerEvent>(app, 'pointermove'),
+  ).pipe(
     withLatestFrom(squareSize$),
-    scan(
-      (camera, [{ dx, dy }, squareSize]) => {
+    scan((camera, [ev, squareSize]) => {
+      if (ev instanceof PointerEvent) {
+        if (!ev.buttons) {
+          return camera
+        }
+        const dx = ev.movementX
+        const dy = ev.movementY
         return {
           ...camera,
           x: camera.x + dx / squareSize,
           y: camera.y + dy / squareSize,
         }
-      },
-      {
-        x: -0.5,
-        y: -0.5,
-        zoom: 0.5,
-      },
-    ),
+      } else if (ev instanceof WheelEvent) {
+        ev.preventDefault()
+        return camera
+      } else {
+        invariant(false)
+      }
+    }, initialCamera),
+    startWith(initialCamera),
   )
 
   squareSize$.subscribe((squareSize) => {
