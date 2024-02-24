@@ -16,8 +16,8 @@
   position: absolute;
 
   transform: translate3d(
-    calc(var(--cx) * 1px),
-    calc(var(--cy) * 1px),
+    calc(var(--cx)),
+    calc(var(--cy)),
     0
   );
 }

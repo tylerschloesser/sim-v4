@@ -1,6 +1,19 @@
-import { clamp, memoize } from 'lodash-es'
+import { isEqual, memoize } from 'lodash-es'
 import Prando from 'prando'
 import { useEffect, useRef } from 'react'
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  fromEvent,
+  map,
+  scan,
+  shareReplay,
+  startWith,
+  withLatestFrom,
+} from 'rxjs'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 
@@ -34,6 +47,17 @@ function Square({ id, x, y }: SquareProps) {
   )
 }
 
+interface Viewport {
+  w: number
+  h: number
+}
+
+interface Camera {
+  x: number
+  y: number
+  zoom: number
+}
+
 export function App() {
   const app = useRef<HTMLDivElement>(null)
   const world = useRef<HTMLDivElement>(null)
@@ -45,22 +69,28 @@ export function App() {
     invariant(app.current)
     invariant(world.current)
 
+    const rect$ = new BehaviorSubject<DOMRect>(
+      app.current.getBoundingClientRect(),
+    )
+
     const ro = new ResizeObserver((entries) => {
       invariant(entries.length === 1)
       const [entry] = entries
       invariant(entry)
-      invariant(app.current)
-      const { width, height } = entry.contentRect
-
-      app.current.style.setProperty('--vx', `${width}px`)
-      app.current.style.setProperty('--vy', `${height}px`)
+      rect$.next(entry.contentRect)
     })
     ro.observe(app.current)
+
+    const viewport$: Observable<Viewport> = rect$.pipe(
+      map(({ width: w, height: h }) => ({ w, h })),
+      distinctUntilChanged(isEqual),
+    )
 
     init({
       app: app.current,
       world: world.current,
       signal,
+      viewport$,
     })
 
     invariant(app.current)
@@ -91,79 +121,127 @@ export function App() {
   )
 }
 
-class Camera {
-  private readonly world: HTMLDivElement
-
-  x: number = 0
-  y: number = 0
-  zoom: number = 0
-
-  constructor(
-    world: HTMLDivElement,
-    x: number,
-    y: number,
-    zoom: number,
-  ) {
-    this.world = world
-    this.setPosition(x, y)
-    this.setZoom(zoom)
+interface Transform {
+  translate: {
+    x: number
+    y: number
+    z: number
   }
-
-  setPosition(x: number, y: number) {
-    this.x = x
-    this.world.style.setProperty('--cx', `${x}`)
-    this.y = y
-    this.world.style.setProperty('--cy', `${y}`)
-  }
-
-  setZoom(zoom: number) {
-    invariant(zoom >= 0)
-    invariant(zoom <= 1)
-    this.zoom = zoom
-    this.world.style.setProperty(
-      '--zoom',
-      `${zoom.toFixed(2)}`,
-    )
-  }
+  scale: number
 }
 
 function init({
   app,
   world,
   signal,
+  viewport$,
 }: {
   app: HTMLDivElement
   world: HTMLDivElement
   signal: AbortSignal
+  viewport$: Observable<Viewport>
 }): void {
-  const camera = new Camera(world, 0, 0, 0.5)
-
-  app.addEventListener(
-    'wheel',
-    (ev) => {
-      camera.setZoom(
-        clamp(camera.zoom - ev.deltaY / 1000, 0, 1),
-      )
-
-      ev.preventDefault()
-    },
-    { signal, passive: false },
+  const squareSize$ = viewport$.pipe(
+    map((viewport) => {
+      return Math.max(viewport.w, viewport.h) * 0.5
+    }),
+    // startWith(0),
   )
 
-  app.addEventListener(
-    'pointermove',
-    (ev) => {
-      if (!ev.buttons) {
-        return
+  const drag$: Observable<{ dx: number; dy: number }> =
+    fromEvent<PointerEvent>(app, 'pointermove').pipe(
+      filter((ev) => ev.buttons !== 0),
+      map((ev) => ({
+        dx: ev.movementX,
+        dy: ev.movementY,
+      })),
+      startWith({ dx: 0, dy: 0 }),
+    )
+
+  const camera$ = drag$.pipe(
+    withLatestFrom(squareSize$),
+    scan(
+      (camera, [{ dx, dy }, squareSize]) => {
+        return {
+          ...camera,
+          x: camera.x + dx / squareSize,
+          y: camera.y + dy / squareSize,
+        }
+      },
+      {
+        x: 0,
+        y: 0,
+        zoom: 0.5,
+      },
+    ),
+  )
+
+  squareSize$.subscribe((squareSize) => {
+    world.style.setProperty(
+      '--square-size',
+      `${squareSize}px`,
+    )
+  })
+
+  const transform$ = combineLatest([
+    camera$,
+    viewport$,
+    squareSize$,
+  ]).pipe(
+    map(([camera, viewport, squareSize]) => {
+      invariant(camera.zoom >= 0)
+      invariant(camera.zoom <= 1)
+
+      const transform: Transform = {
+        translate: {
+          x: viewport.w / 2 + camera.x * squareSize,
+          y: viewport.h / 2 + camera.y * squareSize,
+          z: 0,
+        },
+        scale: 0.5,
       }
 
-      camera.setPosition(
-        camera.x + ev.movementX,
-        camera.y + ev.movementY,
-      )
-    },
-    { signal },
+      return transform
+    }),
+    shareReplay({ bufferSize: 1, refCount: false }),
   )
+
+  transform$.subscribe(({ translate, scale }) => {
+    world.style.setProperty('--cx', `${translate.x}px`)
+    world.style.setProperty('--cy', `${translate.y}px`)
+    world.style.setProperty('--scale', scale.toFixed(2))
+  })
+
+  // fromEvent<WheelEvent>(app, 'wheel', {
+  //   passive: false,
+  // }).pipe()
+
+  // app.addEventListener(
+  //   'wheel',
+  //   (ev) => {
+  //     camera.setZoom(
+  //       clamp(camera.zoom - ev.deltaY / 1000, 0, 1),
+  //     )
+
+  //     ev.preventDefault()
+  //   },
+  //   { signal, passive: false },
+  // )
+
+  // app.addEventListener(
+  //   'pointermove',
+  //   (ev) => {
+  //     if (!ev.buttons) {
+  //       return
+  //     }
+
+  //     camera.setPosition(
+  //       camera.x + ev.movementX,
+  //       camera.y + ev.movementY,
+  //     )
+  //   },
+  //   { signal },
+  // )
 
   app.addEventListener(
     'pointerdown',
