@@ -17,7 +17,7 @@ import {
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import styles from './app.module.scss'
-import { World, loadWorld } from './world.js'
+import { Patch, World, loadWorld } from './world.js'
 
 const rng = new Prando(1)
 
@@ -28,18 +28,16 @@ const getColor = memoize((_id: string) => {
 })
 
 interface CircleProps {
-  id: string
-  x: number
-  y: number
-  count: number
+  patch: Patch
   setWorld: Updater<World>
 }
 
 const Circle = React.memo(function Circle({
-  id,
-  x,
-  y,
-  count,
+  patch: {
+    id,
+    position: { x, y },
+    count,
+  },
   setWorld,
 }: CircleProps) {
   console.log(`render patch id=${id} count=${count}`)
@@ -131,18 +129,13 @@ export function App() {
   return (
     <div className={styles.app} ref={app}>
       <div className={styles.world}>
-        {Object.values(world.patches).map(
-          ({ id, position: { x, y }, count }) => (
-            <Circle
-              key={id}
-              id={id}
-              x={x}
-              y={y}
-              count={count}
-              setWorld={setWorld}
-            />
-          ),
-        )}
+        {Object.values(world.patches).map((patch) => (
+          <Circle
+            key={patch.id}
+            patch={patch}
+            setWorld={setWorld}
+          />
+        ))}
       </div>
     </div>
   )
