@@ -25,28 +25,6 @@ const getColor = memoize((_id: string) => {
   return `hsl(${h}, 50%, 50%)`
 })
 
-interface SquareProps {
-  id: string
-  x: number
-  y: number
-}
-
-function Square({ id, x, y }: SquareProps) {
-  return (
-    <div
-      className={styles.square}
-      data-id={id}
-      style={
-        {
-          '--color': getColor(id),
-          '--x': x,
-          '--y': y,
-        } as React.CSSProperties
-      }
-    />
-  )
-}
-
 interface CircleProps {
   id: string
   x: number
@@ -67,6 +45,9 @@ function Circle({ id, x, y }: CircleProps) {
       viewBox="0 0 100 100"
     >
       <circle
+        onPointerDown={() => {
+          console.log('touched circle!', id)
+        }}
         cx="50"
         cy="50"
         r="50"
@@ -132,17 +113,6 @@ export function App() {
     }
   }, [])
 
-  const squares = new Array<JSX.Element>()
-
-  const r = 1
-
-  for (let x = -r; x <= r; x++) {
-    for (let y = -r; y <= r; y++) {
-      const id = `${x}.${y}`
-      squares.push(<Square key={id} id={id} x={x} y={y} />)
-    }
-  }
-
   const circles = new Array<JSX.Element>()
 
   circles.push(<Circle key="test" id="test" x={0} y={0} />)
@@ -150,7 +120,6 @@ export function App() {
   return (
     <div className={styles.app} ref={app}>
       <div className={styles.world} ref={world}>
-        {squares}
         {circles}
       </div>
     </div>
@@ -259,22 +228,6 @@ function init({
     world.style.setProperty('--cy', `${translate.y}px`)
     world.style.setProperty('--scale', scale.toFixed(4))
   })
-
-  app.addEventListener(
-    'pointerdown',
-    (ev) => {
-      if (ev.target instanceof Element) {
-        const square = ev.target.closest('[data-id]')
-        if (square) {
-          invariant(square instanceof HTMLElement)
-          const id = square.dataset['id']
-          invariant(id)
-          console.log(`id: ${id}`)
-        }
-      }
-    },
-    { signal },
-  )
 
   // prettier-ignore
   {

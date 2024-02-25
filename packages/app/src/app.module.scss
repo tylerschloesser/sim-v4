@@ -21,27 +21,6 @@
     scale(var(--scale));
 }
 
-.square {
-  position: absolute;
-  top: calc(var(--y) * var(--square-size));
-  left: calc(var(--x) * var(--square-size));
-
-  box-sizing: border-box;
-  width: var(--square-size);
-  height: var(--square-size);
-  padding: 2vmin;
-
-  &::after {
-    display: block;
-    content: '';
-    width: 100%;
-    height: 100%;
-
-    background: var(--color);
-    border-radius: 1vmin;
-  }
-}
-
 .circle {
   position: absolute;
   top: calc(var(--y) * var(--square-size));
