@@ -14,13 +14,13 @@
   position: absolute;
 
   // prettier-ignore
-  transform: translate3d(calc(var(--cx)), calc(var(--cy)), 0) scale(var(--scale));
+  transform: translate3d(var(--cx), var(--cy), 0);
 }
 
 .circle {
   position: absolute;
-  top: calc(var(--y) * var(--scale));
-  left: calc(var(--x) * var(--scale));
-  width: var(--scale);
-  height: var(--scale);
+  top: calc(var(--y) * var(--scale) * 1px);
+  left: calc(var(--x) * var(--scale) * 1px);
+  width: calc(var(--scale) * 1px);
+  height: calc(var(--scale) * 1px);
 }

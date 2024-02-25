@@ -14,6 +14,6 @@ export function loadCamera(): Camera {
       x: 0,
       y: 0,
     },
-    zoom: 0.5,
+    zoom: 1,
   }
 }
