@@ -1,4 +1,4 @@
-import { clamp, isEqual, memoize, words } from 'lodash-es'
+import { clamp, isEqual, memoize } from 'lodash-es'
 import Prando from 'prando'
 import { useEffect, useRef } from 'react'
 import {
@@ -15,9 +15,9 @@ import {
   withLatestFrom,
 } from 'rxjs'
 import invariant from 'tiny-invariant'
-import { useImmer } from 'use-immer'
+import { Updater, useImmer } from 'use-immer'
 import styles from './app.module.scss'
-import { loadWorld } from './world.js'
+import { World, loadWorld } from './world.js'
 
 const rng = new Prando(1)
 
@@ -31,9 +31,18 @@ interface CircleProps {
   id: string
   x: number
   y: number
+  count: number
+  setWorld: Updater<World>
 }
 
-function Circle({ id, x, y }: CircleProps) {
+function Circle({
+  id,
+  x,
+  y,
+  count,
+  setWorld,
+}: CircleProps) {
+  console.log(`render patch id=${id} count=${count}`)
   return (
     <svg
       className={styles.circle}
@@ -47,8 +56,12 @@ function Circle({ id, x, y }: CircleProps) {
       viewBox="0 0 100 100"
     >
       <circle
-        onPointerDown={() => {
-          console.log('touched circle!', id)
+        onPointerUp={() => {
+          setWorld((draft) => {
+            const patch = draft.patches[id]
+            invariant(patch)
+            patch.count -= 1
+          })
         }}
         cx="50"
         cy="50"
@@ -73,6 +86,7 @@ interface Camera {
 }
 
 export function App() {
+  console.log('render app')
   const app = useRef<HTMLDivElement>(null)
 
   const [world, setWorld] = useImmer(loadWorld())
@@ -118,8 +132,15 @@ export function App() {
     <div className={styles.app} ref={app}>
       <div className={styles.world}>
         {Object.values(world.patches).map(
-          ({ id, position: { x, y } }) => (
-            <Circle key={id} id={id} x={x} y={y} />
+          ({ id, position: { x, y }, count }) => (
+            <Circle
+              key={id}
+              id={id}
+              x={x}
+              y={y}
+              count={count}
+              setWorld={setWorld}
+            />
           ),
         )}
       </div>

@@ -11,6 +11,7 @@ export const Patch = z.strictObject({
   id: z.string(),
   position: Vec2,
   radius: z.number().positive(),
+  count: z.number().positive(),
 })
 export type Patch = z.infer<typeof Patch>
 
@@ -24,10 +25,12 @@ function addPatch({
   world,
   position,
   radius,
+  count = 100,
 }: {
   world: World
   position: Vec2
   radius: number
+  count?: number
 }): void {
   const id = `${world.nextPatchId++}`
   invariant(!world.patches[id])
@@ -35,6 +38,7 @@ function addPatch({
     id,
     position,
     radius,
+    count,
   }
 }
 
@@ -47,6 +51,12 @@ function initWorld(): World {
   addPatch({
     world,
     position: { x: 1, y: 2 },
+    radius: 1,
+  })
+
+  addPatch({
+    world,
+    position: { x: 0, y: -1 },
     radius: 1,
   })
 
