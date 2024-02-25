@@ -172,6 +172,10 @@ function RenderWorld({
   )
 }
 
+function RenderGrid() {
+  return <div className={styles.grid}>TODO</div>
+}
+
 export function App() {
   console.log('render app')
   const app = useRef<HTMLDivElement>(null)
@@ -228,6 +232,7 @@ export function App() {
     <div className={styles.app} ref={app}>
       {context && (
         <AppContext.Provider value={context}>
+          <RenderGrid />
           <RenderWorld world={world} setWorld={setWorld} />
         </AppContext.Provider>
       )}
