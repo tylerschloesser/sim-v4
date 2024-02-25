@@ -1,4 +1,4 @@
-import { clamp, isEqual, memoize } from 'lodash-es'
+import { clamp, isEqual, memoize, words } from 'lodash-es'
 import Prando from 'prando'
 import { useEffect, useRef } from 'react'
 import {
@@ -116,7 +116,15 @@ export function App() {
 
   const circles = new Array<JSX.Element>()
 
-  circles.push(<Circle key="test" id="test" x={0} y={0} />)
+  for (const patch of Object.values(world.patches)) {
+    const {
+      id,
+      position: { x, y },
+    } = patch
+    circles.push(<Circle key={id} id={id} x={x} y={y} />)
+  }
+
+  circles.push()
 
   return (
     <div className={styles.app} ref={app}>
