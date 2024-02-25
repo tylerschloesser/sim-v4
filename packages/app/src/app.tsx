@@ -15,7 +15,9 @@ import {
   withLatestFrom,
 } from 'rxjs'
 import invariant from 'tiny-invariant'
+import { useImmer } from 'use-immer'
 import styles from './app.module.scss'
+import { loadWorld } from './world.js'
 
 const rng = new Prando(1)
 
@@ -72,6 +74,8 @@ interface Camera {
 
 export function App() {
   const app = useRef<HTMLDivElement>(null)
+
+  const [world, setWorld] = useImmer(loadWorld())
 
   useEffect(() => {
     const controller = new AbortController()
