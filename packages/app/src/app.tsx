@@ -76,19 +76,20 @@ function rectToViewport(rect: DOMRect): Viewport {
 }
 
 function getScale(
-  camera: Camera,
-  viewport: Viewport,
+  zoom: number,
+  vx: number,
+  vy: number,
 ): number {
-  invariant(camera.zoom >= 0)
-  invariant(camera.zoom <= 1)
+  invariant(zoom >= 0)
+  invariant(zoom <= 1)
 
-  invariant(viewport.size.x !== 0)
-  invariant(viewport.size.y !== 0)
+  invariant(vx !== 0)
+  invariant(vy !== 0)
 
-  const vmin = Math.min(viewport.size.x, viewport.size.y)
+  const vmin = Math.min(vx, vy)
   const minScale = vmin * 0.1
   const maxScale = vmin * 0.5
-  return minScale + (maxScale - minScale) * camera.zoom
+  return minScale + (maxScale - minScale) * zoom
 }
 
 export function App() {
@@ -162,9 +163,36 @@ function init({
     (ev) => {
       ev.preventDefault()
       const camera = camera$.value
+      const viewport = viewport$.value
+
+      const vx = viewport.size.x
+      const vy = viewport.size.y
+
+      const prevZoom = camera.zoom
+      // prettier-ignore
+      const nextZoom = clamp(prevZoom + -ev.deltaY / 1000, 0, 1)
+
+      if (nextZoom === prevZoom) {
+        return
+      }
+
+      const rx = ev.offsetX - vx / 2
+      const ry = ev.offsetY - vy / 2
+
+      const prevScale = getScale(prevZoom, vx, vy)
+      const nextScale = getScale(nextZoom, vx, vy)
+
+      const dx = rx / prevScale - rx / nextScale
+      const dy = ry / prevScale - ry / nextScale
+
+      console.log({ dx, dy })
+
       camera$.next({
-        ...camera,
-        zoom: clamp(camera.zoom + -ev.deltaY / 1000, 0, 1),
+        position: {
+          x: camera.position.x + dx,
+          y: camera.position.y + dy,
+        },
+        zoom: nextZoom,
       })
     },
     { signal, passive: false },
@@ -181,7 +209,11 @@ function init({
 
       const camera = camera$.value
       const viewport = viewport$.value
-      const scale = getScale(camera, viewport)
+      const scale = getScale(
+        camera.zoom,
+        viewport.size.x,
+        viewport.size.y,
+      )
 
       camera$.next({
         ...camera,
@@ -199,7 +231,11 @@ function init({
       invariant(camera.zoom >= 0)
       invariant(camera.zoom <= 1)
 
-      const scale = getScale(camera, viewport)
+      const scale = getScale(
+        camera.zoom,
+        viewport.size.x,
+        viewport.size.y,
+      )
 
       const translate = {
         x: viewport.size.x / 2 + camera.position.x * scale,
