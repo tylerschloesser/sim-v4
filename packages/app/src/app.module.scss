@@ -8,19 +8,23 @@
   user-select: none;
 
   overflow: hidden;
+
+  // TODO make this relative to the viewport?
+  --unit: 100;
 }
 
 .world {
   position: absolute;
 
   // prettier-ignore
-  transform: translate3d(var(--translate-x), var(--translate-y), 0) scale(var(--scale));
+  transform: translate3d(var(--translate-x), var(--translate-y), 0) scale(calc(var(--scale) / var(--unit)));
 }
 
+// prettier-ignore
 .circle {
   position: absolute;
-  top: calc((var(--y) - var(--radius)) * 1px);
-  left: calc((var(--x) - var(--radius)) * 1px);
-  width: calc(var(--radius) * 2 * 1px);
-  height: calc(var(--radius) * 2 * 1px);
+  top: calc((var(--y) - var(--radius)) * var(--unit) * 1px);
+  left: calc((var(--x) - var(--radius)) * var(--unit) * 1px);
+  width: calc(var(--radius) * 2 * var(--unit) * 1px);
+  height: calc(var(--radius) * 2 * var(--unit) * 1px);
 }
