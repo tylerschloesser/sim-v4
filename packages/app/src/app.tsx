@@ -1,22 +1,12 @@
-import { clamp, isEqual, memoize } from 'lodash-es'
+import { clamp, memoize } from 'lodash-es'
 import Prando from 'prando'
 import React, { useEffect, useRef } from 'react'
-import {
-  BehaviorSubject,
-  Observable,
-  combineLatest,
-  distinctUntilChanged,
-  fromEvent,
-  map,
-  merge,
-  scan,
-  shareReplay,
-  startWith,
-  withLatestFrom,
-} from 'rxjs'
+import { BehaviorSubject, combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import styles from './app.module.scss'
+import { Camera, loadCamera } from './camera.js'
+import { Vec2 } from './vec2.js'
 import { Patch, World, loadWorld } from './world.js'
 
 const rng = new Prando(1)
@@ -73,14 +63,32 @@ const Circle = React.memo(function Circle({
 })
 
 interface Viewport {
-  w: number
-  h: number
+  size: Vec2
 }
 
-interface Camera {
-  x: number
-  y: number
-  zoom: number
+function rectToViewport(rect: DOMRect): Viewport {
+  return {
+    size: {
+      x: rect.width,
+      y: rect.height,
+    },
+  }
+}
+
+function getScale(
+  camera: Camera,
+  viewport: Viewport,
+): number {
+  invariant(camera.zoom >= 0)
+  invariant(camera.zoom <= 1)
+
+  invariant(viewport.size.x !== 0)
+  invariant(viewport.size.y !== 0)
+
+  const vmin = Math.min(viewport.size.x, viewport.size.y)
+  const minScale = vmin * 0.1
+  const maxScale = vmin * 0.5
+  return minScale + (maxScale - minScale) * camera.zoom
 }
 
 export function App() {
@@ -90,32 +98,29 @@ export function App() {
   const [world, setWorld] = useImmer(loadWorld())
 
   useEffect(() => {
+    invariant(app.current)
+
     const controller = new AbortController()
     const { signal } = controller
 
-    invariant(app.current)
-
-    const rect$ = new BehaviorSubject<DOMRect>(
-      app.current.getBoundingClientRect(),
+    const camera$ = new BehaviorSubject(loadCamera())
+    const viewport$ = new BehaviorSubject(
+      rectToViewport(app.current.getBoundingClientRect()),
     )
 
     const ro = new ResizeObserver((entries) => {
       invariant(entries.length === 1)
       const [entry] = entries
       invariant(entry)
-      rect$.next(entry.contentRect)
+      viewport$.next(rectToViewport(entry.contentRect))
     })
     ro.observe(app.current)
-
-    const viewport$: Observable<Viewport> = rect$.pipe(
-      map(({ width: w, height: h }) => ({ w, h })),
-      distinctUntilChanged(isEqual),
-    )
 
     init({
       app: app.current,
       signal,
       viewport$,
+      camera$,
     })
 
     invariant(app.current)
@@ -141,106 +146,71 @@ export function App() {
   )
 }
 
-interface Transform {
-  translate: {
-    x: number
-    y: number
-    z: number
-  }
-  scale: number
-}
-
-const initialCamera: Camera = {
-  x: -0.5,
-  y: -0.5,
-  zoom: 0.5,
-}
-
 function init({
   app,
   signal,
   viewport$,
+  camera$,
 }: {
   app: HTMLDivElement
   signal: AbortSignal
-  viewport$: Observable<Viewport>
+  viewport$: BehaviorSubject<Viewport>
+  camera$: BehaviorSubject<Camera>
 }): void {
-  const squareSize$ = viewport$.pipe(
-    map((viewport) => {
-      return Math.max(viewport.w, viewport.h) * 0.5
-    }),
+  app.addEventListener(
+    'wheel',
+    (ev) => {
+      ev.preventDefault()
+      const camera = camera$.value
+      camera$.next({
+        ...camera,
+        zoom: clamp(camera.zoom + -ev.deltaY / 1000, 0, 1),
+      })
+    },
+    { signal, passive: false },
   )
 
-  const camera$ = merge(
-    fromEvent<WheelEvent>(app, 'wheel', { passive: false }),
-    fromEvent<PointerEvent>(app, 'pointermove'),
-  ).pipe(
-    withLatestFrom(squareSize$),
-    scan((camera, [ev, squareSize]) => {
-      if (ev instanceof PointerEvent) {
-        if (!ev.buttons) {
-          return camera
-        }
-        const dx = ev.movementX
-        const dy = ev.movementY
-        return {
-          ...camera,
-          x: camera.x + dx / squareSize,
-          y: camera.y + dy / squareSize,
-        }
-      } else if (ev instanceof WheelEvent) {
-        ev.preventDefault()
-
-        return {
-          ...camera,
-          zoom: clamp(
-            camera.zoom + -ev.deltaY / 1000,
-            0,
-            1,
-          ),
-        }
-      } else {
-        invariant(false)
+  app.addEventListener(
+    'pointermove',
+    (ev) => {
+      if (!ev.buttons) {
+        return
       }
-    }, initialCamera),
-    startWith(initialCamera),
+      const dx = ev.movementX
+      const dy = ev.movementY
+
+      const camera = camera$.value
+      const viewport = viewport$.value
+      const scale = getScale(camera, viewport)
+
+      camera$.next({
+        ...camera,
+        position: {
+          x: camera.position.x + dx / scale,
+          y: camera.position.y + dy / scale,
+        },
+      })
+    },
+    { signal },
   )
 
-  squareSize$.subscribe((squareSize) => {
-    app.style.setProperty(
-      '--square-size',
-      `${squareSize}px`,
-    )
-  })
-
-  const transform$ = combineLatest([
-    camera$,
-    viewport$,
-    squareSize$,
-  ]).pipe(
-    map(([camera, viewport, squareSize]) => {
+  combineLatest([camera$, viewport$]).subscribe(
+    ([camera, viewport]) => {
       invariant(camera.zoom >= 0)
       invariant(camera.zoom <= 1)
 
-      const transform: Transform = {
-        translate: {
-          x: viewport.w / 2 + camera.x * squareSize,
-          y: viewport.h / 2 + camera.y * squareSize,
-          z: 0,
-        },
-        scale: 0.1 + camera.zoom * 0.9,
+      const scale = getScale(camera, viewport)
+
+      const translate = {
+        x: viewport.size.x / 2 + camera.position.x * scale,
+        y: viewport.size.y / 2 + camera.position.y * scale,
       }
 
-      return transform
-    }),
-    shareReplay({ bufferSize: 1, refCount: false }),
+      app.style.setProperty('--cx', `${translate.x}px`)
+      app.style.setProperty('--cy', `${translate.y}px`)
+      app.style.setProperty('--scale', `${scale}`)
+    },
   )
-
-  transform$.subscribe(({ translate, scale }) => {
-    app.style.setProperty('--cx', `${translate.x}px`)
-    app.style.setProperty('--cy', `${translate.y}px`)
-    app.style.setProperty('--scale', scale.toFixed(4))
-  })
 
   // prettier-ignore
   {
