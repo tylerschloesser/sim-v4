@@ -5,9 +5,14 @@ import { BehaviorSubject, combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import styles from './app.module.scss'
-import { Camera, loadCamera } from './camera.js'
+import { Camera, loadCamera, saveCamera } from './camera.js'
 import { Vec2 } from './vec2.js'
-import { Patch, World, loadWorld } from './world.js'
+import {
+  Patch,
+  World,
+  loadWorld,
+  saveWorld,
+} from './world.js'
 
 const rng = new Prando(1)
 
@@ -99,12 +104,21 @@ export function App() {
   const [world, setWorld] = useImmer(loadWorld())
 
   useEffect(() => {
+    saveWorld(world)
+  }, [world])
+
+  useEffect(() => {
     invariant(app.current)
 
     const controller = new AbortController()
     const { signal } = controller
 
     const camera$ = new BehaviorSubject(loadCamera())
+
+    camera$.subscribe((camera) => {
+      saveCamera(camera)
+    })
+
     const viewport$ = new BehaviorSubject(
       rectToViewport(app.current.getBoundingClientRect()),
     )

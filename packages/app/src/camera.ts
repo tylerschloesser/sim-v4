@@ -9,6 +9,10 @@ export const Camera = z.strictObject({
 export type Camera = z.infer<typeof Camera>
 
 export function loadCamera(): Camera {
+  const saved = localStorage.getItem('camera')
+  if (saved) {
+    return Camera.parse(JSON.parse(saved))
+  }
   return {
     position: {
       x: 0,
@@ -16,4 +20,9 @@ export function loadCamera(): Camera {
     },
     zoom: 1,
   }
+}
+
+export function saveCamera(camera: Camera): void {
+  Camera.parse(camera)
+  localStorage.setItem('camera', JSON.stringify(camera))
 }

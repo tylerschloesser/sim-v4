@@ -59,5 +59,14 @@ function initWorld(): World {
 }
 
 export function loadWorld(): World {
+  const saved = localStorage.getItem('world')
+  if (saved) {
+    return World.parse(JSON.parse(saved))
+  }
   return initWorld()
+}
+
+export function saveWorld(world: World) {
+  World.parse(world)
+  localStorage.setItem('world', JSON.stringify(world))
 }
