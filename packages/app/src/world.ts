@@ -1,4 +1,3 @@
-import { invert } from 'lodash-es'
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
 
@@ -39,7 +38,7 @@ function addPatch({
   }
 }
 
-export function initWorld(): World {
+function initWorld(): World {
   const world: World = {
     patches: {},
     nextPatchId: 0,
@@ -52,4 +51,8 @@ export function initWorld(): World {
   })
 
   return world
+}
+
+export function loadWorld(): World {
+  return initWorld()
 }

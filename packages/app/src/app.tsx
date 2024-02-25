@@ -72,14 +72,12 @@ interface Camera {
 
 export function App() {
   const app = useRef<HTMLDivElement>(null)
-  const world = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
     const { signal } = controller
 
     invariant(app.current)
-    invariant(world.current)
 
     const rect$ = new BehaviorSubject<DOMRect>(
       app.current.getBoundingClientRect(),
@@ -100,7 +98,6 @@ export function App() {
 
     init({
       app: app.current,
-      world: world.current,
       signal,
       viewport$,
     })
@@ -119,9 +116,7 @@ export function App() {
 
   return (
     <div className={styles.app} ref={app}>
-      <div className={styles.world} ref={world}>
-        {circles}
-      </div>
+      <div className={styles.world}>{circles}</div>
     </div>
   )
 }
@@ -143,12 +138,10 @@ const initialCamera: Camera = {
 
 function init({
   app,
-  world,
   signal,
   viewport$,
 }: {
   app: HTMLDivElement
-  world: HTMLDivElement
   signal: AbortSignal
   viewport$: Observable<Viewport>
 }): void {
@@ -194,7 +187,7 @@ function init({
   )
 
   squareSize$.subscribe((squareSize) => {
-    world.style.setProperty(
+    app.style.setProperty(
       '--square-size',
       `${squareSize}px`,
     )
@@ -224,9 +217,9 @@ function init({
   )
 
   transform$.subscribe(({ translate, scale }) => {
-    world.style.setProperty('--cx', `${translate.x}px`)
-    world.style.setProperty('--cy', `${translate.y}px`)
-    world.style.setProperty('--scale', scale.toFixed(4))
+    app.style.setProperty('--cx', `${translate.x}px`)
+    app.style.setProperty('--cy', `${translate.y}px`)
+    app.style.setProperty('--scale', scale.toFixed(4))
   })
 
   // prettier-ignore
