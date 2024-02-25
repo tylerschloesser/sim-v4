@@ -47,6 +47,37 @@ function Square({ id, x, y }: SquareProps) {
   )
 }
 
+interface CircleProps {
+  id: string
+  x: number
+  y: number
+}
+
+function Circle({ id, x, y }: CircleProps) {
+  return (
+    <svg
+      className={styles.circle}
+      style={
+        {
+          '--color': getColor(id),
+          '--x': x,
+          '--y': y,
+        } as React.CSSProperties
+      }
+      viewBox="0 0 100 100"
+    >
+      <circle
+        cx="50"
+        cy="50"
+        r="50"
+        style={{
+          fill: 'var(--color)',
+        }}
+      />
+    </svg>
+  )
+}
+
 interface Viewport {
   w: number
   h: number
@@ -112,10 +143,15 @@ export function App() {
     }
   }
 
+  const circles = new Array<JSX.Element>()
+
+  circles.push(<Circle key="test" id="test" x={0} y={0} />)
+
   return (
     <div className={styles.app} ref={app}>
       <div className={styles.world} ref={world}>
         {squares}
+        {circles}
       </div>
     </div>
   )

@@ -41,3 +41,11 @@
     border-radius: 1vmin;
   }
 }
+
+.circle {
+  position: absolute;
+  top: calc(var(--y) * var(--square-size));
+  left: calc(var(--x) * var(--square-size));
+  width: var(--square-size);
+  height: var(--square-size);
+}
