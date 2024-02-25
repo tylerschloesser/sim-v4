@@ -253,8 +253,9 @@ function init({
 
   // prettier-ignore
   {
-    app.addEventListener('touchcancel', (ev) => { ev.preventDefault() }, { signal, passive: false })
-    app.addEventListener('touchend', (ev) => { ev.preventDefault() }, { signal, passive: false })
-    app.addEventListener('touchstart', (ev) => { ev.preventDefault() }, { signal, passive: false })
+    const options: AddEventListenerOptions = { signal, passive: false }
+    app.addEventListener('touchcancel', (ev) => { ev.preventDefault() }, options)
+    app.addEventListener('touchend', (ev) => { ev.preventDefault() }, options)
+    app.addEventListener('touchstart', (ev) => { ev.preventDefault() }, options)
   }
 }
