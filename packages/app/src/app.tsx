@@ -1,6 +1,12 @@
 import { clamp, memoize } from 'lodash-es'
 import Prando from 'prando'
-import React, { useEffect, useRef } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { BehaviorSubject, combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -13,6 +19,13 @@ import {
   loadWorld,
   saveWorld,
 } from './world.js'
+
+interface IAppContext {
+  camera$: BehaviorSubject<Camera>
+  viewport$: BehaviorSubject<Viewport>
+}
+
+const AppContext = createContext<IAppContext>(null!)
 
 const rng = new Prando(1)
 
@@ -109,8 +122,45 @@ function RenderWorld({
   world,
   setWorld,
 }: RenderWorldProps) {
+  const container = useRef<HTMLDivElement>(null)
+
+  const { camera$, viewport$ } = useContext(AppContext)
+
+  useEffect(() => {
+    combineLatest([camera$, viewport$]).subscribe(
+      ([camera, viewport]) => {
+        invariant(camera.zoom >= 0)
+        invariant(camera.zoom <= 1)
+
+        const scale = getScale(
+          camera.zoom,
+          viewport.size.x,
+          viewport.size.y,
+        )
+
+        const translate = {
+          x:
+            viewport.size.x / 2 +
+            -camera.position.x * scale,
+          y:
+            viewport.size.y / 2 +
+            -camera.position.y * scale,
+        }
+
+        invariant(container.current)
+
+        // prettier-ignore
+        {
+          container.current.style.setProperty('--translate-x', `${translate.x}px`)
+          container.current.style.setProperty('--translate-y', `${translate.y}px`)
+          container.current.style.setProperty('--scale', `${scale}`)
+        }
+      },
+    )
+  }, [])
+
   return (
-    <div className={styles.world}>
+    <div className={styles.world} ref={container}>
       {Object.values(world.patches).map((patch) => (
         <Circle
           key={patch.id}
@@ -127,6 +177,9 @@ export function App() {
   const app = useRef<HTMLDivElement>(null)
 
   const [world, setWorld] = useImmer(loadWorld())
+
+  const [context, setContext] =
+    useState<IAppContext | null>(null)
 
   useEffect(() => {
     saveWorld(world)
@@ -163,7 +216,7 @@ export function App() {
       camera$,
     })
 
-    invariant(app.current)
+    setContext({ camera$, viewport$ })
 
     return () => {
       controller.abort()
@@ -173,7 +226,11 @@ export function App() {
 
   return (
     <div className={styles.app} ref={app}>
-      <RenderWorld world={world} setWorld={setWorld} />
+      {context && (
+        <AppContext.Provider value={context}>
+          <RenderWorld world={world} setWorld={setWorld} />
+        </AppContext.Provider>
+      )}
     </div>
   )
 }
@@ -254,31 +311,6 @@ function init({
       })
     },
     { signal },
-  )
-
-  combineLatest([camera$, viewport$]).subscribe(
-    ([camera, viewport]) => {
-      invariant(camera.zoom >= 0)
-      invariant(camera.zoom <= 1)
-
-      const scale = getScale(
-        camera.zoom,
-        viewport.size.x,
-        viewport.size.y,
-      )
-
-      const translate = {
-        x: viewport.size.x / 2 + -camera.position.x * scale,
-        y: viewport.size.y / 2 + -camera.position.y * scale,
-      }
-
-      // prettier-ignore
-      {
-        app.style.setProperty('--translate-x', `${translate.x}px`)
-        app.style.setProperty('--translate-y', `${translate.y}px`)
-        app.style.setProperty('--scale', `${scale}`)
-      }
-    },
   )
 
   // prettier-ignore
