@@ -6,7 +6,6 @@ import {
   Observable,
   combineLatest,
   distinctUntilChanged,
-  filter,
   fromEvent,
   map,
   merge,
