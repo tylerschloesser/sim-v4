@@ -114,21 +114,15 @@ export function App() {
     }
   }, [])
 
-  const circles = new Array<JSX.Element>()
-
-  for (const patch of Object.values(world.patches)) {
-    const {
-      id,
-      position: { x, y },
-    } = patch
-    circles.push(<Circle key={id} id={id} x={x} y={y} />)
-  }
-
-  circles.push()
-
   return (
     <div className={styles.app} ref={app}>
-      <div className={styles.world}>{circles}</div>
+      <div className={styles.world}>
+        {Object.values(world.patches).map(
+          ({ id, position: { x, y } }) => (
+            <Circle key={id} id={id} x={x} y={y} />
+          ),
+        )}
+      </div>
     </div>
   )
 }
