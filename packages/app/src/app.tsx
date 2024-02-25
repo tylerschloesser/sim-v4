@@ -100,6 +100,28 @@ function getScale(
   return minScale + (maxScale - minScale) * zoom
 }
 
+interface RenderWorldProps {
+  world: World
+  setWorld: Updater<World>
+}
+
+function RenderWorld({
+  world,
+  setWorld,
+}: RenderWorldProps) {
+  return (
+    <div className={styles.world}>
+      {Object.values(world.patches).map((patch) => (
+        <Circle
+          key={patch.id}
+          patch={patch}
+          setWorld={setWorld}
+        />
+      ))}
+    </div>
+  )
+}
+
 export function App() {
   console.log('render app')
   const app = useRef<HTMLDivElement>(null)
@@ -151,15 +173,7 @@ export function App() {
 
   return (
     <div className={styles.app} ref={app}>
-      <div className={styles.world}>
-        {Object.values(world.patches).map((patch) => (
-          <Circle
-            key={patch.id}
-            patch={patch}
-            setWorld={setWorld}
-          />
-        ))}
-      </div>
+      <RenderWorld world={world} setWorld={setWorld} />
     </div>
   )
 }
