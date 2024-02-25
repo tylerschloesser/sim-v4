@@ -1,11 +1,6 @@
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
-
-export const Vec2 = z.strictObject({
-  x: z.number(),
-  y: z.number(),
-})
-export type Vec2 = z.infer<typeof Vec2>
+import { Vec2 } from './vec2.js'
 
 export const Patch = z.strictObject({
   id: z.string(),
