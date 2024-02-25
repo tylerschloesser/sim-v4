@@ -176,16 +176,15 @@ function init({
         return
       }
 
-      const rx = ev.offsetX - vx / 2
-      const ry = ev.offsetY - vy / 2
+      // TODO need to adjust if the app is not the entire viewport
+      const rx = ev.clientX - vx / 2
+      const ry = ev.clientY - vy / 2
 
       const prevScale = getScale(prevZoom, vx, vy)
       const nextScale = getScale(nextZoom, vx, vy)
 
       const dx = rx / prevScale - rx / nextScale
       const dy = ry / prevScale - ry / nextScale
-
-      console.log({ dx, dy })
 
       camera$.next({
         position: {
@@ -204,8 +203,8 @@ function init({
       if (!ev.buttons) {
         return
       }
-      const dx = ev.movementX
-      const dy = ev.movementY
+      const dx = -ev.movementX
+      const dy = -ev.movementY
 
       const camera = camera$.value
       const viewport = viewport$.value
@@ -238,8 +237,8 @@ function init({
       )
 
       const translate = {
-        x: viewport.size.x / 2 + camera.position.x * scale,
-        y: viewport.size.y / 2 + camera.position.y * scale,
+        x: viewport.size.x / 2 + -camera.position.x * scale,
+        y: viewport.size.y / 2 + -camera.position.y * scale,
       }
 
       // prettier-ignore
