@@ -1,6 +1,6 @@
 import { clamp, isEqual, memoize } from 'lodash-es'
 import Prando from 'prando'
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
   BehaviorSubject,
   Observable,
@@ -35,7 +35,7 @@ interface CircleProps {
   setWorld: Updater<World>
 }
 
-function Circle({
+const Circle = React.memo(function Circle({
   id,
   x,
   y,
@@ -72,7 +72,7 @@ function Circle({
       />
     </svg>
   )
-}
+})
 
 interface Viewport {
   w: number
