@@ -13,18 +13,14 @@
 .world {
   position: absolute;
 
-  transform: translate3d(
-      calc(var(--cx)),
-      calc(var(--cy)),
-      0
-    )
-    scale(var(--scale));
+  // prettier-ignore
+  transform: translate3d(calc(var(--cx)), calc(var(--cy)), 0) scale(var(--scale));
 }
 
 .circle {
   position: absolute;
-  top: calc(var(--y) * var(--square-size));
-  left: calc(var(--x) * var(--square-size));
-  width: var(--square-size);
-  height: var(--square-size);
+  top: calc(var(--y) * var(--scale));
+  left: calc(var(--x) * var(--scale));
+  width: var(--scale);
+  height: var(--scale);
 }
