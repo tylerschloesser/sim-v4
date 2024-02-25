@@ -14,7 +14,7 @@
   position: absolute;
 
   // prettier-ignore
-  transform: translate3d(var(--cx), var(--cy), 0) scale(var(--scale));
+  transform: translate3d(var(--translate-x), var(--translate-y), 0) scale(var(--scale));
 }
 
 .circle {
