@@ -242,15 +242,12 @@ function init({
         y: viewport.size.y / 2 + camera.position.y * scale,
       }
 
-      app.style.setProperty(
-        '--translate-x',
-        `${translate.x}px`,
-      )
-      app.style.setProperty(
-        '--translate-y',
-        `${translate.y}px`,
-      )
-      app.style.setProperty('--scale', `${scale}`)
+      // prettier-ignore
+      {
+        app.style.setProperty('--translate-x', `${translate.x}px`)
+        app.style.setProperty('--translate-y', `${translate.y}px`)
+        app.style.setProperty('--scale', `${scale}`)
+      }
     },
   )
 
