@@ -7,3 +7,13 @@ export const Camera = z.strictObject({
 })
 
 export type Camera = z.infer<typeof Camera>
+
+export function loadCamera(): Camera {
+  return {
+    position: {
+      x: 0,
+      y: 0,
+    },
+    zoom: 0.5,
+  }
+}
