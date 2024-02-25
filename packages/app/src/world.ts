@@ -46,7 +46,7 @@ function initWorld(): World {
   addPatch({
     world,
     position: { x: 1, y: 2 },
-    radius: 1,
+    radius: 1.5,
   })
 
   addPatch({

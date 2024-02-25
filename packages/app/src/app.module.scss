@@ -19,8 +19,8 @@
 
 .circle {
   position: absolute;
-  top: calc(var(--y) * 1px);
-  left: calc(var(--x) * 1px);
-  width: calc(1px);
-  height: calc(1px);
+  top: calc((var(--y) - var(--radius)) * 1px);
+  left: calc((var(--x) - var(--radius)) * 1px);
+  width: calc(var(--radius) * 2 * 1px);
+  height: calc(var(--radius) * 2 * 1px);
 }

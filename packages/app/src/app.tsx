@@ -32,10 +32,12 @@ const Circle = React.memo(function Circle({
     id,
     position: { x, y },
     count,
+    radius,
   },
   setWorld,
 }: CircleProps) {
   console.log(`render patch id=${id} count=${count}`)
+
   return (
     <svg
       className={styles.circle}
@@ -44,6 +46,7 @@ const Circle = React.memo(function Circle({
           '--color': getColor(id),
           '--x': x,
           '--y': y,
+          '--radius': radius,
         } as React.CSSProperties
       }
       viewBox="0 0 100 100"
