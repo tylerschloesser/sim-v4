@@ -62,11 +62,8 @@ export function RenderGrid() {
       ([camera, viewport]) => {
         invariant(container.current)
 
-        const scale = getScale(
-          camera.zoom,
-          viewport.size.x,
-          viewport.size.y,
-        )
+        const { x: vx, y: vy } = viewport.size
+        const scale = getScale(camera.zoom, vx, vy)
 
         const { x: cx, y: cy } = camera.position
         const translateX = mod(-cx * scale, scale)
