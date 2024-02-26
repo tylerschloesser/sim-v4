@@ -11,7 +11,7 @@ export const Patch = z.strictObject({
 export type Patch = z.infer<typeof Patch>
 
 export const Pickaxe = z.strictObject({
-  position: Vec2,
+  patchId: z.string().nullable(),
   radius: z.number().positive(),
 })
 export type Pickaxe = z.infer<typeof Pickaxe>
@@ -47,7 +47,7 @@ function addPatch({
 function initWorld(): World {
   const world: World = {
     pickaxe: {
-      position: { x: 0, y: 0 },
+      patchId: null,
       radius: 0.25,
     },
     patches: {},

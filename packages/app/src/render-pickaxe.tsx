@@ -4,76 +4,117 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { smooth } from './math.js'
 import styles from './render-pickaxe.module.scss'
-import { Vec2 } from './vec2.js'
-import { Pickaxe, World } from './world.js'
+import { Vec2, add, rotate } from './vec2.js'
+import { Patch, Pickaxe, World } from './world.js'
 
 export interface RenderPickaxeProps {
   pickaxe: Pickaxe
+  patch: Patch | null
   setWorld: Updater<World>
 }
 
-export const RenderPickaxe = React.memo(
-  function RenderPickaxe({ pickaxe }: RenderPickaxeProps) {
-    const { radius } = pickaxe
+function useAnimate(
+  circle: React.RefObject<SVGCircleElement>,
+  next: Vec2 | null,
+): void {
+  const position = useRef<Vec2 | null>(next)
+  const handle = useRef<number>()
 
-    const handle = useRef<number>()
-    const ref = useRef<SVGCircleElement>(null)
+  useEffect(() => {
+    if (isEqual(next, position.current)) {
+      return
+    }
 
-    const position = useRef<Vec2>({ ...pickaxe.position })
+    const origin = position.current
+      ? { ...position.current }
+      : null
 
-    useEffect(() => {
-      if (isEqual(position.current, pickaxe.position)) {
+    if (!origin || !next) {
+      return
+    }
+
+    const dx = next.x - origin.x
+    const dy = next.y - origin.y
+
+    const duration = 250
+    const start = self.performance.now()
+
+    function render() {
+      invariant(circle.current)
+      invariant(position.current)
+      invariant(origin)
+      invariant(next)
+
+      const elapsed = self.performance.now() - start
+      if (elapsed >= duration) {
+        position.current = next
+        circle.current.removeAttribute('transform')
+        handle.current = undefined
         return
       }
 
-      const origin = { ...position.current }
+      const progress = smooth(elapsed / duration)
 
-      const dx = pickaxe.position.x - origin.x
-      const dy = pickaxe.position.y - origin.y
+      position.current.x = origin.x + dx * progress
+      position.current.y = origin.y + dy * progress
 
-      const duration = 250
-      const start = self.performance.now()
+      const tx = position.current.x - next.x
+      const ty = position.current.y - next.y
 
-      function render() {
-        invariant(ref.current)
+      const transform = `translate(${tx} ${ty})`
+      circle.current.setAttribute('transform', transform)
 
-        const elapsed = self.performance.now() - start
-        if (elapsed >= duration) {
-          position.current = { ...pickaxe.position }
-          ref.current.removeAttribute('transform')
-          handle.current = undefined
-          return
-        }
-
-        const progress = smooth(elapsed / duration)
-
-        position.current.x = origin.x + dx * progress
-        position.current.y = origin.y + dy * progress
-
-        const tx = position.current.x - pickaxe.position.x
-        const ty = position.current.y - pickaxe.position.y
-
-        const transform = `translate(${tx} ${ty})`
-        ref.current.setAttribute('transform', transform)
-
-        handle.current = self.requestAnimationFrame(render)
-      }
       handle.current = self.requestAnimationFrame(render)
+    }
+    handle.current = self.requestAnimationFrame(render)
 
-      return () => {
-        if (handle.current) {
-          self.cancelAnimationFrame(handle.current)
-        }
+    return () => {
+      if (handle.current) {
+        self.cancelAnimationFrame(handle.current)
       }
-    }, [pickaxe.position])
+    }
+  }, [next])
+}
+
+export const RenderPickaxe = React.memo(
+  function RenderPickaxe({
+    pickaxe,
+    patch,
+  }: RenderPickaxeProps) {
+    const { radius } = pickaxe
+
+    const ref = useRef<SVGCircleElement>(null)
+
+    let position: Vec2 | null = null
+
+    if (pickaxe.patchId) {
+      invariant(patch?.id === pickaxe.patchId)
+
+      position = {
+        x: patch.position.x,
+        y: patch.position.y,
+      }
+      const v: Vec2 = {
+        x: patch.radius + pickaxe.radius * 1.5,
+        y: 0,
+      }
+      rotate(v, Math.PI * -0.33)
+      add(position, v)
+    }
+
+    useAnimate(ref, position)
+
+    if (!position) {
+      return null
+    }
 
     return (
       <circle
         ref={ref}
         className={styles.pickaxe}
         r={radius}
-        cx={pickaxe.position.x}
-        cy={pickaxe.position.y}
+        cx={position.x}
+        cy={position.y}
       ></circle>
     )
   },

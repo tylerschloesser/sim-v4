@@ -66,6 +66,15 @@ export function RenderWorld({
         ))}
         <RenderPickaxe
           pickaxe={world.pickaxe}
+          patch={(() => {
+            const { patchId } = world.pickaxe
+            if (patchId) {
+              const patch = world.patches[patchId]
+              invariant(patch)
+              return patch
+            }
+            return null
+          })()}
           setWorld={setWorld}
         />
       </g>
