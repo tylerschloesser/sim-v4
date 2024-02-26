@@ -10,7 +10,7 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
 import styles from './render-world.module.scss'
-import { getMinScale, getScale } from './viewport.js'
+import { getScale } from './viewport.js'
 import { Patch, World } from './world.js'
 
 export interface RenderWorldProps {
@@ -36,7 +36,6 @@ export function RenderWorld({
       invariant(container.current)
 
       const { x: vx, y: vy } = viewport.size
-      // const minScale = getMinScale(vx, vy)
 
       const width = vx
       const height = vy
@@ -115,6 +114,7 @@ const Circle = React.memo(function Circle({
 
   return (
     <circle
+      className={styles.circle}
       onPointerUp={() => {
         setWorld((draft) => {
           const patch = draft.patches[id]
@@ -125,9 +125,11 @@ const Circle = React.memo(function Circle({
       cx={x}
       cy={y}
       r={radius}
-      style={{
-        fill: 'blue',
-      }}
+      style={
+        {
+          '--color': getColor(id),
+        } as React.CSSProperties
+      }
     />
   )
 })
