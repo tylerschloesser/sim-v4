@@ -1,10 +1,16 @@
 import { isEqual } from 'lodash-es'
-import React, { useContext, useEffect, useRef } from 'react'
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
 import styles from './render-world.module.scss'
+import { Vec2 } from './vec2.js'
 import { Viewport, getScale } from './viewport.js'
 import { Patch, Pickaxe, World } from './world.js'
 
@@ -120,16 +126,57 @@ interface RenderPickaxeProps {
 const RenderPickaxe = React.memo(function RenderPickaxe({
   pickaxe,
 }: RenderPickaxeProps) {
-  const { position, radius } = pickaxe
+  const { radius } = pickaxe
 
-  console.log('position updated', position)
+  const handle = useRef<number>()
+  const ref = useRef<SVGCircleElement>(null)
+
+  const position = useRef<Vec2>(pickaxe.position)
+
+  useEffect(() => {
+    if (isEqual(position.current, pickaxe.position)) {
+      return
+    }
+
+    const dx = pickaxe.position.x - position.current.x
+    const dy = pickaxe.position.y - position.current.y
+
+    const duration = 1000
+    const start = self.performance.now()
+
+    function render() {
+      invariant(ref.current)
+
+      const elapsed = self.performance.now() - start
+      if (elapsed >= duration) {
+        ref.current.setAttribute('transform', '')
+        return
+      }
+
+      const progress = 1 - elapsed / duration
+      const transform = `translate(${-dx * progress} ${-dy * progress})`
+      ref.current.setAttribute('transform', transform)
+
+      handle.current = self.requestAnimationFrame(render)
+    }
+    handle.current = self.requestAnimationFrame(render)
+
+    position.current = pickaxe.position
+
+    return () => {
+      if (handle.current) {
+        self.cancelAnimationFrame(handle.current)
+      }
+    }
+  }, [pickaxe.position])
 
   return (
     <circle
+      ref={ref}
       className={styles.pickaxe}
-      cx={position.x}
-      cy={position.y}
       r={radius}
-    />
+      cx={pickaxe.position.x}
+      cy={pickaxe.position.y}
+    ></circle>
   )
 })
