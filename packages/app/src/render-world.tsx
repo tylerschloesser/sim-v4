@@ -1,5 +1,10 @@
 import { isEqual } from 'lodash-es'
-import React, { useContext, useEffect, useRef } from 'react'
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
@@ -91,25 +96,33 @@ const RenderPatch = React.memo(function Circle({
 }: RenderPatchProps) {
   console.log(`render patch id=${id} count=${count}`)
 
+  const [mine, setMine] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (mine) {
+      setWorld((draft) => {
+        const position: Vec2 = { x, y }
+
+        const v: Vec2 = {
+          x: radius + draft.pickaxe.radius * 1.5,
+          y: 0,
+        }
+        rotate(v, Math.PI * -0.33)
+        add(position, v)
+
+        if (!isEqual(position, draft.pickaxe.position)) {
+          draft.pickaxe.position = position
+        }
+      })
+    }
+  }, [mine])
+
   return (
     <circle
       className={styles.circle}
-      onPointerUp={() => {
-        setWorld((draft) => {
-          const position: Vec2 = { x, y }
-
-          const v: Vec2 = {
-            x: radius + draft.pickaxe.radius * 1.5,
-            y: 0,
-          }
-          rotate(v, Math.PI * -0.33)
-          add(position, v)
-
-          if (!isEqual(position, draft.pickaxe.position)) {
-            draft.pickaxe.position = position
-          }
-        })
-      }}
+      onPointerDown={() => setMine(true)}
+      onPointerUp={() => setMine(false)}
+      onPointerLeave={() => setMine(false)}
       cx={x}
       cy={y}
       r={radius}
