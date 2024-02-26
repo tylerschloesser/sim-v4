@@ -29,6 +29,10 @@ export function App() {
   const [context, setContext] =
     useState<IAppContext | null>(null)
 
+  const [viewport, setViewport] = useState<Viewport | null>(
+    null,
+  )
+
   useEffect(() => {
     saveWorld(world)
   }, [world])
@@ -48,6 +52,9 @@ export function App() {
     const viewport$ = new BehaviorSubject(
       rectToViewport(app.current.getBoundingClientRect()),
     )
+
+    // TODO refactor this?
+    viewport$.subscribe(setViewport)
 
     const ro = new ResizeObserver((entries) => {
       invariant(entries.length === 1)
@@ -74,10 +81,14 @@ export function App() {
 
   return (
     <div className={styles.app} ref={app}>
-      {context && (
+      {context && viewport && (
         <AppContext.Provider value={context}>
           <RenderGrid />
-          <RenderWorld world={world} setWorld={setWorld} />
+          <RenderWorld
+            viewport={viewport}
+            world={world}
+            setWorld={setWorld}
+          />
         </AppContext.Provider>
       )}
     </div>

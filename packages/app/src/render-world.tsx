@@ -1,44 +1,27 @@
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import { combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
 import styles from './render-world.module.scss'
-import { getScale } from './viewport.js'
+import { Viewport, getScale } from './viewport.js'
 import { Patch, World } from './world.js'
 
 export interface RenderWorldProps {
+  viewport: Viewport
   world: World
   setWorld: Updater<World>
 }
 
 export function RenderWorld({
+  viewport,
   world,
   setWorld,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
-
-  const [state, setState] = useState<{
-    width: number
-    height: number
-  } | null>(null)
-
   const { camera$, viewport$ } = useContext(AppContext)
-
-  useEffect(() => {
-    viewport$.subscribe((viewport) => {
-      const { x: vx, y: vy } = viewport.size
-      const width = vx
-      const height = vy
-      setState({ width, height })
-    })
-  }, [])
+  const { x: vx, y: vy } = viewport.size
 
   useEffect(() => {
     combineLatest([camera$, viewport$]).subscribe(
@@ -65,13 +48,7 @@ export function RenderWorld({
     )
   }, [])
 
-  const viewBox = [
-    (state && -state.width / 2) ?? 0,
-    (state && -state.height / 2) ?? 0,
-    (state && state.width) ?? 0,
-    (state && state.height) ?? 0,
-  ].join(' ')
-
+  const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
   return (
     <svg className={styles.world} viewBox={viewBox}>
       <g ref={root}>
