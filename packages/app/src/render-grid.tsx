@@ -83,8 +83,8 @@ export function RenderGrid() {
   const viewBox = [
     0,
     0,
-    (state && state.cols + 1) ?? 0,
-    (state && state.rows + 1) ?? 0,
+    (state && state.cols) ?? 0,
+    (state && state.rows) ?? 0,
   ].join(' ')
 
   return (
