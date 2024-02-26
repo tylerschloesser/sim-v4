@@ -62,6 +62,9 @@ export function RenderGrid() {
         setVar('--translate-x', `${translateX}px`)
         setVar('--translate-y', `${translateY}px`)
         setVar('--scale', `${scale}`)
+
+        const strokeWidth = 1 / scale
+        setVar('--stroke-width', `${strokeWidth}px`)
       },
     )
   }, [])
