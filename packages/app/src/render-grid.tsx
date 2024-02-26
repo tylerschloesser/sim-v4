@@ -18,15 +18,10 @@ export function RenderGrid() {
   const container = useRef<SVGSVGElement>(null)
 
   const [state, setState] = useState<{
-    vx: number
-    vy: number
     left: number
     top: number
-    width: number
-    height: number
     rows: number
     cols: number
-    minScale: number
   } | null>(null)
 
   useEffect(() => {
@@ -40,19 +35,11 @@ export function RenderGrid() {
       const left = vx / 2 - cols / 2
       const top = vy / 2 - rows / 2
 
-      const width = cols * minScale
-      const height = rows * minScale
-
       setState({
-        vx,
-        vy,
         left,
         top,
-        width,
-        height,
         rows,
         cols,
-        minScale,
       })
     })
   }, [])
