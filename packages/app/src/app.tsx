@@ -71,7 +71,7 @@ export function App() {
       camera$,
     })
 
-    setContext({ camera$, viewport$ })
+    setContext({ camera$ })
 
     return () => {
       controller.abort()
@@ -83,7 +83,7 @@ export function App() {
     <div className={styles.app} ref={app}>
       {context && viewport && (
         <AppContext.Provider value={context}>
-          <RenderGrid />
+          <RenderGrid viewport={viewport} />
           <RenderWorld
             viewport={viewport}
             world={world}
