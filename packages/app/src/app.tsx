@@ -173,7 +173,44 @@ function RenderWorld({
 }
 
 function RenderGrid() {
-  return <div className={styles.grid}>TODO</div>
+  const { viewport$, camera$ } = useContext(AppContext)
+
+  const container = useRef<SVGSVGElement>(null)
+
+  const [state, setState] = useState<{
+    rows: number
+    cols: number
+  } | null>(null)
+
+  useEffect(() => {
+    viewport$.subscribe(() => {
+      console.log('todo update grid')
+    })
+  }, [])
+
+  useEffect(() => {
+    camera$.subscribe((camera) => {
+      invariant(container.current)
+    })
+  }, [])
+
+  return (
+    <svg
+      className={styles.grid}
+      viewBox="0 0 100 100"
+      ref={container}
+    >
+      {state && (
+        <line
+          x1="0"
+          y1="80"
+          x2="100"
+          y2="20"
+          stroke="white"
+        />
+      )}
+    </svg>
+  )
 }
 
 export function App() {
