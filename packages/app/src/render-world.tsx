@@ -60,8 +60,8 @@ export function RenderWorld({
         const { x: cx, y: cy } = camera.position
 
         const transform = [
-          `translate(${-cx * scale} ${-cy * scale})`,
-          `scale(${scale})`,
+          `translate(${(-cx * scale).toFixed(4)} ${(-cy * scale).toFixed(4)})`,
+          `scale(${scale.toFixed(4)})`,
         ].join(' ')
 
         container.current.setAttribute(
