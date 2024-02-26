@@ -6,6 +6,7 @@ import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
 import { RenderPickaxe } from './render-pickaxe.js'
 import styles from './render-world.module.scss'
+import { Vec2, add, mul, rotate } from './vec2.js'
 import { Viewport, getScale } from './viewport.js'
 import { Patch, World } from './world.js'
 
@@ -95,7 +96,15 @@ const RenderPatch = React.memo(function Circle({
       className={styles.circle}
       onPointerUp={() => {
         setWorld((draft) => {
-          const position = { x, y }
+          const position: Vec2 = { x, y }
+
+          const v: Vec2 = {
+            x: radius + draft.pickaxe.radius * 1.5,
+            y: 0,
+          }
+          rotate(v, Math.PI * -0.33)
+          add(position, v)
+
           if (!isEqual(position, draft.pickaxe.position)) {
             draft.pickaxe.position = position
           }
