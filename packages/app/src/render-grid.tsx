@@ -94,28 +94,32 @@ export function RenderGrid() {
     >
       {state && (
         <>
-          {times(state.rows + 1).map((row) => (
-            <line
-              key={`row-${row}`}
-              x1="0"
-              y1={`${row}`}
-              x2={`${state.cols}`}
-              y2={`${row}`}
-              stroke="var(--stroke)"
-              strokeWidth="var(--stroke-width)"
-            />
-          ))}
-          {times(state.cols + 1).map((col) => (
-            <line
-              key={`col-${col}`}
-              x1={`${col}`}
-              y1={'0'}
-              x2={`${col}`}
-              y2={`${state.rows}`}
-              stroke="var(--stroke)"
-              strokeWidth="var(--stroke-width)"
-            />
-          ))}
+          <g data-group="rows">
+            {times(state.rows + 1).map((row) => (
+              <line
+                key={`row-${row}`}
+                x1="0"
+                y1={`${row}`}
+                x2={`${state.cols}`}
+                y2={`${row}`}
+                stroke="var(--stroke)"
+                strokeWidth="var(--stroke-width)"
+              />
+            ))}
+          </g>
+          <g data-group="cols">
+            {times(state.cols + 1).map((col) => (
+              <line
+                key={`col-${col}`}
+                x1={`${col}`}
+                y1={'0'}
+                x2={`${col}`}
+                y2={`${state.rows}`}
+                stroke="var(--stroke)"
+                strokeWidth="var(--stroke-width)"
+              />
+            ))}
+          </g>
         </>
       )}
     </svg>
