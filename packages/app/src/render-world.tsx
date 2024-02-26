@@ -9,6 +9,7 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
+import { smooth } from './math.js'
 import styles from './render-world.module.scss'
 import { Vec2 } from './vec2.js'
 import { Viewport, getScale } from './viewport.js'
@@ -152,14 +153,14 @@ const RenderPickaxe = React.memo(function RenderPickaxe({
       const elapsed = self.performance.now() - start
       if (elapsed >= duration) {
         position.current = { ...pickaxe.position }
-        ref.current.setAttribute('transform', '')
+        ref.current.removeAttribute('transform')
         return
       }
 
-      position.current.x =
-        origin.x + dx * (elapsed / duration)
-      position.current.y =
-        origin.y + dy * (elapsed / duration)
+      const progress = smooth(elapsed / duration)
+
+      position.current.x = origin.x + dx * progress
+      position.current.y = origin.y + dy * progress
 
       const tx = position.current.x - pickaxe.position.x
       const ty = position.current.y - pickaxe.position.y
