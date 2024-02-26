@@ -92,7 +92,22 @@ export function App() {
           />
         </AppContext.Provider>
       )}
+      <ResetButton />
     </div>
+  )
+}
+
+function ResetButton() {
+  return (
+    <button
+      className={styles['reset-button']}
+      onPointerUp={() => {
+        if (window.confirm('Reset?')) {
+          localStorage.clear()
+          self.location.reload()
+        }
+      }}
+    />
   )
 }
 
