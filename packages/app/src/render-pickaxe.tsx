@@ -15,9 +15,9 @@ export interface RenderPickaxeProps {
 
 function useAnimate(
   circle: React.RefObject<SVGCircleElement>,
-  next: Vec2 | null,
+  next: Vec2,
 ): void {
-  const position = useRef<Vec2 | null>(next)
+  const position = useRef<Vec2>(next)
   const handle = useRef<number>()
 
   useEffect(() => {
@@ -25,13 +25,7 @@ function useAnimate(
       return
     }
 
-    const origin = position.current
-      ? { ...position.current }
-      : null
-
-    if (!origin || !next) {
-      return
-    }
+    const origin = { ...position.current }
 
     const dx = next.x - origin.x
     const dy = next.y - origin.y
@@ -41,9 +35,6 @@ function useAnimate(
 
     function render() {
       invariant(circle.current)
-      invariant(position.current)
-      invariant(origin)
-      invariant(next)
 
       const elapsed = self.performance.now() - start
       if (elapsed >= duration) {
@@ -85,8 +76,7 @@ export const RenderPickaxe = React.memo(
 
     const ref = useRef<SVGCircleElement>(null)
 
-    let position: Vec2 | null = null
-
+    let position: Vec2 = { x: 0, y: 0 }
     if (pickaxe.patchId) {
       invariant(patch?.id === pickaxe.patchId)
 
@@ -103,10 +93,6 @@ export const RenderPickaxe = React.memo(
     }
 
     useAnimate(ref, position)
-
-    if (!position) {
-      return null
-    }
 
     return (
       <circle
