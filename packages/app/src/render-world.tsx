@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash-es'
+import { isEqual, pick } from 'lodash-es'
 import React, {
   useContext,
   useEffect,
@@ -131,17 +131,19 @@ const RenderPickaxe = React.memo(function RenderPickaxe({
   const handle = useRef<number>()
   const ref = useRef<SVGCircleElement>(null)
 
-  const position = useRef<Vec2>(pickaxe.position)
+  const position = useRef<Vec2>({ ...pickaxe.position })
 
   useEffect(() => {
     if (isEqual(position.current, pickaxe.position)) {
       return
     }
 
-    const dx = pickaxe.position.x - position.current.x
-    const dy = pickaxe.position.y - position.current.y
+    const origin = { ...position.current }
 
-    const duration = 1000
+    const dx = pickaxe.position.x - origin.x
+    const dy = pickaxe.position.y - origin.y
+
+    const duration = 250
     const start = self.performance.now()
 
     function render() {
@@ -149,19 +151,25 @@ const RenderPickaxe = React.memo(function RenderPickaxe({
 
       const elapsed = self.performance.now() - start
       if (elapsed >= duration) {
+        position.current = { ...pickaxe.position }
         ref.current.setAttribute('transform', '')
         return
       }
 
-      const progress = 1 - elapsed / duration
-      const transform = `translate(${-dx * progress} ${-dy * progress})`
+      position.current.x =
+        origin.x + dx * (elapsed / duration)
+      position.current.y =
+        origin.y + dy * (elapsed / duration)
+
+      const tx = position.current.x - pickaxe.position.x
+      const ty = position.current.y - pickaxe.position.y
+
+      const transform = `translate(${tx} ${ty})`
       ref.current.setAttribute('transform', transform)
 
       handle.current = self.requestAnimationFrame(render)
     }
     handle.current = self.requestAnimationFrame(render)
-
-    position.current = pickaxe.position
 
     return () => {
       if (handle.current) {
