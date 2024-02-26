@@ -1,4 +1,4 @@
-import { clamp, memoize } from 'lodash-es'
+import { clamp, memoize, times } from 'lodash-es'
 import Prando from 'prando'
 import React, {
   createContext,
@@ -197,6 +197,7 @@ function RenderGrid() {
     height: number
     rows: number
     cols: number
+    minScale: number
   } | null>(null)
 
   useEffect(() => {
@@ -222,6 +223,7 @@ function RenderGrid() {
         height,
         rows,
         cols,
+        minScale,
       })
     })
   }, [])
@@ -249,13 +251,18 @@ function RenderGrid() {
       ref={container}
     >
       {state && (
-        <line
-          x1="0"
-          y1="80"
-          x2="100"
-          y2="20"
-          stroke="white"
-        />
+        <>
+          {times(state.rows + 1).map((row) => (
+            <line
+              key={`row-${row}`}
+              x1="0"
+              y1={`${(row * state.minScale).toFixed(1)}px`}
+              x2={`${state.width.toFixed(1)}px`}
+              y2={`${(row * state.minScale).toFixed(1)}px`}
+              stroke="white"
+            />
+          ))}
+        </>
       )}
     </svg>
   )
