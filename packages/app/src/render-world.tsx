@@ -113,17 +113,16 @@ interface RenderPickaxeProps {
   setWorld: Updater<World>
 }
 
-function RenderPickaxe({ pickaxe }: RenderPickaxeProps) {
-  const {
-    position: { x, y },
-    radius,
-  } = pickaxe
+const RenderPickaxe = React.memo(function RenderPickaxe({
+  pickaxe,
+}: RenderPickaxeProps) {
+  const { position, radius } = pickaxe
   return (
     <circle
       className={styles.pickaxe}
-      cx={x}
-      cy={y}
+      cx={position.x}
+      cy={position.y}
       r={radius}
     />
   )
-}
+})
