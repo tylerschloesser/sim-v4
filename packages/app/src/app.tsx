@@ -1,4 +1,3 @@
-import { clamp } from 'lodash-es'
 import { useEffect, useRef, useState } from 'react'
 import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
@@ -9,7 +8,7 @@ import { Camera, loadCamera, saveCamera } from './camera.js'
 import { handlePointer } from './pointer.js'
 import { RenderGrid } from './render-grid.js'
 import { RenderWorld } from './render-world.js'
-import { Viewport, getScale } from './viewport.js'
+import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
 import { loadWorld, saveWorld } from './world.js'
 
@@ -117,13 +116,17 @@ function init({
     { signal, passive: false },
   )
 
-  app.addEventListener(
-    'pointermove',
-    (ev) => {
-      handlePointer(ev, camera$, viewport$)
-    },
-    { signal },
-  )
+  // prettier-ignore
+  {
+    app.addEventListener('pointermove', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+    app.addEventListener('pointerdown', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+    app.addEventListener('pointerup', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+    app.addEventListener('pointerenter', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+    app.addEventListener('pointerleave', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+    app.addEventListener('pointercancel', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+    app.addEventListener('pointerover', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+    app.addEventListener('pointerout', (ev) => { handlePointer(ev, camera$, viewport$) }, { signal })
+  }
 
   // prettier-ignore
   {
