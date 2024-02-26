@@ -10,7 +10,13 @@ export const Patch = z.strictObject({
 })
 export type Patch = z.infer<typeof Patch>
 
+export const Pickaxe = z.strictObject({
+  position: Vec2,
+  radius: z.number().positive(),
+})
+
 export const World = z.strictObject({
+  pickaxe: Pickaxe,
   patches: z.record(z.string(), Patch),
   nextPatchId: z.number().int().nonnegative(),
 })
@@ -39,6 +45,10 @@ function addPatch({
 
 function initWorld(): World {
   const world: World = {
+    pickaxe: {
+      position: { x: 0, y: 0 },
+      radius: 0.5,
+    },
     patches: {},
     nextPatchId: 0,
   }
@@ -61,7 +71,17 @@ function initWorld(): World {
 export function loadWorld(): World {
   const saved = localStorage.getItem('world')
   if (saved) {
-    return World.parse(JSON.parse(saved))
+    try {
+      return World.parse(JSON.parse(saved))
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        if (self.confirm('Failed to parse world. Reset?')) {
+          localStorage.clear()
+          self.location.reload()
+        }
+      }
+      throw e
+    }
   }
   return initWorld()
 }
