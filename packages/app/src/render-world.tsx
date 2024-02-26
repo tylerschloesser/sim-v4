@@ -36,8 +36,11 @@ export function RenderWorld({
       invariant(root.current)
       const { x: cx, y: cy } = camera.position
 
+      const tx = -cx * scale
+      const ty = -cy * scale
+
       const transform = [
-        `translate(${(-cx * scale).toFixed(4)} ${(-cy * scale).toFixed(4)})`,
+        `translate(${tx.toFixed(4)} ${ty.toFixed(4)})`,
         `scale(${scale.toFixed(4)})`,
       ].join(' ')
 
@@ -52,7 +55,7 @@ export function RenderWorld({
   const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
   return (
     <svg className={styles.world} viewBox={viewBox}>
-      <g ref={root}>
+      <g data-group="transform" ref={root}>
         {Object.values(world.patches).map((patch) => (
           <Circle
             key={patch.id}
