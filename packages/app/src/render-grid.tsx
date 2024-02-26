@@ -81,8 +81,8 @@ export function RenderGrid() {
           ? ({
               '--top': `${state.top}px`,
               '--left': `${state.left}px`,
-              '--width': `${state.cols + 1}px`,
-              '--height': `${state.rows + 1}px`,
+              '--width': `${state.cols}px`,
+              '--height': `${state.rows}px`,
             } as React.CSSProperties)
           : {}
       }
