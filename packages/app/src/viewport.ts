@@ -3,6 +3,7 @@ import { Vec2 } from './vec2.js'
 
 export interface Viewport {
   size: Vec2
+  dpr: number
 }
 
 export function getMinScale(

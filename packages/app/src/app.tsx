@@ -17,11 +17,11 @@ function rectToViewport(rect: DOMRect): Viewport {
       x: rect.width,
       y: rect.height,
     },
+    dpr: window.devicePixelRatio, // TODO refactor this
   }
 }
 
 export function App() {
-  console.log('render app')
   const app = useRef<HTMLDivElement>(null)
 
   const [world, setWorld] = useImmer(loadWorld())

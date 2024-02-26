@@ -42,7 +42,7 @@ export function RenderGrid({ viewport }: RenderGridProps) {
       ].join(' ')
       root.current.setAttribute('transform', transform)
 
-      const strokeWidth = (1 / scale) * 2
+      const strokeWidth = ((1 / scale) * 2) / viewport.dpr
       root.current.style.setProperty(
         '--stroke-width',
         `${strokeWidth.toFixed(4)}px`,
