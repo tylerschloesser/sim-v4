@@ -1,11 +1,16 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
 import styles from './render-world.module.scss'
-import { getScale } from './viewport.js'
+import { getMinScale, getScale } from './viewport.js'
 import { Patch, World } from './world.js'
 
 export interface RenderWorldProps {
@@ -17,9 +22,28 @@ export function RenderWorld({
   world,
   setWorld,
 }: RenderWorldProps) {
-  const container = useRef<HTMLDivElement>(null)
+  const container = useRef<SVGSVGElement>(null)
+
+  const [state, setState] = useState<{
+    width: number
+    height: number
+  } | null>(null)
 
   const { camera$, viewport$ } = useContext(AppContext)
+
+  useEffect(() => {
+    viewport$.subscribe((viewport) => {
+      invariant(container.current)
+
+      const { x: vx, y: vy } = viewport.size
+      // const minScale = getMinScale(vx, vy)
+
+      const width = vx
+      const height = vy
+
+      setState({ width, height })
+    })
+  }, [])
 
   useEffect(() => {
     combineLatest([camera$, viewport$]).subscribe(
@@ -33,29 +57,35 @@ export function RenderWorld({
           viewport.size.y,
         )
 
-        const translate = {
-          x:
-            viewport.size.x / 2 +
-            -camera.position.x * scale,
-          y:
-            viewport.size.y / 2 +
-            -camera.position.y * scale,
-        }
-
         invariant(container.current)
+        const { x: cx, y: cy } = camera.position
 
-        // prettier-ignore
-        {
-          container.current.style.setProperty('--translate-x', `${translate.x}px`)
-          container.current.style.setProperty('--translate-y', `${translate.y}px`)
-          container.current.style.setProperty('--scale', `${scale}`)
-        }
+        const transform = [
+          `translate(${-cx * scale} ${-cy * scale})`,
+          `scale(${scale})`,
+        ].join(' ')
+
+        container.current.setAttribute(
+          'transform',
+          transform,
+        )
       },
     )
   }, [])
 
+  const viewBox = [
+    (state && -state.width / 2) ?? 0,
+    (state && -state.height / 2) ?? 0,
+    (state && state.width) ?? 0,
+    (state && state.height) ?? 0,
+  ].join(' ')
+
   return (
-    <div className={styles.world} ref={container}>
+    <svg
+      className={styles.world}
+      ref={container}
+      viewBox={viewBox}
+    >
       {Object.values(world.patches).map((patch) => (
         <Circle
           key={patch.id}
@@ -63,7 +93,7 @@ export function RenderWorld({
           setWorld={setWorld}
         />
       ))}
-    </div>
+    </svg>
   )
 }
 
@@ -84,33 +114,20 @@ const Circle = React.memo(function Circle({
   console.log(`render patch id=${id} count=${count}`)
 
   return (
-    <svg
-      className={styles.circle}
-      style={
-        {
-          '--color': getColor(id),
-          '--x': x,
-          '--y': y,
-          '--radius': radius,
-        } as React.CSSProperties
-      }
-      viewBox="0 0 100 100"
-    >
-      <circle
-        onPointerUp={() => {
-          setWorld((draft) => {
-            const patch = draft.patches[id]
-            invariant(patch)
-            patch.count -= 1
-          })
-        }}
-        cx="50"
-        cy="50"
-        r="50"
-        style={{
-          fill: 'var(--color)',
-        }}
-      />
-    </svg>
+    <circle
+      onPointerUp={() => {
+        setWorld((draft) => {
+          const patch = draft.patches[id]
+          invariant(patch)
+          patch.count -= 1
+        })
+      }}
+      cx={x}
+      cy={y}
+      r={radius}
+      style={{
+        fill: 'blue',
+      }}
+    />
   )
 })
