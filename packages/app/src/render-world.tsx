@@ -1,19 +1,13 @@
-import { isEqual, pick } from 'lodash-es'
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { isEqual } from 'lodash-es'
+import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
-import { smooth } from './math.js'
+import { RenderPickaxe } from './render-pickaxe.js'
 import styles from './render-world.module.scss'
-import { Vec2 } from './vec2.js'
 import { Viewport, getScale } from './viewport.js'
-import { Patch, Pickaxe, World } from './world.js'
+import { Patch, World } from './world.js'
 
 export interface RenderWorldProps {
   viewport: Viewport
@@ -116,76 +110,5 @@ const RenderPatch = React.memo(function Circle({
         } as React.CSSProperties
       }
     />
-  )
-})
-
-interface RenderPickaxeProps {
-  pickaxe: Pickaxe
-  setWorld: Updater<World>
-}
-
-const RenderPickaxe = React.memo(function RenderPickaxe({
-  pickaxe,
-}: RenderPickaxeProps) {
-  const { radius } = pickaxe
-
-  const handle = useRef<number>()
-  const ref = useRef<SVGCircleElement>(null)
-
-  const position = useRef<Vec2>({ ...pickaxe.position })
-
-  useEffect(() => {
-    if (isEqual(position.current, pickaxe.position)) {
-      return
-    }
-
-    const origin = { ...position.current }
-
-    const dx = pickaxe.position.x - origin.x
-    const dy = pickaxe.position.y - origin.y
-
-    const duration = 250
-    const start = self.performance.now()
-
-    function render() {
-      invariant(ref.current)
-
-      const elapsed = self.performance.now() - start
-      if (elapsed >= duration) {
-        position.current = { ...pickaxe.position }
-        ref.current.removeAttribute('transform')
-        return
-      }
-
-      const progress = smooth(elapsed / duration)
-
-      position.current.x = origin.x + dx * progress
-      position.current.y = origin.y + dy * progress
-
-      const tx = position.current.x - pickaxe.position.x
-      const ty = position.current.y - pickaxe.position.y
-
-      const transform = `translate(${tx} ${ty})`
-      ref.current.setAttribute('transform', transform)
-
-      handle.current = self.requestAnimationFrame(render)
-    }
-    handle.current = self.requestAnimationFrame(render)
-
-    return () => {
-      if (handle.current) {
-        self.cancelAnimationFrame(handle.current)
-      }
-    }
-  }, [pickaxe.position])
-
-  return (
-    <circle
-      ref={ref}
-      className={styles.pickaxe}
-      r={radius}
-      cx={pickaxe.position.x}
-      cy={pickaxe.position.y}
-    ></circle>
   )
 })
