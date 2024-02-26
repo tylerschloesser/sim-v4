@@ -2,15 +2,11 @@ import { BehaviorSubject } from 'rxjs'
 import { Camera } from './camera.js'
 import { Viewport, getScale } from './viewport.js'
 
-export function handlePointer({
-  ev,
-  camera$,
-  viewport$,
-}: {
-  ev: PointerEvent
-  camera$: BehaviorSubject<Camera>
-  viewport$: BehaviorSubject<Viewport>
-}): void {
+export function handlePointer(
+  ev: PointerEvent,
+  camera$: BehaviorSubject<Camera>,
+  viewport$: BehaviorSubject<Viewport>,
+): void {
   if (!ev.buttons) {
     return
   }

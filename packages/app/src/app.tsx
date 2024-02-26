@@ -112,7 +112,7 @@ function init({
     'wheel',
     (ev) => {
       ev.preventDefault()
-      handleWheel({ ev, camera$, viewport$ })
+      handleWheel(ev, camera$, viewport$)
     },
     { signal, passive: false },
   )
@@ -120,7 +120,7 @@ function init({
   app.addEventListener(
     'pointermove',
     (ev) => {
-      handlePointer({ ev, camera$, viewport$ })
+      handlePointer(ev, camera$, viewport$)
     },
     { signal },
   )

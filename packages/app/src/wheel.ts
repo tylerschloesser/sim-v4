@@ -3,15 +3,11 @@ import { BehaviorSubject } from 'rxjs'
 import { Camera } from './camera.js'
 import { Viewport, getScale } from './viewport.js'
 
-export function handleWheel({
-  ev,
-  camera$,
-  viewport$,
-}: {
-  ev: WheelEvent
-  camera$: BehaviorSubject<Camera>
-  viewport$: BehaviorSubject<Viewport>
-}): void {
+export function handleWheel(
+  ev: WheelEvent,
+  camera$: BehaviorSubject<Camera>,
+  viewport$: BehaviorSubject<Viewport>,
+): void {
   const camera = camera$.value
   const viewport = viewport$.value
 
