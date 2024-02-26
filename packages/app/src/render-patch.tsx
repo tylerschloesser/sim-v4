@@ -23,11 +23,13 @@ export const RenderPatch = React.memo(function Circle({
   const [mine, setMine] = useState<boolean>(false)
 
   useEffect(() => {
-    if (mine) {
-      setWorld((draft) => {
-        draft.pickaxe.patchId = id
-      })
+    if (!mine) {
+      return
     }
+
+    setWorld((draft) => {
+      draft.pickaxe.patchId = id
+    })
   }, [mine])
 
   return (
