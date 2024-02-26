@@ -1,19 +1,12 @@
-import { isEqual } from 'lodash-es'
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
-import { getColor } from './color.js'
+import { RenderPatch } from './render-patch.js'
 import { RenderPickaxe } from './render-pickaxe.js'
 import styles from './render-world.module.scss'
-import { Vec2, add, mul, rotate } from './vec2.js'
 import { Viewport, getScale } from './viewport.js'
-import { Patch, World } from './world.js'
+import { World } from './world.js'
 
 export interface RenderWorldProps {
   viewport: Viewport
@@ -79,58 +72,3 @@ export function RenderWorld({
     </svg>
   )
 }
-
-interface RenderPatchProps {
-  patch: Patch
-  setWorld: Updater<World>
-}
-
-const RenderPatch = React.memo(function Circle({
-  patch: {
-    id,
-    position: { x, y },
-    count,
-    radius,
-  },
-  setWorld,
-}: RenderPatchProps) {
-  console.log(`render patch id=${id} count=${count}`)
-
-  const [mine, setMine] = useState<boolean>(false)
-
-  useEffect(() => {
-    if (mine) {
-      setWorld((draft) => {
-        const position: Vec2 = { x, y }
-
-        const v: Vec2 = {
-          x: radius + draft.pickaxe.radius * 1.5,
-          y: 0,
-        }
-        rotate(v, Math.PI * -0.33)
-        add(position, v)
-
-        if (!isEqual(position, draft.pickaxe.position)) {
-          draft.pickaxe.position = position
-        }
-      })
-    }
-  }, [mine])
-
-  return (
-    <circle
-      className={styles.circle}
-      onPointerDown={() => setMine(true)}
-      onPointerUp={() => setMine(false)}
-      onPointerLeave={() => setMine(false)}
-      cx={x}
-      cy={y}
-      r={radius}
-      style={
-        {
-          '--color': getColor(id),
-        } as React.CSSProperties
-      }
-    />
-  )
-})
