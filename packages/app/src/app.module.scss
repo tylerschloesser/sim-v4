@@ -28,11 +28,3 @@
   width: calc(var(--radius) * 2 * var(--unit) * 1px);
   height: calc(var(--radius) * 2 * var(--unit) * 1px);
 }
-
-.grid {
-  position: absolute;
-  top: var(--top);
-  left: var(--left);
-  width: var(--width);
-  height: var(--height);
-}

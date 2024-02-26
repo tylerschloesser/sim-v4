@@ -1,7 +1,6 @@
-import { clamp, memoize, times } from 'lodash-es'
+import { clamp, memoize } from 'lodash-es'
 import Prando from 'prando'
 import React, {
-  createContext,
   useContext,
   useEffect,
   useRef,
@@ -10,22 +9,21 @@ import React, {
 import { BehaviorSubject, combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
+import { AppContext, IAppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
-import { Vec2 } from './vec2.js'
+import { RenderGrid } from './render-grid.js'
+import {
+  Viewport,
+  getMaxScale,
+  getMinScale,
+} from './viewport.js'
 import {
   Patch,
   World,
   loadWorld,
   saveWorld,
 } from './world.js'
-
-interface IAppContext {
-  camera$: BehaviorSubject<Camera>
-  viewport$: BehaviorSubject<Viewport>
-}
-
-const AppContext = createContext<IAppContext>(null!)
 
 const rng = new Prando(1)
 
@@ -83,10 +81,6 @@ const Circle = React.memo(function Circle({
   )
 })
 
-interface Viewport {
-  size: Vec2
-}
-
 function rectToViewport(rect: DOMRect): Viewport {
   return {
     size: {
@@ -94,18 +88,6 @@ function rectToViewport(rect: DOMRect): Viewport {
       y: rect.height,
     },
   }
-}
-
-function getMinScale(vx: number, vy: number): number {
-  const vmin = Math.min(vx, vy)
-  const minScale = vmin * 0.1
-  return minScale
-}
-
-function getMaxScale(vx: number, vy: number): number {
-  const vmin = Math.min(vx, vy)
-  const maxScale = vmin * 0.5
-  return maxScale
 }
 
 function getScale(
@@ -180,91 +162,6 @@ function RenderWorld({
         />
       ))}
     </div>
-  )
-}
-
-function RenderGrid() {
-  const { viewport$, camera$ } = useContext(AppContext)
-
-  const container = useRef<SVGSVGElement>(null)
-
-  const [state, setState] = useState<{
-    vx: number
-    vy: number
-    left: number
-    top: number
-    width: number
-    height: number
-    rows: number
-    cols: number
-    minScale: number
-  } | null>(null)
-
-  useEffect(() => {
-    viewport$.subscribe((viewport) => {
-      const { x: vx, y: vy } = viewport.size
-      const minScale = getMinScale(vx, vy)
-
-      const rows = Math.ceil(vy / minScale) + 2
-      const cols = Math.ceil(vx / minScale) + 2
-
-      const left = vx / 2 - (cols * minScale) / 2
-      const top = vy / 2 - (rows * minScale) / 2
-
-      const width = cols * minScale
-      const height = rows * minScale
-
-      setState({
-        vx,
-        vy,
-        left,
-        top,
-        width,
-        height,
-        rows,
-        cols,
-        minScale,
-      })
-    })
-  }, [])
-
-  useEffect(() => {
-    camera$.subscribe((camera) => {
-      invariant(container.current)
-    })
-  }, [])
-
-  return (
-    <svg
-      className={styles.grid}
-      style={
-        state
-          ? ({
-              '--top': `${state.top.toFixed(1)}px`,
-              '--left': `${state.left.toFixed(1)}px`,
-              '--width': `${state.width.toFixed(1)}px`,
-              '--height': `${state.height.toFixed(1)}px`,
-            } as React.CSSProperties)
-          : {}
-      }
-      viewBox={`0 0 ${state?.vx ?? 0} ${state?.vy ?? 0}`}
-      ref={container}
-    >
-      {state && (
-        <>
-          {times(state.rows + 1).map((row) => (
-            <line
-              key={`row-${row}`}
-              x1="0"
-              y1={`${(row * state.minScale).toFixed(1)}px`}
-              x2={`${state.width.toFixed(1)}px`}
-              y2={`${(row * state.minScale).toFixed(1)}px`}
-              stroke="white"
-            />
-          ))}
-        </>
-      )}
-    </svg>
   )
 }
 
