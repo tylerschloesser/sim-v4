@@ -14,6 +14,7 @@ export const Pickaxe = z.strictObject({
   position: Vec2,
   radius: z.number().positive(),
 })
+export type Pickaxe = z.infer<typeof Pickaxe>
 
 export const World = z.strictObject({
   pickaxe: Pickaxe,
@@ -47,7 +48,7 @@ function initWorld(): World {
   const world: World = {
     pickaxe: {
       position: { x: 0, y: 0 },
-      radius: 0.5,
+      radius: 0.25,
     },
     patches: {},
     nextPatchId: 0,

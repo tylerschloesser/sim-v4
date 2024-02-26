@@ -5,7 +5,7 @@ import { AppContext } from './app-context.js'
 import { getColor } from './color.js'
 import styles from './render-world.module.scss'
 import { Viewport, getScale } from './viewport.js'
-import { Patch, World } from './world.js'
+import { Patch, Pickaxe, World } from './world.js'
 
 export interface RenderWorldProps {
   viewport: Viewport
@@ -56,6 +56,7 @@ export function RenderWorld({
   return (
     <svg className={styles.world} viewBox={viewBox}>
       <g data-group="transform" ref={root}>
+        <RenderPickaxe pickaxe={world.pickaxe} />
         {Object.values(world.patches).map((patch) => (
           <RenderPatch
             key={patch.id}
@@ -105,3 +106,22 @@ const RenderPatch = React.memo(function Circle({
     />
   )
 })
+
+interface RenderPickaxeProps {
+  pickaxe: Pickaxe
+}
+
+function RenderPickaxe({ pickaxe }: RenderPickaxeProps) {
+  const {
+    position: { x, y },
+    radius,
+  } = pickaxe
+  return (
+    <circle
+      className={styles.pickaxe}
+      cx={x}
+      cy={y}
+      r={radius}
+    />
+  )
+}
