@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
@@ -20,33 +19,35 @@ export function RenderWorld({
   setWorld,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
-  const { camera$, viewport$ } = useContext(AppContext)
+  const { camera$ } = useContext(AppContext)
   const { x: vx, y: vy } = viewport.size
 
   useEffect(() => {
-    combineLatest([camera$, viewport$]).subscribe(
-      ([camera, viewport]) => {
-        invariant(camera.zoom >= 0)
-        invariant(camera.zoom <= 1)
+    const sub = camera$.subscribe((camera) => {
+      invariant(camera.zoom >= 0)
+      invariant(camera.zoom <= 1)
 
-        const scale = getScale(
-          camera.zoom,
-          viewport.size.x,
-          viewport.size.y,
-        )
+      const scale = getScale(
+        camera.zoom,
+        viewport.size.x,
+        viewport.size.y,
+      )
 
-        invariant(root.current)
-        const { x: cx, y: cy } = camera.position
+      invariant(root.current)
+      const { x: cx, y: cy } = camera.position
 
-        const transform = [
-          `translate(${(-cx * scale).toFixed(4)} ${(-cy * scale).toFixed(4)})`,
-          `scale(${scale.toFixed(4)})`,
-        ].join(' ')
+      const transform = [
+        `translate(${(-cx * scale).toFixed(4)} ${(-cy * scale).toFixed(4)})`,
+        `scale(${scale.toFixed(4)})`,
+      ].join(' ')
 
-        root.current.setAttribute('transform', transform)
-      },
-    )
-  }, [])
+      root.current.setAttribute('transform', transform)
+    })
+
+    return () => {
+      sub.unsubscribe()
+    }
+  }, [viewport])
 
   const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
   return (
