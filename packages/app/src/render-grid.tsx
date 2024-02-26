@@ -101,7 +101,7 @@ export function RenderGrid() {
               y1={`${row}`}
               x2={`${state.cols}`}
               y2={`${row}`}
-              stroke="white"
+              stroke="var(--stroke)"
               strokeWidth="var(--stroke-width)"
             />
           ))}
@@ -112,7 +112,7 @@ export function RenderGrid() {
               y1={'0'}
               x2={`${col}`}
               y2={`${state.rows}`}
-              stroke="white"
+              stroke="var(--stroke)"
               strokeWidth="var(--stroke-width)"
             />
           ))}

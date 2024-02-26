@@ -8,5 +8,5 @@
   // prettier-ignore
   transform: translate3d(var(--translate-x), var(--translate-y), 0) scale(var(--scale));
 
-  --stroke-width: 0.05px;
+  --stroke: hsl(0, 0%, 50%);
 }
