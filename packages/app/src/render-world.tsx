@@ -56,10 +56,6 @@ export function RenderWorld({
   return (
     <svg className={styles.world} viewBox={viewBox}>
       <g data-group="transform" ref={root}>
-        <RenderPickaxe
-          pickaxe={world.pickaxe}
-          setWorld={setWorld}
-        />
         {Object.values(world.patches).map((patch) => (
           <RenderPatch
             key={patch.id}
@@ -67,6 +63,10 @@ export function RenderWorld({
             setWorld={setWorld}
           />
         ))}
+        <RenderPickaxe
+          pickaxe={world.pickaxe}
+          setWorld={setWorld}
+        />
       </g>
     </svg>
   )
@@ -93,9 +93,7 @@ const RenderPatch = React.memo(function Circle({
       className={styles.circle}
       onPointerUp={() => {
         setWorld((draft) => {
-          const patch = draft.patches[id]
-          invariant(patch)
-          patch.count -= 1
+          draft.pickaxe.position = { x, y }
         })
       }}
       cx={x}
