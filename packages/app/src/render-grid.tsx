@@ -8,6 +8,7 @@ import {
 import { combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
+import { mod } from './math.js'
 import styles from './render-grid.module.scss'
 import { getMinScale, getScale } from './viewport.js'
 
@@ -67,8 +68,9 @@ export function RenderGrid() {
           viewport.size.y,
         )
 
-        const translateX = -camera.position.x * scale
-        const translateY = -camera.position.y * scale
+        const { x: cx, y: cy } = camera.position
+        const translateX = mod(-cx * scale, scale)
+        const translateY = mod(-cy * scale, scale)
 
         const { style } = container.current
         const setVar = style.setProperty.bind(style)
