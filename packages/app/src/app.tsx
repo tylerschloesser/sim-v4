@@ -1,85 +1,15 @@
-import { clamp, memoize } from 'lodash-es'
-import Prando from 'prando'
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import { BehaviorSubject, combineLatest } from 'rxjs'
+import { clamp } from 'lodash-es'
+import { useEffect, useRef, useState } from 'react'
+import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
-import { Updater, useImmer } from 'use-immer'
+import { useImmer } from 'use-immer'
 import { AppContext, IAppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { RenderGrid } from './render-grid.js'
-import {
-  Viewport,
-  getMaxScale,
-  getMinScale,
-} from './viewport.js'
-import {
-  Patch,
-  World,
-  loadWorld,
-  saveWorld,
-} from './world.js'
-
-const rng = new Prando(1)
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getColor = memoize((_id: string) => {
-  const h = rng.nextInt(0, 360)
-  return `hsl(${h}, 50%, 50%)`
-})
-
-interface CircleProps {
-  patch: Patch
-  setWorld: Updater<World>
-}
-
-const Circle = React.memo(function Circle({
-  patch: {
-    id,
-    position: { x, y },
-    count,
-    radius,
-  },
-  setWorld,
-}: CircleProps) {
-  console.log(`render patch id=${id} count=${count}`)
-
-  return (
-    <svg
-      className={styles.circle}
-      style={
-        {
-          '--color': getColor(id),
-          '--x': x,
-          '--y': y,
-          '--radius': radius,
-        } as React.CSSProperties
-      }
-      viewBox="0 0 100 100"
-    >
-      <circle
-        onPointerUp={() => {
-          setWorld((draft) => {
-            const patch = draft.patches[id]
-            invariant(patch)
-            patch.count -= 1
-          })
-        }}
-        cx="50"
-        cy="50"
-        r="50"
-        style={{
-          fill: 'var(--color)',
-        }}
-      />
-    </svg>
-  )
-})
+import { RenderWorld } from './render-world.js'
+import { Viewport, getScale } from './viewport.js'
+import { loadWorld, saveWorld } from './world.js'
 
 function rectToViewport(rect: DOMRect): Viewport {
   return {
@@ -88,81 +18,6 @@ function rectToViewport(rect: DOMRect): Viewport {
       y: rect.height,
     },
   }
-}
-
-function getScale(
-  zoom: number,
-  vx: number,
-  vy: number,
-): number {
-  invariant(zoom >= 0)
-  invariant(zoom <= 1)
-
-  invariant(vx !== 0)
-  invariant(vy !== 0)
-
-  const minScale = getMinScale(vx, vy)
-  const maxScale = getMaxScale(vx, vy)
-  return minScale + (maxScale - minScale) * zoom
-}
-
-interface RenderWorldProps {
-  world: World
-  setWorld: Updater<World>
-}
-
-function RenderWorld({
-  world,
-  setWorld,
-}: RenderWorldProps) {
-  const container = useRef<HTMLDivElement>(null)
-
-  const { camera$, viewport$ } = useContext(AppContext)
-
-  useEffect(() => {
-    combineLatest([camera$, viewport$]).subscribe(
-      ([camera, viewport]) => {
-        invariant(camera.zoom >= 0)
-        invariant(camera.zoom <= 1)
-
-        const scale = getScale(
-          camera.zoom,
-          viewport.size.x,
-          viewport.size.y,
-        )
-
-        const translate = {
-          x:
-            viewport.size.x / 2 +
-            -camera.position.x * scale,
-          y:
-            viewport.size.y / 2 +
-            -camera.position.y * scale,
-        }
-
-        invariant(container.current)
-
-        // prettier-ignore
-        {
-          container.current.style.setProperty('--translate-x', `${translate.x}px`)
-          container.current.style.setProperty('--translate-y', `${translate.y}px`)
-          container.current.style.setProperty('--scale', `${scale}`)
-        }
-      },
-    )
-  }, [])
-
-  return (
-    <div className={styles.world} ref={container}>
-      {Object.values(world.patches).map((patch) => (
-        <Circle
-          key={patch.id}
-          patch={patch}
-          setWorld={setWorld}
-        />
-      ))}
-    </div>
-  )
 }
 
 export function App() {
