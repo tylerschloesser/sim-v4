@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash-es'
 import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
@@ -93,7 +94,10 @@ const RenderPatch = React.memo(function Circle({
       className={styles.circle}
       onPointerUp={() => {
         setWorld((draft) => {
-          draft.pickaxe.position = { x, y }
+          const position = { x, y }
+          if (!isEqual(position, draft.pickaxe.position)) {
+            draft.pickaxe.position = position
+          }
         })
       }}
       cx={x}
@@ -117,6 +121,9 @@ const RenderPickaxe = React.memo(function RenderPickaxe({
   pickaxe,
 }: RenderPickaxeProps) {
   const { position, radius } = pickaxe
+
+  console.log('position updated', position)
+
   return (
     <circle
       className={styles.pickaxe}
