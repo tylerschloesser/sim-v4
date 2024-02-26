@@ -6,6 +6,7 @@ import { useImmer } from 'use-immer'
 import { AppContext, IAppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
+import { handlePointer } from './pointer.js'
 import { RenderGrid } from './render-grid.js'
 import { RenderWorld } from './render-world.js'
 import { Viewport, getScale } from './viewport.js'
@@ -119,27 +120,7 @@ function init({
   app.addEventListener(
     'pointermove',
     (ev) => {
-      if (!ev.buttons) {
-        return
-      }
-      const dx = -ev.movementX
-      const dy = -ev.movementY
-
-      const camera = camera$.value
-      const viewport = viewport$.value
-      const scale = getScale(
-        camera.zoom,
-        viewport.size.x,
-        viewport.size.y,
-      )
-
-      camera$.next({
-        ...camera,
-        position: {
-          x: camera.position.x + dx / scale,
-          y: camera.position.y + dy / scale,
-        },
-      })
+      handlePointer({ ev, camera$, viewport$ })
     },
     { signal },
   )
