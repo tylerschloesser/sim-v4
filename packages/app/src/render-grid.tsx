@@ -22,8 +22,8 @@ export function RenderGrid({ viewport }: RenderGridProps) {
   const { x: vx, y: vy } = viewport.size
   const minScale = getMinScale(vx, vy)
 
-  const rows = Math.floor(vy / minScale / 2 + 1) * 2
-  const cols = Math.floor(vx / minScale / 2 + 1) * 2
+  const rows = Math.ceil(vy / minScale / 2 + 1) * 2
+  const cols = Math.ceil(vx / minScale / 2 + 1) * 2
 
   useEffect(() => {
     const sub = camera$.subscribe((camera) => {
@@ -42,10 +42,10 @@ export function RenderGrid({ viewport }: RenderGridProps) {
       ].join(' ')
       root.current.setAttribute('transform', transform)
 
-      const strokeWidth = 1 / scale
+      const strokeWidth = (1 / scale) * 2
       root.current.style.setProperty(
         '--stroke-width',
-        `${strokeWidth}px`,
+        `${strokeWidth.toFixed(4)}px`,
       )
     })
     return () => {
@@ -61,13 +61,12 @@ export function RenderGrid({ viewport }: RenderGridProps) {
         <g data-group="rows">
           {times(rows + 1).map((row) => (
             <line
+              className={styles.line}
               key={`row-${row}`}
               x1={-cols / 2}
               y1={-rows / 2 + row}
               x2={cols / 2}
               y2={-rows / 2 + row}
-              stroke="var(--stroke)"
-              strokeWidth="var(--stroke-width)"
             />
           ))}
         </g>
@@ -75,12 +74,11 @@ export function RenderGrid({ viewport }: RenderGridProps) {
           {times(cols + 1).map((col) => (
             <line
               key={`col-${col}`}
+              className={styles.line}
               x1={-cols / 2 + col}
               y1={-rows / 2}
               x2={-cols / 2 + col}
               y2={rows / 2}
-              stroke="var(--stroke)"
-              strokeWidth="var(--stroke-width)"
             />
           ))}
         </g>
