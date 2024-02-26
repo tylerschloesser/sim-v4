@@ -22,7 +22,7 @@ export function RenderWorld({
   world,
   setWorld,
 }: RenderWorldProps) {
-  const container = useRef<SVGSVGElement>(null)
+  const root = useRef<SVGGElement>(null)
 
   const [state, setState] = useState<{
     width: number
@@ -33,13 +33,9 @@ export function RenderWorld({
 
   useEffect(() => {
     viewport$.subscribe((viewport) => {
-      invariant(container.current)
-
       const { x: vx, y: vy } = viewport.size
-
       const width = vx
       const height = vy
-
       setState({ width, height })
     })
   }, [])
@@ -56,7 +52,7 @@ export function RenderWorld({
           viewport.size.y,
         )
 
-        invariant(container.current)
+        invariant(root.current)
         const { x: cx, y: cy } = camera.position
 
         const transform = [
@@ -64,10 +60,7 @@ export function RenderWorld({
           `scale(${scale.toFixed(4)})`,
         ].join(' ')
 
-        container.current.setAttribute(
-          'transform',
-          transform,
-        )
+        root.current.setAttribute('transform', transform)
       },
     )
   }, [])
@@ -80,18 +73,16 @@ export function RenderWorld({
   ].join(' ')
 
   return (
-    <svg
-      className={styles.world}
-      ref={container}
-      viewBox={viewBox}
-    >
-      {Object.values(world.patches).map((patch) => (
-        <Circle
-          key={patch.id}
-          patch={patch}
-          setWorld={setWorld}
-        />
-      ))}
+    <svg className={styles.world} viewBox={viewBox}>
+      <g ref={root}>
+        {Object.values(world.patches).map((patch) => (
+          <Circle
+            key={patch.id}
+            patch={patch}
+            setWorld={setWorld}
+          />
+        ))}
+      </g>
     </svg>
   )
 }
