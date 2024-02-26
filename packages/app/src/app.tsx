@@ -189,13 +189,21 @@ function RenderGrid() {
   const container = useRef<SVGSVGElement>(null)
 
   const [state, setState] = useState<{
+    vx: number
+    vy: number
     rows: number
     cols: number
   } | null>(null)
 
   useEffect(() => {
-    viewport$.subscribe(() => {
-      console.log('todo update grid')
+    viewport$.subscribe((viewport) => {
+      const { x: vx, y: vy } = viewport.size
+      const minScale = getMinScale(vx, vy)
+
+      const rows = Math.ceil(vy / minScale)
+      const cols = Math.ceil(vx / minScale)
+
+      setState({ vx, vy, rows, cols })
     })
   }, [])
 
@@ -208,7 +216,7 @@ function RenderGrid() {
   return (
     <svg
       className={styles.grid}
-      viewBox="0 0 100 100"
+      viewBox={`0 0 ${state?.vx ?? 0} ${state?.vy ?? 0}`}
       ref={container}
     >
       {state && (
