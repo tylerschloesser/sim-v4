@@ -56,7 +56,10 @@ export function RenderWorld({
   return (
     <svg className={styles.world} viewBox={viewBox}>
       <g data-group="transform" ref={root}>
-        <RenderPickaxe pickaxe={world.pickaxe} />
+        <RenderPickaxe
+          pickaxe={world.pickaxe}
+          setWorld={setWorld}
+        />
         {Object.values(world.patches).map((patch) => (
           <RenderPatch
             key={patch.id}
@@ -109,6 +112,7 @@ const RenderPatch = React.memo(function Circle({
 
 interface RenderPickaxeProps {
   pickaxe: Pickaxe
+  setWorld: Updater<World>
 }
 
 function RenderPickaxe({ pickaxe }: RenderPickaxeProps) {
