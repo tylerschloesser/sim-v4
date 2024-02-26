@@ -57,7 +57,7 @@ export function RenderWorld({
     <svg className={styles.world} viewBox={viewBox}>
       <g data-group="transform" ref={root}>
         {Object.values(world.patches).map((patch) => (
-          <Circle
+          <RenderPatch
             key={patch.id}
             patch={patch}
             setWorld={setWorld}
@@ -68,12 +68,12 @@ export function RenderWorld({
   )
 }
 
-interface CircleProps {
+interface RenderPatchProps {
   patch: Patch
   setWorld: Updater<World>
 }
 
-const Circle = React.memo(function Circle({
+const RenderPatch = React.memo(function Circle({
   patch: {
     id,
     position: { x, y },
@@ -81,7 +81,7 @@ const Circle = React.memo(function Circle({
     radius,
   },
   setWorld,
-}: CircleProps) {
+}: RenderPatchProps) {
   console.log(`render patch id=${id} count=${count}`)
 
   return (
