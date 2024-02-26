@@ -96,6 +96,18 @@ function rectToViewport(rect: DOMRect): Viewport {
   }
 }
 
+function getMinScale(vx: number, vy: number): number {
+  const vmin = Math.min(vx, vy)
+  const minScale = vmin * 0.1
+  return minScale
+}
+
+function getMaxScale(vx: number, vy: number): number {
+  const vmin = Math.min(vx, vy)
+  const maxScale = vmin * 0.5
+  return maxScale
+}
+
 function getScale(
   zoom: number,
   vx: number,
@@ -107,9 +119,8 @@ function getScale(
   invariant(vx !== 0)
   invariant(vy !== 0)
 
-  const vmin = Math.min(vx, vy)
-  const minScale = vmin * 0.1
-  const maxScale = vmin * 0.5
+  const minScale = getMinScale(vx, vy)
+  const maxScale = getMaxScale(vx, vy)
   return minScale + (maxScale - minScale) * zoom
 }
 
