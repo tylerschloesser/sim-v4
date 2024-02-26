@@ -56,7 +56,7 @@ export function RenderGrid() {
   }, [])
 
   useEffect(() => {
-    camera$.subscribe((camera) => {
+    camera$.subscribe(() => {
       invariant(container.current)
     })
   }, [])
