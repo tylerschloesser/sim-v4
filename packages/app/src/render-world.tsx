@@ -52,7 +52,7 @@ export function RenderWorld({
   }, [viewport])
 
   return (
-    <g data-group="transform" ref={root}>
+    <g data-group="world" ref={root}>
       {Object.values(world.patches).map((patch) => (
         <RenderPatch
           key={patch.id}

@@ -54,7 +54,7 @@ export function RenderGrid({ viewport }: RenderGridProps) {
   }, [viewport])
 
   return (
-    <g data-group="transform" ref={root}>
+    <g data-group="grid" ref={root}>
       <g data-group="rows">
         {times(rows + 1).map((row) => (
           <line
