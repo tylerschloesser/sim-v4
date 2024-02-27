@@ -18,7 +18,25 @@ export function add(a: Vec2, b: Vec2): void {
   a.y += b.y
 }
 
+export function sub(a: Vec2, b: Vec2): void {
+  a.x -= b.x
+  a.y -= b.y
+}
+
 export function mul(v: Vec2, s: number): void {
   v.x *= s
   v.y *= s
+}
+
+export function div(v: Vec2, s: number): void {
+  v.x /= s
+  v.y /= s
+}
+
+export function len(v: Vec2): number {
+  return Math.sqrt(v.x ** 2 + v.y ** 2)
+}
+
+export function norm(v: Vec2): void {
+  div(v, len(v))
 }
