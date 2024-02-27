@@ -1,4 +1,7 @@
-.line {
-  stroke: hsl(0, 0%, 20%);
-  stroke-width: var(--stroke-width);
+.grid {
+  pointer-events: none;
+}
+
+.rect {
+  fill: hsl(0, 0%, 5%);
 }

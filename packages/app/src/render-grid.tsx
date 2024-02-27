@@ -14,8 +14,8 @@ export function RenderGrid() {
   const { x: vx, y: vy } = viewport.size
   const minScale = getMinScale(vx, vy)
 
-  const rows = Math.ceil(vy / minScale / 2 + 1) * 2
-  const cols = Math.ceil(vx / minScale / 2 + 1) * 2
+  const rows = Math.ceil(vy / minScale / 2 + 2) * 2
+  const cols = Math.ceil(vx / minScale / 2 + 2) * 2
 
   useCameraEffect((camera) => {
     invariant(root.current)
@@ -24,53 +24,35 @@ export function RenderGrid() {
     const scale = getScale(camera.zoom, vx, vy)
 
     const { x: cx, y: cy } = camera.position
-    const tx = mod(-cx * scale, scale)
-    const ty = mod(-cy * scale, scale)
+    const tx = mod(-cx * scale, scale * 2)
+    const ty = mod(-cy * scale, scale * 2)
 
     const transform = [
       `translate(${tx.toFixed(4)} ${ty.toFixed(4)})`,
       `scale(${scale.toFixed(4)})`,
     ].join(' ')
     root.current.setAttribute('transform', transform)
-
-    root.current.setAttribute(
-      'opacity',
-      `${(0.25 + camera.zoom * 0.75).toFixed(4)}`,
-    )
-
-    const strokeWidth = 1 / scale
-    root.current.style.setProperty(
-      '--stroke-width',
-      `${strokeWidth.toFixed(4)}px`,
-    )
   })
 
   return (
-    <g data-group="grid" ref={root}>
-      <g data-group="rows">
-        {times(rows + 1).map((row) => (
-          <line
-            className={styles.line}
-            key={`row-${row}`}
-            x1={-cols / 2}
-            y1={-rows / 2 + row}
-            x2={cols / 2}
-            y2={-rows / 2 + row}
-          />
-        ))}
-      </g>
-      <g data-group="cols">
-        {times(cols + 1).map((col) => (
-          <line
-            key={`col-${col}`}
-            className={styles.line}
-            x1={-cols / 2 + col}
-            y1={-rows / 2}
-            x2={-cols / 2 + col}
-            y2={rows / 2}
-          />
-        ))}
-      </g>
+    <g data-group="grid" ref={root} className={styles.grid}>
+      {times(rows + 1).map((row) => (
+        <g key={row} data-row={row}>
+          {times(cols + 1).map((col) => {
+            if (row % 2 === col % 2) return null
+            return (
+              <rect
+                className={styles.rect}
+                key={col}
+                x={-cols / 2 + col}
+                y={-rows / 2 + row}
+                width={1}
+                height={1}
+              />
+            )
+          })}
+        </g>
+      ))}
     </g>
   )
 }
