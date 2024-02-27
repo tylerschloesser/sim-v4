@@ -53,36 +53,32 @@ export function RenderGrid({ viewport }: RenderGridProps) {
     }
   }, [viewport])
 
-  const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
-
   return (
-    <svg className={styles.grid} viewBox={viewBox}>
-      <g data-group="transform" ref={root}>
-        <g data-group="rows">
-          {times(rows + 1).map((row) => (
-            <line
-              className={styles.line}
-              key={`row-${row}`}
-              x1={-cols / 2}
-              y1={-rows / 2 + row}
-              x2={cols / 2}
-              y2={-rows / 2 + row}
-            />
-          ))}
-        </g>
-        <g data-group="cols">
-          {times(cols + 1).map((col) => (
-            <line
-              key={`col-${col}`}
-              className={styles.line}
-              x1={-cols / 2 + col}
-              y1={-rows / 2}
-              x2={-cols / 2 + col}
-              y2={rows / 2}
-            />
-          ))}
-        </g>
+    <g data-group="transform" ref={root}>
+      <g data-group="rows">
+        {times(rows + 1).map((row) => (
+          <line
+            className={styles.line}
+            key={`row-${row}`}
+            x1={-cols / 2}
+            y1={-rows / 2 + row}
+            x2={cols / 2}
+            y2={-rows / 2 + row}
+          />
+        ))}
       </g>
-    </svg>
+      <g data-group="cols">
+        {times(cols + 1).map((col) => (
+          <line
+            key={`col-${col}`}
+            className={styles.line}
+            x1={-cols / 2 + col}
+            y1={-rows / 2}
+            x2={-cols / 2 + col}
+            y2={rows / 2}
+          />
+        ))}
+      </g>
+    </g>
   )
 }

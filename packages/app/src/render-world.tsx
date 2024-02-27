@@ -4,7 +4,6 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { RenderPatch } from './render-patch.js'
 import { RenderPickaxe } from './render-pickaxe.js'
-import styles from './render-world.module.scss'
 import { Viewport, getScale } from './viewport.js'
 import { World } from './world.js'
 
@@ -21,7 +20,6 @@ export function RenderWorld({
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
   const { camera$ } = useContext(AppContext)
-  const { x: vx, y: vy } = viewport.size
 
   useEffect(() => {
     const sub = camera$.subscribe((camera) => {
@@ -53,31 +51,28 @@ export function RenderWorld({
     }
   }, [viewport])
 
-  const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
   return (
-    <svg className={styles.world} viewBox={viewBox}>
-      <g data-group="transform" ref={root}>
-        {Object.values(world.patches).map((patch) => (
-          <RenderPatch
-            key={patch.id}
-            patch={patch}
-            setWorld={setWorld}
-          />
-        ))}
-        <RenderPickaxe
-          pickaxe={world.pickaxe}
-          patch={(() => {
-            const { patchId } = world.pickaxe
-            if (patchId) {
-              const patch = world.patches[patchId]
-              invariant(patch)
-              return patch
-            }
-            return null
-          })()}
+    <g data-group="transform" ref={root}>
+      {Object.values(world.patches).map((patch) => (
+        <RenderPatch
+          key={patch.id}
+          patch={patch}
           setWorld={setWorld}
         />
-      </g>
-    </svg>
+      ))}
+      <RenderPickaxe
+        pickaxe={world.pickaxe}
+        patch={(() => {
+          const { patchId } = world.pickaxe
+          if (patchId) {
+            const patch = world.patches[patchId]
+            invariant(patch)
+            return patch
+          }
+          return null
+        })()}
+        setWorld={setWorld}
+      />
+    </g>
   )
 }
