@@ -1,26 +1,26 @@
-import { useRef } from 'react'
+import { useContext, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { AppContext } from './app-context.js'
 import { RenderPatch } from './render-patch.js'
 import { RenderPickaxe } from './render-pickaxe.js'
 import { useCameraEffect } from './use-camera-effect.js'
-import { Viewport, getScale } from './viewport.js'
+import { getScale } from './viewport.js'
 import { World } from './world.js'
 
 export interface RenderWorldProps {
-  viewport: Viewport
   world: World
   setWorld: Updater<World>
 }
 
 export function RenderWorld({
-  viewport,
   world,
   setWorld,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
+  const { viewport } = useContext(AppContext)
 
-  useCameraEffect(viewport, (camera) => {
+  useCameraEffect((camera) => {
     invariant(camera.zoom >= 0)
     invariant(camera.zoom <= 1)
 

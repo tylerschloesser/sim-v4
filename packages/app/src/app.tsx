@@ -26,10 +26,9 @@ export function App() {
   const app = useRef<HTMLDivElement>(null)
 
   const [world, setWorld] = useImmer(loadWorld())
-
-  const [context, setContext] =
-    useState<IAppContext | null>(null)
-
+  const [camera$] = useState(
+    new BehaviorSubject(loadCamera()),
+  )
   const [viewport, setViewport] = useState<Viewport | null>(
     null,
   )
@@ -44,11 +43,7 @@ export function App() {
     const controller = new AbortController()
     const { signal } = controller
 
-    const camera$ = new BehaviorSubject(loadCamera())
-
-    camera$.subscribe((camera) => {
-      saveCamera(camera)
-    })
+    camera$.subscribe(saveCamera)
 
     const viewport$ = new BehaviorSubject(
       rectToViewport(app.current.getBoundingClientRect()),
@@ -72,8 +67,6 @@ export function App() {
       camera$,
     })
 
-    setContext({ camera$ })
-
     return () => {
       controller.abort()
       ro.disconnect()
@@ -82,10 +75,9 @@ export function App() {
 
   return (
     <div className={styles.app} ref={app}>
-      {context && viewport && (
-        <AppContext.Provider value={context}>
+      {viewport && (
+        <AppContext.Provider value={{ camera$, viewport }}>
           <RenderViewport
-            viewport={viewport}
             world={world}
             setWorld={setWorld}
           />

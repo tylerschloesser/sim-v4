@@ -1,21 +1,15 @@
 import { times } from 'lodash-es'
-import { useRef } from 'react'
+import { useContext, useRef } from 'react'
 import invariant from 'tiny-invariant'
+import { AppContext } from './app-context.js'
 import { mod } from './math.js'
 import styles from './render-grid.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
-import {
-  Viewport,
-  getMinScale,
-  getScale,
-} from './viewport.js'
+import { getMinScale, getScale } from './viewport.js'
 
-export interface RenderGridProps {
-  viewport: Viewport
-}
-
-export function RenderGrid({ viewport }: RenderGridProps) {
+export function RenderGrid() {
   const root = useRef<SVGGElement>(null)
+  const { viewport } = useContext(AppContext)
 
   const { x: vx, y: vy } = viewport.size
   const minScale = getMinScale(vx, vy)
@@ -23,7 +17,7 @@ export function RenderGrid({ viewport }: RenderGridProps) {
   const rows = Math.ceil(vy / minScale / 2 + 1) * 2
   const cols = Math.ceil(vx / minScale / 2 + 1) * 2
 
-  useCameraEffect(viewport, (camera) => {
+  useCameraEffect((camera) => {
     invariant(root.current)
 
     const { x: vx, y: vy } = viewport.size
