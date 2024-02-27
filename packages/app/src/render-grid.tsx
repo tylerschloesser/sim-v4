@@ -33,7 +33,12 @@ export function RenderGrid() {
     ].join(' ')
     root.current.setAttribute('transform', transform)
 
-    const strokeWidth = ((1 / scale) * 2) / viewport.dpr
+    root.current.setAttribute(
+      'opacity',
+      `${(0.25 + camera.zoom * 0.75).toFixed(4)}`,
+    )
+
+    const strokeWidth = 1 / scale
     root.current.style.setProperty(
       '--stroke-width',
       `${strokeWidth.toFixed(4)}px`,

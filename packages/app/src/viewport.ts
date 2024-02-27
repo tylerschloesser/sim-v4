@@ -12,7 +12,7 @@ export function getMinScale(
   vy: number,
 ): number {
   const vmin = Math.min(vx, vy)
-  const minScale = vmin * 0.05
+  const minScale = vmin * 0.025
   return minScale
 }
 
