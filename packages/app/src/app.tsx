@@ -109,7 +109,9 @@ function ResetButton() {
           self.location.reload()
         }
       }}
-    />
+    >
+      Reset
+    </button>
   )
 }
 
