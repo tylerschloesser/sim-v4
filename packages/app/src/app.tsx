@@ -7,6 +7,7 @@ import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { handlePointer } from './pointer.js'
 import { RenderGrid } from './render-grid.js'
+import { RenderInventory } from './render-inventory.js'
 import { RenderWorld } from './render-world.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
@@ -90,6 +91,7 @@ export function App() {
             world={world}
             setWorld={setWorld}
           />
+          <RenderInventory />
         </AppContext.Provider>
       )}
       <ResetButton />
