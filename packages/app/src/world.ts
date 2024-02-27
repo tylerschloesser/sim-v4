@@ -1,6 +1,7 @@
+import Prando from 'prando'
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
-import { Vec2 } from './vec2.js'
+import { Vec2, rotate } from './vec2.js'
 
 export const ItemType = z.enum(['IronOre'])
 export type ItemType = z.infer<typeof ItemType>
@@ -48,7 +49,9 @@ function addPatch({
   }
 }
 
-function initWorld(): World {
+function initWorld(seed: string = ''): World {
+  const rng = new Prando(seed)
+
   const world: World = {
     pickaxe: {
       patchId: null,
@@ -61,17 +64,27 @@ function initWorld(): World {
     },
   }
 
-  addPatch({
-    world,
-    position: { x: 1, y: 2 },
-    radius: 0.75,
-  })
+  function generatePatch(angle: number): void {
+    const dist = 4 + rng.next() * 4
+    const radius = 0.25 + rng.next() * 0.5
 
-  addPatch({
-    world,
-    position: { x: 0, y: -1 },
-    radius: 0.5,
-  })
+    const position = { x: dist, y: 0 }
+    rotate(position, angle)
+
+    addPatch({
+      world,
+      position,
+      radius,
+    })
+  }
+
+  // prettier-ignore
+  {
+    generatePatch(Math.PI * -0.5 * rng.next())
+    generatePatch(Math.PI * 0.5 * rng.next())
+    generatePatch(Math.PI * -0.5 + Math.PI * -0.5 * rng.next())
+    generatePatch(Math.PI * 0.5 + Math.PI * 0.5 * rng.next())
+  }
 
   return world
 }

@@ -85,7 +85,7 @@ export const RenderPickaxe = React.memo(
         y: patch.position.y,
       }
       const v: Vec2 = {
-        x: patch.radius + pickaxe.radius * 1.5,
+        x: patch.radius + pickaxe.radius * 2,
         y: 0,
       }
       rotate(v, Math.PI * -0.33)

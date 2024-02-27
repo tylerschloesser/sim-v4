@@ -11,7 +11,7 @@ import { getColor } from './color.js'
 import { smooth } from './math.js'
 import styles from './render-patch.module.scss'
 import { Vec2, mul, rotate } from './vec2.js'
-import { Patch, World } from './world.js'
+import { ItemType, Patch, World } from './world.js'
 
 export interface RenderPatchProps {
   patch: Patch
@@ -41,7 +41,12 @@ export const RenderPatch = React.memo(function Circle({
     }
 
     setWorld((draft) => {
-      draft.pickaxe.patchId = id
+      if (draft.pickaxe.patchId !== id) {
+        draft.pickaxe.patchId = id
+      }
+      const count = draft.inventory[ItemType.enum.IronOre]
+      invariant(typeof count === 'number')
+      draft.inventory[ItemType.enum.IronOre] = count + 1
     })
 
     setPops((prev) => {
