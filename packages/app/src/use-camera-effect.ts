@@ -5,6 +5,7 @@ import { Viewport } from './viewport.js'
 
 export function useCameraEffect(
   cb: (camera: Camera, viewport: Viewport) => void,
+  deps?: React.DependencyList,
 ) {
   const { camera$, viewport } = useContext(AppContext)
   useEffect(() => {
@@ -14,5 +15,5 @@ export function useCameraEffect(
     return () => {
       sub.unsubscribe()
     }
-  }, [viewport])
+  }, [viewport, ...(deps ?? [])])
 }

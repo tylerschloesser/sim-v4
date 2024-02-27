@@ -25,11 +25,8 @@ export function RenderWorld({
     invariant(camera.zoom >= 0)
     invariant(camera.zoom <= 1)
 
-    const scale = getScale(
-      camera.zoom,
-      viewport.size.x,
-      viewport.size.y,
-    )
+    const { x: vx, y: vy } = viewport.size
+    const scale = getScale(camera.zoom, vx, vy)
 
     invariant(root.current)
     const { x: cx, y: cy } = camera.position
@@ -47,6 +44,7 @@ export function RenderWorld({
 
   return (
     <g data-group="world" ref={root}>
+      <RenderCursor patches={world.patches} />
       {Object.values(world.patches).map((patch) => (
         <RenderPatch
           key={patch.id}
@@ -67,7 +65,6 @@ export function RenderWorld({
         })()}
         setWorld={setWorld}
       />
-      <RenderCursor />
     </g>
   )
 }
