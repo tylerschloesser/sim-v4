@@ -2,6 +2,9 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { Vec2 } from './vec2.js'
 
+export const ItemType = z.enum(['IronOre'])
+export type ItemType = z.infer<typeof ItemType>
+
 export const Patch = z.strictObject({
   id: z.string(),
   position: Vec2,
@@ -20,6 +23,7 @@ export const World = z.strictObject({
   pickaxe: Pickaxe,
   patches: z.record(z.string(), Patch),
   nextPatchId: z.number().int().nonnegative(),
+  inventory: z.record(ItemType, z.number()),
 })
 export type World = z.infer<typeof World>
 
@@ -52,6 +56,9 @@ function initWorld(): World {
     },
     patches: {},
     nextPatchId: 0,
+    inventory: {
+      [ItemType.enum.IronOre]: 0,
+    },
   }
 
   addPatch({
