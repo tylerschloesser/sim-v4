@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
+import { Camera } from './camera.js'
 import styles from './render-cursor.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
-import { Vec2, len, mul, norm, sub } from './vec2.js'
+import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
-import { World } from './world.js'
+import { Patch, World } from './world.js'
 
 export interface RenderCursorProps {
   patches: World['patches']
@@ -23,11 +24,10 @@ export const RenderCursor = React.memo(
     const handle = useRef<number>()
     const position = useRef(camera$.value.position)
 
-    const acceleration = useRef<Vec2>({ x: 0, y: 0 })
     const velocity = useRef<Vec2>({ x: 0, y: 0 })
 
     useEffect(() => {
-      function update() {
+      function update(closestPatchId?: string) {
         const { x, y } = position.current
         invariant(circle.current)
         circle.current.setAttribute('cx', `${x.toFixed(4)}`)
@@ -37,9 +37,14 @@ export const RenderCursor = React.memo(
           invariant(line)
           line.setAttribute('x1', `${x.toFixed(4)}`)
           line.setAttribute('y1', `${y.toFixed(4)}`)
+          if (patchId === closestPatchId) {
+            line.style.setProperty('--stroke', 'yellow')
+          } else {
+            line.style.removeProperty('--stroke')
+          }
         }
       }
-      update()
+      update(getClosestPatch(camera$.value, patches)?.id)
 
       let last = self.performance.now()
       function render() {
@@ -47,43 +52,41 @@ export const RenderCursor = React.memo(
         const elapsed = now - last
         last = now
 
-        const { x, y } = position.current
-        const { x: cx, y: cy } = camera$.value.position
+        const closest = getClosestPatch(
+          camera$.value,
+          patches,
+        )
 
-        const dir = { ...camera$.value.position }
-        sub(dir, position.current)
-        const d = len(dir)
-        norm(dir)
+        const dir = vec2.clone(camera$.value.position)
+        vec2.sub(dir, position.current)
+        const d = vec2.len(dir)
+        vec2.norm(dir)
 
-        const vmax = 1 / (1000 / 20)
+        let vmag = vec2.len(velocity.current)
 
-        if (d > 1 || len(velocity.current) > 0) {
-          // update acceleration
-          let a = len(acceleration.current)
-          if (a === 0) {
-          }
+        const threshold = 0
 
-          // update velocity
-          velocity.current.x = dir.x
-          velocity.current.y = dir.y
-          mul(velocity.current, vmax)
+        if (d < 0.01) {
+          velocity.current.x = 0
+          velocity.current.y = 0
+        } else if (d > threshold || vmag) {
+          // speed is a function of the distance
+          //
+          // https://www.wolframalpha.com/input?i=plot+%28x+%2B+1%29+**+4+from+0+to+2
+          //
+          vmag = (d + 1) ** 4
 
-          // mlog('vmag', len(velocity.current))
+          // rotate velocity if needed
+          vec2.copy(velocity.current, dir)
+          vec2.mul(velocity.current, vmag)
+        }
 
-          // update position
-          const dx = velocity.current.x * elapsed
-          const dy = velocity.current.y * elapsed
-          if (len({ x: dx, y: dy }) > d) {
-            position.current.x = cx
-            position.current.y = cy
-            velocity.current.x = 0
-            velocity.current.y = 0
-          } else {
-            position.current.x += dx
-            position.current.y += dy
-          }
-
-          update()
+        if (vmag) {
+          position.current.x +=
+            velocity.current.x * (elapsed / 1000)
+          position.current.y +=
+            velocity.current.y * (elapsed / 1000)
+          update(closest?.id)
         }
 
         handle.current = self.requestAnimationFrame(render)
@@ -94,7 +97,7 @@ export const RenderCursor = React.memo(
           self.cancelAnimationFrame(handle.current)
         }
       }
-    }, [])
+    }, [patches])
 
     useCameraEffect(
       (camera, viewport) => {
@@ -130,3 +133,21 @@ export const RenderCursor = React.memo(
     )
   },
 )
+
+function getClosestPatch(
+  camera: Camera,
+  patches: World['patches'],
+): Patch | null {
+  let closest: Patch | null = null
+  let min: number = Number.MAX_VALUE
+  for (const patch of Object.values(patches)) {
+    const v = vec2.clone(patch.position)
+    vec2.sub(v, camera.position)
+    const d = vec2.len(v)
+    if (d < min) {
+      min = d
+      closest = patch
+    }
+  }
+  return closest
+}

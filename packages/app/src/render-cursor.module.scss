@@ -3,5 +3,5 @@
 
 .line {
   stroke-width: var(--stroke-width);
-  stroke: magenta;
+  stroke: var(--stroke, magenta);
 }

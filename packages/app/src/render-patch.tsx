@@ -10,7 +10,7 @@ import { Updater, useImmer } from 'use-immer'
 import { getColor } from './color.js'
 import { smooth } from './math.js'
 import styles from './render-patch.module.scss'
-import { Vec2, mul, rotate } from './vec2.js'
+import { Vec2, vec2 } from './vec2.js'
 import { ItemType, Patch, World } from './world.js'
 
 export interface RenderPatchProps {
@@ -124,8 +124,8 @@ const Pop = React.memo(function Pop({
       }
 
       const v: Vec2 = { x: patchRadius * 2.5, y: 0 }
-      rotate(v, angle)
-      mul(v, smooth(elapsed / duration))
+      vec2.rotate(v, angle)
+      vec2.mul(v, smooth(elapsed / duration))
       const { x: tx, y: ty } = v
 
       circle.current.setAttribute(

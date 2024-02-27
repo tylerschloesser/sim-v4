@@ -4,7 +4,7 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { smooth } from './math.js'
 import styles from './render-pickaxe.module.scss'
-import { Vec2, add, rotate } from './vec2.js'
+import { Vec2, vec2 } from './vec2.js'
 import { Patch, Pickaxe, World } from './world.js'
 
 export interface RenderPickaxeProps {
@@ -88,8 +88,8 @@ export const RenderPickaxe = React.memo(
         x: patch.radius + pickaxe.radius * 2,
         y: 0,
       }
-      rotate(v, Math.PI * -0.33)
-      add(position, v)
+      vec2.rotate(v, Math.PI * -0.33)
+      vec2.add(position, v)
     }
 
     useAnimate(ref, position)

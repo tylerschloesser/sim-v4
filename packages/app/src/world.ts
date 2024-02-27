@@ -1,7 +1,7 @@
 import Prando from 'prando'
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
-import { Vec2, rotate } from './vec2.js'
+import { Vec2, vec2 } from './vec2.js'
 
 export const ItemType = z.enum(['IronOre'])
 export type ItemType = z.infer<typeof ItemType>
@@ -69,7 +69,7 @@ function initWorld(seed: string = ''): World {
     const radius = 0.25 + rng.next() * 0.5
 
     const position = { x: dist, y: 0 }
-    rotate(position, angle)
+    vec2.rotate(position, angle)
 
     addPatch({
       world,
