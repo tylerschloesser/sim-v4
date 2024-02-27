@@ -1,0 +1,10 @@
+.grid {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.line {
+  stroke: hsl(0, 0%, 20%);
+  stroke-width: var(--stroke-width);
+}
