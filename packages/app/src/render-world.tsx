@@ -2,6 +2,7 @@ import { useContext, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
+import { RenderCursor } from './render-cursor.js'
 import { RenderPatch } from './render-patch.js'
 import { RenderPickaxe } from './render-pickaxe.js'
 import { useCameraEffect } from './use-camera-effect.js'
@@ -66,6 +67,7 @@ export function RenderWorld({
         })()}
         setWorld={setWorld}
       />
+      <RenderCursor />
     </g>
   )
 }
