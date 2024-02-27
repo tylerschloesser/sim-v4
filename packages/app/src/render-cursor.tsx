@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
+import { mlog } from './log.js'
 import { dist } from './math.js'
 import styles from './render-cursor.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
@@ -51,13 +52,17 @@ export const RenderCursor = React.memo(
         const { x: cx, y: cy } = camera$.value.position
         const d = dist(x, y, cx, cy)
 
+        const vmax = 1000 / 20
+
         if (d > 1 || len(velocity.current) > 0) {
           // update velocity
           velocity.current.x = cx
           velocity.current.y = cy
           sub(velocity.current, position.current)
           norm(velocity.current)
-          div(velocity.current, 1000 / 20)
+          div(velocity.current, vmax)
+
+          mlog('vmag', len(velocity.current))
 
           // update position
           const dx = velocity.current.x * elapsed
