@@ -21,7 +21,7 @@ export function getMaxScale(
   vy: number,
 ): number {
   const vmin = Math.min(vx, vy)
-  const maxScale = vmin * 0.5
+  const maxScale = vmin * 0.25
   return maxScale
 }
 
