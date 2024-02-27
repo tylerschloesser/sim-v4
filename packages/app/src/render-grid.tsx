@@ -1,9 +1,9 @@
 import { times } from 'lodash-es'
-import { useContext, useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import invariant from 'tiny-invariant'
-import { AppContext } from './app-context.js'
 import { mod } from './math.js'
 import styles from './render-grid.module.scss'
+import { useCameraEffect } from './use-camera-effect.js'
 import {
   Viewport,
   getMinScale,
@@ -15,8 +15,6 @@ export interface RenderGridProps {
 }
 
 export function RenderGrid({ viewport }: RenderGridProps) {
-  const { camera$ } = useContext(AppContext)
-
   const root = useRef<SVGGElement>(null)
 
   const { x: vx, y: vy } = viewport.size
@@ -25,33 +23,28 @@ export function RenderGrid({ viewport }: RenderGridProps) {
   const rows = Math.ceil(vy / minScale / 2 + 1) * 2
   const cols = Math.ceil(vx / minScale / 2 + 1) * 2
 
-  useEffect(() => {
-    const sub = camera$.subscribe((camera) => {
-      invariant(root.current)
+  useCameraEffect(viewport, (camera) => {
+    invariant(root.current)
 
-      const { x: vx, y: vy } = viewport.size
-      const scale = getScale(camera.zoom, vx, vy)
+    const { x: vx, y: vy } = viewport.size
+    const scale = getScale(camera.zoom, vx, vy)
 
-      const { x: cx, y: cy } = camera.position
-      const tx = mod(-cx * scale, scale)
-      const ty = mod(-cy * scale, scale)
+    const { x: cx, y: cy } = camera.position
+    const tx = mod(-cx * scale, scale)
+    const ty = mod(-cy * scale, scale)
 
-      const transform = [
-        `translate(${tx.toFixed(4)} ${ty.toFixed(4)})`,
-        `scale(${scale.toFixed(4)})`,
-      ].join(' ')
-      root.current.setAttribute('transform', transform)
+    const transform = [
+      `translate(${tx.toFixed(4)} ${ty.toFixed(4)})`,
+      `scale(${scale.toFixed(4)})`,
+    ].join(' ')
+    root.current.setAttribute('transform', transform)
 
-      const strokeWidth = ((1 / scale) * 2) / viewport.dpr
-      root.current.style.setProperty(
-        '--stroke-width',
-        `${strokeWidth.toFixed(4)}px`,
-      )
-    })
-    return () => {
-      sub.unsubscribe()
-    }
-  }, [viewport])
+    const strokeWidth = ((1 / scale) * 2) / viewport.dpr
+    root.current.style.setProperty(
+      '--stroke-width',
+      `${strokeWidth.toFixed(4)}px`,
+    )
+  })
 
   return (
     <g data-group="grid" ref={root}>
