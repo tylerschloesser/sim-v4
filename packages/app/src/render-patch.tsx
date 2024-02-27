@@ -1,4 +1,4 @@
-import { curry, random } from 'lodash-es'
+import { random } from 'lodash-es'
 import React, {
   useCallback,
   useEffect,
