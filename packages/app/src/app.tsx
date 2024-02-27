@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subscription } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import { AppContext, IAppContext } from './app-context.js'
@@ -40,17 +40,16 @@ export function App() {
   useEffect(() => {
     invariant(app.current)
 
+    const subs = new Array<Subscription>()
     const controller = new AbortController()
     const { signal } = controller
-
-    camera$.subscribe(saveCamera)
 
     const viewport$ = new BehaviorSubject(
       rectToViewport(app.current.getBoundingClientRect()),
     )
 
-    // TODO refactor this?
-    viewport$.subscribe(setViewport)
+    subs.push(camera$.subscribe(saveCamera))
+    subs.push(viewport$.subscribe(setViewport))
 
     const ro = new ResizeObserver((entries) => {
       invariant(entries.length === 1)
@@ -70,6 +69,7 @@ export function App() {
     return () => {
       controller.abort()
       ro.disconnect()
+      subs.forEach((sub) => sub.unsubscribe())
     }
   }, [])
 
