@@ -6,9 +6,8 @@ import { AppContext, IAppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { handlePointer } from './pointer.js'
-import { RenderGrid } from './render-grid.js'
 import { RenderInventory } from './render-inventory.js'
-import { RenderWorld } from './render-world.js'
+import { RenderViewport } from './render-viewport.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
 import { loadWorld, saveWorld } from './world.js'
@@ -85,8 +84,7 @@ export function App() {
     <div className={styles.app} ref={app}>
       {context && viewport && (
         <AppContext.Provider value={context}>
-          <RenderGrid viewport={viewport} />
-          <RenderWorld
+          <RenderViewport
             viewport={viewport}
             world={world}
             setWorld={setWorld}
