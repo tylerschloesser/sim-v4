@@ -1,11 +1,9 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
-import { mlog } from './log.js'
-import { dist } from './math.js'
 import styles from './render-cursor.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
-import { Vec2, div, len, norm, sub } from './vec2.js'
+import { Vec2, len, mul, norm, sub } from './vec2.js'
 import { getScale } from './viewport.js'
 import { World } from './world.js'
 
@@ -25,6 +23,7 @@ export const RenderCursor = React.memo(
     const handle = useRef<number>()
     const position = useRef(camera$.value.position)
 
+    const acceleration = useRef<Vec2>({ x: 0, y: 0 })
     const velocity = useRef<Vec2>({ x: 0, y: 0 })
 
     useEffect(() => {
@@ -50,19 +49,26 @@ export const RenderCursor = React.memo(
 
         const { x, y } = position.current
         const { x: cx, y: cy } = camera$.value.position
-        const d = dist(x, y, cx, cy)
 
-        const vmax = 1000 / 20
+        const dir = { ...camera$.value.position }
+        sub(dir, position.current)
+        const d = len(dir)
+        norm(dir)
+
+        const vmax = 1 / (1000 / 20)
 
         if (d > 1 || len(velocity.current) > 0) {
-          // update velocity
-          velocity.current.x = cx
-          velocity.current.y = cy
-          sub(velocity.current, position.current)
-          norm(velocity.current)
-          div(velocity.current, vmax)
+          // update acceleration
+          let a = len(acceleration.current)
+          if (a === 0) {
+          }
 
-          mlog('vmag', len(velocity.current))
+          // update velocity
+          velocity.current.x = dir.x
+          velocity.current.y = dir.y
+          mul(velocity.current, vmax)
+
+          // mlog('vmag', len(velocity.current))
 
           // update position
           const dx = velocity.current.x * elapsed
