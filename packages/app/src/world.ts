@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { Vec2, vec2 } from './vec2.js'
 
-export const ItemType = z.enum(['IronOre'])
+export const ItemType = z.enum(['IronOre', 'Stone', 'Coal'])
 export type ItemType = z.infer<typeof ItemType>
 
 export const Patch = z.strictObject({
@@ -40,19 +40,21 @@ function addPatch({
   world,
   position,
   radius,
-  count = 100,
+  itemType,
+  count,
 }: {
   world: World
   position: Vec2
   radius: number
-  count?: number
+  itemType: ItemType
+  count: number
 }): void {
   const id = `${world.nextPatchId++}`
   invariant(!world.patches[id])
   const inventory: Inventory = {
     id: `${world.nextInventoryId++}`,
     items: {
-      [ItemType.enum.IronOre]: count,
+      [itemType]: count,
     },
   }
   world.patches[id] = {
@@ -87,7 +89,11 @@ function initWorld(seed: string = ''): World {
     },
   }
 
-  function generatePatch(angle: number): void {
+  function generatePatch(
+    angle: number,
+    itemType: ItemType,
+    count: number,
+  ): void {
     const dist = 4 + rng.next() * 4
     const radius = 0.25 + rng.next() * 0.5
 
@@ -98,15 +104,16 @@ function initWorld(seed: string = ''): World {
       world,
       position,
       radius,
+      itemType,
+      count,
     })
   }
 
   // prettier-ignore
   {
-    generatePatch(Math.PI * -0.5 * rng.next())
-    generatePatch(Math.PI * 0.5 * rng.next())
-    generatePatch(Math.PI * -0.5 + Math.PI * -0.5 * rng.next())
-    generatePatch(Math.PI * 0.5 + Math.PI * 0.5 * rng.next())
+    generatePatch(Math.PI * -0.5 * rng.next(), ItemType.enum.Coal, 100)
+    generatePatch(Math.PI * 0.5 * rng.next(), ItemType.enum.IronOre, 100)
+    generatePatch(Math.PI * -0.5 + Math.PI * -0.5 * rng.next(), ItemType.enum.Stone, 100)
   }
 
   return world
