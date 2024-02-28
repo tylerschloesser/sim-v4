@@ -6,16 +6,15 @@ import React, {
   useState,
 } from 'react'
 import invariant from 'tiny-invariant'
-import { Updater, useImmer } from 'use-immer'
+import { useImmer } from 'use-immer'
 import { getColor } from './color.js'
 import { smooth } from './math.js'
 import styles from './render-patch.module.scss'
 import { Vec2, vec2 } from './vec2.js'
-import { ItemType, Patch, World } from './world.js'
+import { Patch } from './world.js'
 
 export interface RenderPatchProps {
   patch: Patch
-  setWorld: Updater<World>
 }
 
 export const RenderPatch = React.memo(function Circle({
@@ -25,7 +24,6 @@ export const RenderPatch = React.memo(function Circle({
     count,
     radius,
   },
-  setWorld,
 }: RenderPatchProps) {
   console.log(`render patch id=${id} count=${count}`)
 
@@ -39,15 +37,6 @@ export const RenderPatch = React.memo(function Circle({
     if (!mine) {
       return
     }
-
-    setWorld((draft) => {
-      if (draft.pickaxe.patchId !== id) {
-        draft.pickaxe.patchId = id
-      }
-      const count = draft.inventory[ItemType.enum.IronOre]
-      invariant(typeof count === 'number')
-      draft.inventory[ItemType.enum.IronOre] = count + 1
-    })
 
     setPops((prev) => {
       prev.add(`${nextPopId.current++}`)

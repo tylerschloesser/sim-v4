@@ -14,19 +14,12 @@ export const Patch = z.strictObject({
 })
 export type Patch = z.infer<typeof Patch>
 
-export const Pickaxe = z.strictObject({
-  patchId: z.string().nullable(),
-  radius: z.number().positive(),
-})
-export type Pickaxe = z.infer<typeof Pickaxe>
-
 export const Cursor = z.strictObject({
   patchId: z.string().nullable(),
 })
 export type Cursor = z.infer<typeof Cursor>
 
 export const World = z.strictObject({
-  pickaxe: Pickaxe,
   cursor: Cursor,
   patches: z.record(z.string(), Patch),
   nextPatchId: z.number().int().nonnegative(),
@@ -59,10 +52,6 @@ function initWorld(seed: string = ''): World {
   const rng = new Prando(seed)
 
   const world: World = {
-    pickaxe: {
-      patchId: null,
-      radius: 0.25,
-    },
     cursor: {
       patchId: null,
     },

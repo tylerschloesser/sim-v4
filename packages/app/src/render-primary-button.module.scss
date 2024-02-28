@@ -1,0 +1,27 @@
+.primary-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 2em;
+  padding: 1em;
+  border-radius: 100%;
+  border: none;
+  background: var(--black);
+  color: var(--white);
+
+  --size: 12vmax;
+
+  width: var(--size);
+  height: var(--size);
+
+  font-size: 2vmax;
+  font-weight: bold;
+
+  text-transform: uppercase;
+
+  transition: opacity 250ms;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}

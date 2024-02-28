@@ -4,7 +4,6 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { RenderCursor } from './render-cursor.js'
 import { RenderPatch } from './render-patch.js'
-import { RenderPickaxe } from './render-pickaxe.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
 import { World } from './world.js'
@@ -49,25 +48,8 @@ export function RenderWorld({
         setWorld={setWorld}
       />
       {Object.values(world.patches).map((patch) => (
-        <RenderPatch
-          key={patch.id}
-          patch={patch}
-          setWorld={setWorld}
-        />
+        <RenderPatch key={patch.id} patch={patch} />
       ))}
-      <RenderPickaxe
-        pickaxe={world.pickaxe}
-        patch={(() => {
-          const { patchId } = world.pickaxe
-          if (patchId) {
-            const patch = world.patches[patchId]
-            invariant(patch)
-            return patch
-          }
-          return null
-        })()}
-        setWorld={setWorld}
-      />
     </g>
   )
 }
