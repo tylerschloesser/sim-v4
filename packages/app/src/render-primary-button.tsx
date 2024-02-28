@@ -3,10 +3,11 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { getPatchItemType } from './inventory.js'
 import styles from './render-primary-button.module.scss'
-import { Cursor, World } from './world.js'
+import { Cursor, Inventory, World } from './world.js'
 
 export interface RenderPrimaryButtonProps {
   cursor: Cursor
+  cursorInventory: Inventory
   setWorld: Updater<World>
 }
 

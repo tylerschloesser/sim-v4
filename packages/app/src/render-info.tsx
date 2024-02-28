@@ -1,5 +1,6 @@
 import React from 'react'
 import invariant from 'tiny-invariant'
+import { getCursorInventory } from './inventory.js'
 import { getAvailableRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RenderInventory } from './render-inventory.js'
@@ -12,9 +13,7 @@ export interface RenderInfoProps {
 export const RenderInfo = React.memo(function RenderInfo({
   world,
 }: RenderInfoProps) {
-  const cursorInventory =
-    world.inventories[world.cursor.inventoryId]
-  invariant(cursorInventory)
+  const cursorInventory = getCursorInventory(world)
 
   let patchInventory: Inventory | undefined = undefined
   if (world.cursor.patchId) {

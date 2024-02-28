@@ -5,13 +5,14 @@ import { useImmer } from 'use-immer'
 import { AppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
+import { getCursorInventory } from './inventory.js'
 import { handlePointer } from './pointer.js'
 import { RenderInfo } from './render-info.js'
 import { RenderPrimaryButton } from './render-primary-button.js'
 import { RenderViewport } from './render-viewport.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
-import { Inventory, loadWorld, saveWorld } from './world.js'
+import { loadWorld, saveWorld } from './world.js'
 
 function rectToViewport(rect: DOMRect): Viewport {
   return {
@@ -78,6 +79,8 @@ export function App() {
     console.log('cursor patchId', world.cursor.patchId)
   }, [world.cursor.patchId])
 
+  const cursorInventory = getCursorInventory(world)
+
   return (
     <div className={styles.app} ref={app}>
       {viewport && (
@@ -89,6 +92,7 @@ export function App() {
           <RenderInfo world={world} />
           <RenderPrimaryButton
             cursor={world.cursor}
+            cursorInventory={cursorInventory}
             setWorld={setWorld}
           />
         </AppContext.Provider>

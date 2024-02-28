@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant'
-import { Inventory, ItemType } from './world.js'
+import { Inventory, ItemType, World } from './world.js'
 
 export function getPatchItemType({
   items,
@@ -7,4 +7,13 @@ export function getPatchItemType({
   invariant(Object.keys(items).length === 1)
   const key = Object.keys(items).at(0)
   return ItemType.parse(key)
+}
+
+export function getCursorInventory(
+  world: World,
+): Inventory {
+  const inventory =
+    world.inventories[world.cursor.inventoryId]
+  invariant(inventory)
+  return inventory
 }
