@@ -93,6 +93,7 @@ export function App() {
           <RenderPrimaryButton
             cursor={world.cursor}
             cursorInventory={cursorInventory}
+            entities={world.entities}
             setWorld={setWorld}
           />
         </AppContext.Provider>

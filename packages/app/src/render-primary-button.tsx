@@ -1,7 +1,9 @@
-import { words } from 'lodash-es'
-import React from 'react'
+import React, { useContext } from 'react'
+import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { AppContext } from './app-context.js'
+import { Camera } from './camera.js'
 import {
   getCursorInventory,
   getPatchItemType,
@@ -20,6 +22,7 @@ import {
 export interface RenderPrimaryButtonProps {
   cursor: Cursor
   cursorInventory: Inventory
+  entities: World['entities']
   setWorld: Updater<World>
 }
 
@@ -114,14 +117,27 @@ function build(
   })
 }
 
+function isBuildValid(
+  camera: Camera,
+  entities: World['entities'],
+) {}
+
+function useIsBuildValid(
+  camera$: BehaviorSubject<Camera>,
+  entities: World['entities'],
+) {}
+
 export const RenderPrimaryButton = React.memo(
   function RenderPrimaryButton({
     cursor,
     cursorInventory,
+    entities,
     setWorld,
   }: RenderPrimaryButtonProps) {
     let onPointerUp: undefined | (() => void) = undefined
     let label: string
+
+    const { camera$ } = useContext(AppContext)
 
     if (cursor.patchId) {
       onPointerUp = () => mine(setWorld)

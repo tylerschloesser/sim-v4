@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
-import { Camera } from './camera.js'
+import { getClosestPatch } from './closest.js'
 import styles from './render-cursor.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
-import { Patch, World } from './world.js'
+import { World } from './world.js'
 
 export interface RenderCursorProps {
   patches: World['patches']
@@ -165,24 +165,3 @@ export const RenderCursor = React.memo(
     )
   },
 )
-
-function getClosestPatch(
-  camera: Camera,
-  patches: World['patches'],
-): { patch: Patch; d: number } | null {
-  let closest: Patch | null = null
-  let min: number = Number.MAX_VALUE
-  for (const patch of Object.values(patches)) {
-    const v = vec2.clone(patch.position)
-    vec2.sub(v, camera.position)
-    const d = vec2.len(v)
-    if (d < min) {
-      min = d
-      closest = patch
-    }
-  }
-  if (closest === null) {
-    return null
-  }
-  return { patch: closest, d: min }
-}
