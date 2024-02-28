@@ -4,7 +4,7 @@ import { getCursorInventory } from './inventory.js'
 import { getAvailableRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RenderInventory } from './render-inventory.js'
-import { Inventory, World } from './world.js'
+import { EntityType, Inventory, World } from './world.js'
 
 export interface RenderInfoProps {
   world: World
@@ -16,10 +16,13 @@ export const RenderInfo = React.memo(function RenderInfo({
   const cursorInventory = getCursorInventory(world)
 
   let patchInventory: Inventory | undefined = undefined
-  if (world.cursor.patchId) {
-    const patch = world.patches[world.cursor.patchId]
-    invariant(patch)
-    patchInventory = world.inventories[patch.inventoryId]
+  if (world.cursor.entityId) {
+    const entity = world.entities[world.cursor.entityId]
+
+    // TODO allow other entities
+    invariant(entity?.type === EntityType.enum.Patch)
+
+    patchInventory = world.inventories[entity.inventoryId]
     invariant(patchInventory)
   }
 

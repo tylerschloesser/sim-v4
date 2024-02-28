@@ -75,10 +75,6 @@ export function App() {
     }
   }, [])
 
-  useEffect(() => {
-    console.log('cursor patchId', world.cursor.patchId)
-  }, [world.cursor.patchId])
-
   const cursorInventory = getCursorInventory(world)
 
   return (
