@@ -81,6 +81,7 @@ export const RenderPatch = React.memo(function Circle({
         style={
           {
             '--fill': color.fill,
+            '--stroke': color.stroke,
           } as React.CSSProperties
         }
       />
