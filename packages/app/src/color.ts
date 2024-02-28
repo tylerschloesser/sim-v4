@@ -26,7 +26,7 @@ export function getPatchColor(type: ItemType): {
       stroke = 'gray'
       break
     case ItemType.enum.Stone:
-      fill = 'lightgray'
+      fill = 'darkgray'
       stroke = 'gray'
       break
   }
