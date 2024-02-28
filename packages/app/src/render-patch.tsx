@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
-import { getItemColor } from './color.js'
+import { getPatchColor } from './color.js'
 import { smooth } from './math.js'
 import styles from './render-patch.module.scss'
 import { Vec2, vec2 } from './vec2.js'
@@ -78,7 +78,7 @@ export const RenderPatch = React.memo(function Circle({
         r={radius}
         style={
           {
-            '--color': getItemColor(itemType),
+            '--color': getPatchColor(itemType),
           } as React.CSSProperties
         }
       />

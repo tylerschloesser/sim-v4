@@ -10,7 +10,7 @@ export const getRandomColor = memoize((_id: string) => {
   return `hsl(${h}, 50%, 50%)`
 })
 
-export function getItemColor(type: ItemType): string {
+export function getPatchColor(type: ItemType): string {
   switch (type) {
     case ItemType.enum.Coal:
       return 'black'
