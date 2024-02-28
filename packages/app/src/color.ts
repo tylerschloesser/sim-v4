@@ -1,5 +1,6 @@
 import { memoize } from 'lodash-es'
 import Prando from 'prando'
+import invariant from 'tiny-invariant'
 import { ItemType } from './world.js'
 
 const rng = new Prando(1)
@@ -29,6 +30,8 @@ export function getPatchColor(type: ItemType): {
       fill = 'darkgray'
       stroke = 'gray'
       break
+    default:
+      invariant(false, `TODO define color for ${type}`)
   }
   return { fill, stroke }
 }
