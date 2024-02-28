@@ -1,5 +1,6 @@
 import React from 'react'
 import invariant from 'tiny-invariant'
+import { getAvailableRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RenderInventory } from './render-inventory.js'
 import { Inventory, World } from './world.js'
@@ -32,5 +33,27 @@ export const RenderInfo = React.memo(function RenderInfo({
     )
   }
 
-  return <div className={styles.info}>TODO</div>
+  const availableRecipes =
+    getAvailableRecipes(cursorInventory)
+
+  return (
+    <div className={styles.info}>
+      <div>
+        Available Recipes:{' '}
+        {availableRecipes.length === 0 && 'None'}
+      </div>
+      {availableRecipes.map((recipe) => (
+        <div key={recipe.id}>
+          Input:
+          {Object.entries(recipe.input).map(
+            (key, value) => `${key}:${value}`,
+          )}
+          Output:
+          {Object.entries(recipe.output).map(
+            (key, value) => `${key}:${value}`,
+          )}
+        </div>
+      ))}
+    </div>
+  )
 })
