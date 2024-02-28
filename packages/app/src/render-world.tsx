@@ -44,7 +44,10 @@ export function RenderWorld({
 
   return (
     <g data-group="world" ref={root}>
-      <RenderCursor patches={world.patches} />
+      <RenderCursor
+        patches={world.patches}
+        setWorld={setWorld}
+      />
       {Object.values(world.patches).map((patch) => (
         <RenderPatch
           key={patch.id}

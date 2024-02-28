@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
+import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
 import styles from './render-cursor.module.scss'
@@ -10,6 +11,7 @@ import { Patch, World } from './world.js'
 
 export interface RenderCursorProps {
   patches: World['patches']
+  setWorld: Updater<World>
 }
 
 export const RenderCursor = React.memo(
