@@ -14,6 +14,7 @@ import { Vec2, vec2 } from './vec2.js'
 import {
   Cursor,
   Entity,
+  EntityType,
   Inventory,
   ItemType,
   World,
@@ -30,12 +31,14 @@ export interface RenderPrimaryButtonProps {
 
 function mine(setWorld: Updater<World>): void {
   setWorld((draft) => {
-    invariant(draft.cursor.patchId)
-    const patch = draft.patches[draft.cursor.patchId]
-    invariant(patch)
+    invariant(draft.cursor.entityId)
+    const entity = draft.entities[draft.cursor.entityId]
+
+    // TODO support other entities
+    invariant(entity?.type === EntityType.enum.Patch)
 
     const patchInventory =
-      draft.inventories[patch.inventoryId]
+      draft.inventories[entity.inventoryId]
     invariant(patchInventory)
 
     const cursorInventory =
@@ -51,9 +54,9 @@ function mine(setWorld: Updater<World>): void {
     patchInventory.items[itemType] = patchCount - 1
 
     if (patchCount === 1) {
-      delete draft.patches[patch.id]
-      delete draft.inventories[patch.inventoryId]
-      draft.cursor.patchId = null
+      delete draft.entities[entity.id]
+      delete draft.inventories[entity.inventoryId]
+      draft.cursor.entityId = null
     }
 
     const cursorCount = cursorInventory.items[itemType]
@@ -85,7 +88,7 @@ function build(
 
     invariant(Object.keys(recipe.output).length === 1)
     invariant(Object.values(recipe.output).at(0) === 1)
-    const entityType = ItemType.parse(
+    const entityType = EntityType.parse(
       Object.keys(recipe.output).at(0),
     )
 
@@ -102,7 +105,7 @@ function build(
     const position: Vec2 = vec2.clone(camera.position)
 
     switch (entityType) {
-      case ItemType.enum.Smelter: {
+      case EntityType.enum.Smelter: {
         entity = {
           type: entityType,
           id: entityId,
@@ -145,7 +148,7 @@ export const RenderPrimaryButton = React.memo(
 
     const { camera$ } = useContext(AppContext)
 
-    if (cursor.patchId) {
+    if (cursor.entityId) {
       onPointerUp = () => mine(setWorld)
       label = 'Mine'
     } else {
