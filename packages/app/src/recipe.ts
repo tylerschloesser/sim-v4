@@ -29,5 +29,21 @@ addRecipe({
 export function getAvailableRecipes(
   inventory: Inventory,
 ): Recipe[] {
-  return []
+  const available = new Array<Recipe>()
+  for (const recipe of Object.values(recipes)) {
+    let fulfilled = true
+    for (const [key, value] of Object.entries(
+      recipe.input,
+    )) {
+      const itemType = ItemType.parse(key)
+      if ((inventory.items[itemType] ?? 0) < value) {
+        fulfilled = false
+        break
+      }
+    }
+    if (fulfilled) {
+      available.push(recipe)
+    }
+  }
+  return available
 }

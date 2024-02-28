@@ -43,16 +43,7 @@ export const RenderInfo = React.memo(function RenderInfo({
         {availableRecipes.length === 0 && 'None'}
       </div>
       {availableRecipes.map((recipe) => (
-        <div key={recipe.id}>
-          Input:
-          {Object.entries(recipe.input).map(
-            (key, value) => `${key}:${value}`,
-          )}
-          Output:
-          {Object.entries(recipe.output).map(
-            (key, value) => `${key}:${value}`,
-          )}
-        </div>
+        <div key={recipe.id}>{recipe.id}</div>
       ))}
     </div>
   )
