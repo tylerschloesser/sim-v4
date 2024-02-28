@@ -56,6 +56,8 @@ export const RenderPatch = React.memo(function Circle({
     })
   }, [])
 
+  const color = getPatchColor(itemType)
+
   return (
     <g data-group={`patch-${id}`}>
       {[...pops].map((id) => (
@@ -78,7 +80,7 @@ export const RenderPatch = React.memo(function Circle({
         r={radius}
         style={
           {
-            '--color': getPatchColor(itemType),
+            '--fill': color.fill,
           } as React.CSSProperties
         }
       />
