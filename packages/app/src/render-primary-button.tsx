@@ -19,6 +19,8 @@ import {
   World,
 } from './world.js'
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 export interface RenderPrimaryButtonProps {
   cursor: Cursor
   cursorInventory: Inventory
