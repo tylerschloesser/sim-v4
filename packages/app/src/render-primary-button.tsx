@@ -10,70 +10,66 @@ export interface RenderPrimaryButtonProps {
   setWorld: Updater<World>
 }
 
-function getButtonProps(
-  cursor: Cursor,
-  setWorld: Updater<World>,
-) {
-  const disabled = cursor.patchId === null
-  const onPointerUp = disabled
-    ? undefined
-    : () => {
-        if (disabled) {
-          return
-        }
-        setWorld((draft) => {
-          invariant(draft.cursor.patchId)
-          const patch = draft.patches[draft.cursor.patchId]
-          invariant(patch)
+function mine(setWorld: Updater<World>): void {
+  setWorld((draft) => {
+    invariant(draft.cursor.patchId)
+    const patch = draft.patches[draft.cursor.patchId]
+    invariant(patch)
 
-          const patchInventory =
-            draft.inventories[patch.inventoryId]
-          invariant(patchInventory)
+    const patchInventory =
+      draft.inventories[patch.inventoryId]
+    invariant(patchInventory)
 
-          const cursorInventory =
-            draft.inventories[draft.cursor.inventoryId]
-          invariant(cursorInventory)
+    const cursorInventory =
+      draft.inventories[draft.cursor.inventoryId]
+    invariant(cursorInventory)
 
-          const itemType = getPatchItemType(patchInventory)
+    const itemType = getPatchItemType(patchInventory)
 
-          const patchCount = patchInventory.items[itemType]
-          invariant(
-            typeof patchCount === 'number' &&
-              patchCount >= 1,
-          )
-          patchInventory.items[itemType] = patchCount - 1
+    const patchCount = patchInventory.items[itemType]
+    invariant(
+      typeof patchCount === 'number' && patchCount >= 1,
+    )
+    patchInventory.items[itemType] = patchCount - 1
 
-          if (patchCount === 1) {
-            delete draft.patches[patch.id]
-            delete draft.inventories[patch.inventoryId]
-            draft.cursor.patchId = null
-          }
+    if (patchCount === 1) {
+      delete draft.patches[patch.id]
+      delete draft.inventories[patch.inventoryId]
+      draft.cursor.patchId = null
+    }
 
-          const cursorCount =
-            cursorInventory.items[itemType]
-          cursorInventory.items[itemType] =
-            (cursorCount ?? 0) + 1
-        })
-      }
-  return { disabled, onPointerUp }
+    const cursorCount = cursorInventory.items[itemType]
+    cursorInventory.items[itemType] = (cursorCount ?? 0) + 1
+  })
 }
+
+function build(setWorld: Updater<World>): void {}
 
 export const RenderPrimaryButton = React.memo(
   function RenderPrimaryButton({
     cursor,
     setWorld,
   }: RenderPrimaryButtonProps) {
-    const { disabled, onPointerUp } = getButtonProps(
-      cursor,
-      setWorld,
-    )
+    let onPointerUp: undefined | (() => void)
+    let label: string
+
+    if (cursor.patchId) {
+      onPointerUp = () => mine(setWorld)
+      label = 'Mine'
+    } else {
+      onPointerUp = () => build(setWorld)
+      label = 'Build'
+    }
+
+    const disabled = onPointerUp === undefined
+
     return (
       <button
         className={styles['primary-button']}
         disabled={disabled}
         onPointerUp={onPointerUp}
       >
-        Mine
+        {label}
       </button>
     )
   },
