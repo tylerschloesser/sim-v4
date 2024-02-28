@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
-import { getClosestPatch } from './closest.js'
+import { getClosestEntity } from './closest.js'
 import styles from './render-cursor.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
@@ -10,13 +10,13 @@ import { getScale } from './viewport.js'
 import { World } from './world.js'
 
 export interface RenderCursorProps {
-  patches: World['patches']
+  entities: World['entities']
   setWorld: Updater<World>
 }
 
 export const RenderCursor = React.memo(
   function RenderCursor({
-    patches,
+    entities,
     setWorld,
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
@@ -32,17 +32,17 @@ export const RenderCursor = React.memo(
     const velocity = useRef<Vec2>({ x: 0, y: 0 })
 
     useEffect(() => {
-      function update(closestPatchId?: string) {
+      function update(closestEntityId?: string) {
         const { x, y } = position.current
         invariant(circle.current)
         circle.current.setAttribute('cx', `${x.toFixed(4)}`)
         circle.current.setAttribute('cy', `${y.toFixed(4)}`)
-        for (const patchId of Object.keys(patches)) {
-          const line = lines.current[patchId]
+        for (const entityId of Object.keys(entities)) {
+          const line = lines.current[entityId]
           invariant(line)
           line.setAttribute('x1', `${x.toFixed(4)}`)
           line.setAttribute('y1', `${y.toFixed(4)}`)
-          if (patchId === closestPatchId) {
+          if (entityId === closestEntityId) {
             line.style.setProperty('--stroke', 'yellow')
           } else {
             line.style.removeProperty('--stroke')
@@ -50,7 +50,8 @@ export const RenderCursor = React.memo(
         }
       }
       update(
-        getClosestPatch(camera$.value, patches)?.patch.id,
+        getClosestEntity(camera$.value, entities)?.entity
+          .id,
       )
 
       let last = self.performance.now()
@@ -59,31 +60,33 @@ export const RenderCursor = React.memo(
         const elapsed = now - last
         last = now
 
-        const closest = getClosestPatch(
+        const closest = getClosestEntity(
           camera$.value,
-          patches,
+          entities,
         )
 
         let dir: Vec2
         if (closest && closest.d < 3) {
           setWorld((draft) => {
-            if (draft.cursor.patchId !== closest.patch.id) {
-              draft.cursor.patchId = closest.patch.id
+            if (
+              draft.cursor.entityId !== closest.entity.id
+            ) {
+              draft.cursor.entityId = closest.entity.id
             }
           })
 
           const pull = vec2.clone(camera$.value.position)
-          vec2.sub(pull, closest.patch.position)
+          vec2.sub(pull, closest.entity.position)
           vec2.mul(pull, (vec2.len(pull) / (2 * 3)) ** 2.5)
 
-          dir = vec2.clone(closest.patch.position)
+          dir = vec2.clone(closest.entity.position)
           vec2.add(dir, pull)
 
           vec2.sub(dir, position.current)
         } else {
           setWorld((draft) => {
-            if (draft.cursor.patchId) {
-              draft.cursor.patchId = null
+            if (draft.cursor.entityId) {
+              draft.cursor.entityId = null
             }
           })
 
@@ -118,7 +121,7 @@ export const RenderCursor = React.memo(
             velocity.current.x * (elapsed / 1000)
           position.current.y +=
             velocity.current.y * (elapsed / 1000)
-          update(closest?.patch.id)
+          update(closest?.entity.id)
         }
 
         handle.current = self.requestAnimationFrame(render)
@@ -129,7 +132,7 @@ export const RenderCursor = React.memo(
           self.cancelAnimationFrame(handle.current)
         }
       }
-    }, [patches])
+    }, [entities])
 
     useCameraEffect(
       (camera, viewport) => {
@@ -145,12 +148,12 @@ export const RenderCursor = React.memo(
           `${((1 / scale) * 2).toFixed(2)}`,
         )
       },
-      [patches],
+      [entities],
     )
 
     return (
       <g data-group="cursor" ref={root}>
-        {Object.values(patches).map(({ id, position }) => (
+        {Object.values(entities).map(({ id, position }) => (
           <line
             ref={(line) => (lines.current[id] = line)}
             className={styles.line}

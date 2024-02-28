@@ -1,24 +1,24 @@
 import { Camera } from './camera.js'
 import { vec2 } from './vec2.js'
-import { Patch, World } from './world.js'
+import { Entity, World } from './world.js'
 
-export function getClosestPatch(
+export function getClosestEntity(
   camera: Camera,
-  patches: World['patches'],
-): { patch: Patch; d: number } | null {
-  let closest: Patch | null = null
+  entities: World['entities'],
+): { entity: Entity; d: number } | null {
+  let closest: Entity | null = null
   let min: number = Number.MAX_VALUE
-  for (const patch of Object.values(patches)) {
-    const v = vec2.clone(patch.position)
+  for (const entity of Object.values(entities)) {
+    const v = vec2.clone(entity.position)
     vec2.sub(v, camera.position)
     const d = vec2.len(v)
     if (d < min) {
       min = d
-      closest = patch
+      closest = entity
     }
   }
   if (closest === null) {
     return null
   }
-  return { patch: closest, d: min }
+  return { entity: closest, d: min }
 }
