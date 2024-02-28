@@ -133,7 +133,6 @@ export const RenderCursor = React.memo(
 
     useCameraEffect(
       (camera, viewport) => {
-        // const { x: cx, y: cy } = camera.position
         const { x: vx, y: vy } = viewport.size
 
         const scale = getScale(camera.zoom, vx, vy)
