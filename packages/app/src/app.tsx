@@ -91,7 +91,10 @@ export function App() {
             setWorld={setWorld}
           />
           <RenderInventory inventory={inventory} />
-          <RenderPrimaryButton cursor={world.cursor} />
+          <RenderPrimaryButton
+            cursor={world.cursor}
+            setWorld={setWorld}
+          />
         </AppContext.Provider>
       )}
       <ResetButton />
