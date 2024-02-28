@@ -21,12 +21,9 @@ export const RenderPatch = React.memo(function Circle({
   patch: {
     id,
     position: { x, y },
-    count,
     radius,
   },
 }: RenderPatchProps) {
-  console.log(`render patch id=${id} count=${count}`)
-
   const [pops, setPops] = useImmer<Set<string>>(new Set())
 
   const nextPopId = useRef<number>(0)

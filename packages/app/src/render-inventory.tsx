@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react'
 import styles from './render-inventory.module.scss'
-import { World } from './world.js'
+import { Inventory } from './world.js'
 
 export interface RenderInventoryProps {
-  inventory: World['inventory']
+  inventory: Inventory
 }
 
 export const RenderInventory = React.memo(
@@ -12,12 +12,14 @@ export const RenderInventory = React.memo(
   }: RenderInventoryProps) {
     return (
       <div className={styles.inventory}>
-        {Object.entries(inventory).map(([key, value]) => (
-          <Fragment key={key}>
-            <div>{key}</div>
-            <div>{value}</div>
-          </Fragment>
-        ))}
+        {Object.entries(inventory.items).map(
+          ([key, value]) => (
+            <Fragment key={key}>
+              <div>{key}</div>
+              <div>{value}</div>
+            </Fragment>
+          ),
+        )}
       </div>
     )
   },

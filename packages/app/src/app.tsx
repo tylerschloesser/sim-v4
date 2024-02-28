@@ -78,6 +78,10 @@ export function App() {
     console.log('cursor patchId', world.cursor.patchId)
   }, [world.cursor.patchId])
 
+  const inventory =
+    world.inventories[world.cursor.inventoryId]
+  invariant(inventory)
+
   return (
     <div className={styles.app} ref={app}>
       {viewport && (
@@ -86,7 +90,7 @@ export function App() {
             world={world}
             setWorld={setWorld}
           />
-          <RenderInventory inventory={world.inventory} />
+          <RenderInventory inventory={inventory} />
           <RenderPrimaryButton cursor={world.cursor} />
         </AppContext.Provider>
       )}

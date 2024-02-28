@@ -8,22 +8,31 @@ export type ItemType = z.infer<typeof ItemType>
 
 export const Patch = z.strictObject({
   id: z.string(),
+  inventoryId: z.string(),
   position: Vec2,
   radius: z.number().positive(),
-  count: z.number().positive(),
 })
 export type Patch = z.infer<typeof Patch>
 
 export const Cursor = z.strictObject({
   patchId: z.string().nullable(),
+  inventoryId: z.string(),
 })
 export type Cursor = z.infer<typeof Cursor>
+
+export const Inventory = z.strictObject({
+  id: z.string(),
+  items: z.record(ItemType, z.number()),
+})
+export type Inventory = z.infer<typeof Inventory>
 
 export const World = z.strictObject({
   cursor: Cursor,
   patches: z.record(z.string(), Patch),
+  inventories: z.record(z.string(), Inventory),
+
   nextPatchId: z.number().int().nonnegative(),
-  inventory: z.record(ItemType, z.number()),
+  nextInventoryId: z.number().int().nonnegative(),
 })
 export type World = z.infer<typeof World>
 
@@ -40,25 +49,41 @@ function addPatch({
 }): void {
   const id = `${world.nextPatchId++}`
   invariant(!world.patches[id])
+  const inventory: Inventory = {
+    id: `${world.nextInventoryId++}`,
+    items: {
+      [ItemType.enum.IronOre]: count,
+    },
+  }
   world.patches[id] = {
     id,
     position,
     radius,
-    count,
+    inventoryId: inventory.id,
   }
+  world.inventories[inventory.id] = inventory
 }
 
 function initWorld(seed: string = ''): World {
   const rng = new Prando(seed)
 
+  let nextInventoryId = 0
+
+  const inventory: Inventory = {
+    id: `${nextInventoryId++}`,
+    items: {},
+  }
+
   const world: World = {
     cursor: {
       patchId: null,
+      inventoryId: inventory.id,
     },
     patches: {},
     nextPatchId: 0,
-    inventory: {
-      [ItemType.enum.IronOre]: 0,
+    nextInventoryId,
+    inventories: {
+      [inventory.id]: inventory,
     },
   }
 
