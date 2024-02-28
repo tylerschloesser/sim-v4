@@ -10,7 +10,7 @@ import {
 } from './inventory.js'
 import { Recipe, getAvailableRecipes } from './recipe.js'
 import styles from './render-primary-button.module.scss'
-import { Vec2 } from './vec2.js'
+import { Vec2, vec2 } from './vec2.js'
 import {
   Cursor,
   Entity,
@@ -61,6 +61,7 @@ function mine(setWorld: Updater<World>): void {
 
 function build(
   recipe: Recipe,
+  camera: Camera,
   setWorld: Updater<World>,
 ): void {
   setWorld((draft) => {
@@ -94,8 +95,7 @@ function build(
     invariant(!draft.inventories[inventory.id])
     draft.inventories[inventory.id] = inventory
 
-    // TODO
-    const position: Vec2 = { x: 0, y: 0 }
+    const position: Vec2 = vec2.clone(camera.position)
 
     switch (entityType) {
       case ItemType.enum.Smelter: {
@@ -120,7 +120,9 @@ function build(
 function isBuildValid(
   camera: Camera,
   entities: World['entities'],
-) {}
+): boolean {
+  return true
+}
 
 function useIsBuildValid(
   camera$: BehaviorSubject<Camera>,
@@ -148,7 +150,8 @@ export const RenderPrimaryButton = React.memo(
       if (availableRecipes.length > 0) {
         const first = availableRecipes.at(0)
         invariant(first)
-        onPointerUp = () => build(first, setWorld)
+        onPointerUp = () =>
+          build(first, camera$.value, setWorld)
       }
       label = 'Build'
     }
