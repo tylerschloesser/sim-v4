@@ -61,7 +61,13 @@ export const RenderCursor = React.memo(
 
         let dir: Vec2
         if (closest && closest.d < 3) {
+          const pull = vec2.clone(camera$.value.position)
+          vec2.sub(pull, closest.patch.position)
+          vec2.mul(pull, (vec2.len(pull) / (2 * 3)) ** 2.5)
+
           dir = vec2.clone(closest.patch.position)
+          vec2.add(dir, pull)
+
           vec2.sub(dir, position.current)
         } else {
           dir = vec2.clone(camera$.value.position)
