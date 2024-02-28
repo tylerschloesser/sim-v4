@@ -7,6 +7,7 @@ import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { handlePointer } from './pointer.js'
 import { RenderInventory } from './render-inventory.js'
+import { RenderPrimaryButton } from './render-primary-button.js'
 import { RenderViewport } from './render-viewport.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
@@ -86,6 +87,7 @@ export function App() {
             setWorld={setWorld}
           />
           <RenderInventory inventory={world.inventory} />
+          <RenderPrimaryButton cursor={world.cursor} />
         </AppContext.Provider>
       )}
       <ResetButton />
