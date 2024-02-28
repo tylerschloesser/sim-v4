@@ -3,17 +3,14 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { Vec2, vec2 } from './vec2.js'
 
-export const ItemType = z.enum([
-  'IronOre',
-  'Stone',
-  'Coal',
-
-  'Smelter',
-])
+export const ItemType = z.enum(['IronOre', 'Stone', 'Coal'])
 export type ItemType = z.infer<typeof ItemType>
 
+export const EntityType = z.enum(['Smelter', 'Patch'])
+export type EntityType = z.infer<typeof EntityType>
+
 export const SmelterEntity = z.strictObject({
-  type: z.literal(ItemType.enum.Smelter),
+  type: z.literal(EntityType.enum.Smelter),
   id: z.string(),
   position: Vec2,
   inventoryId: z.string(),
@@ -21,21 +18,23 @@ export const SmelterEntity = z.strictObject({
 })
 export type SmelterEntity = z.infer<typeof SmelterEntity>
 
+export const PatchEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Patch),
+  id: z.string(),
+  position: Vec2,
+  inventoryId: z.string(),
+  radius: z.number().positive(),
+})
+export type PatchEntity = z.infer<typeof PatchEntity>
+
 export const Entity = z.discriminatedUnion('type', [
   SmelterEntity,
+  PatchEntity,
 ])
 export type Entity = z.infer<typeof Entity>
 
-export const Patch = z.strictObject({
-  id: z.string(),
-  inventoryId: z.string(),
-  position: Vec2,
-  radius: z.number().positive(),
-})
-export type Patch = z.infer<typeof Patch>
-
 export const Cursor = z.strictObject({
-  patchId: z.string().nullable(),
+  entityId: z.string().nullable(),
   inventoryId: z.string(),
 })
 export type Cursor = z.infer<typeof Cursor>
@@ -48,11 +47,9 @@ export type Inventory = z.infer<typeof Inventory>
 
 export const World = z.strictObject({
   cursor: Cursor,
-  patches: z.record(z.string(), Patch),
   entities: z.record(z.string(), Entity),
   inventories: z.record(z.string(), Inventory),
 
-  nextPatchId: z.number().int().nonnegative(),
   nextEntityId: z.number().int().nonnegative(),
   nextInventoryId: z.number().int().nonnegative(),
 })
@@ -71,15 +68,16 @@ function addPatch({
   itemType: ItemType
   count: number
 }): void {
-  const id = `${world.nextPatchId++}`
-  invariant(!world.patches[id])
+  const id = `${world.nextEntityId++}`
+  invariant(!world.entities[id])
   const inventory: Inventory = {
     id: `${world.nextInventoryId++}`,
     items: {
       [itemType]: count,
     },
   }
-  world.patches[id] = {
+  world.entities[id] = {
+    type: EntityType.enum.Patch,
     id,
     position,
     radius,
@@ -100,12 +98,10 @@ function initWorld(seed: string = ''): World {
 
   const world: World = {
     cursor: {
-      patchId: null,
+      entityId: null,
       inventoryId: inventory.id,
     },
-    patches: {},
     entities: {},
-    nextPatchId: 0,
     nextEntityId: 0,
     nextInventoryId,
     inventories: {
