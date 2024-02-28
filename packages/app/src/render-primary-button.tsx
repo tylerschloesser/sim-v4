@@ -1,10 +1,21 @@
+import { words } from 'lodash-es'
 import React from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { getPatchItemType } from './inventory.js'
+import {
+  getCursorInventory,
+  getPatchItemType,
+} from './inventory.js'
 import { Recipe, getAvailableRecipes } from './recipe.js'
 import styles from './render-primary-button.module.scss'
-import { Cursor, Inventory, World } from './world.js'
+import { Vec2 } from './vec2.js'
+import {
+  Cursor,
+  Entity,
+  Inventory,
+  ItemType,
+  World,
+} from './world.js'
 
 export interface RenderPrimaryButtonProps {
   cursor: Cursor
@@ -48,7 +59,60 @@ function mine(setWorld: Updater<World>): void {
 function build(
   recipe: Recipe,
   setWorld: Updater<World>,
-): void {}
+): void {
+  setWorld((draft) => {
+    const cursorInventory = getCursorInventory(draft)
+
+    for (const [key, value] of Object.entries(
+      recipe.input,
+    )) {
+      const itemType = ItemType.parse(key)
+      let count = cursorInventory.items[itemType]
+      invariant(typeof count === 'number' && count >= value)
+      count -= value
+      if (count === 0) {
+        delete cursorInventory.items[itemType]
+      }
+    }
+
+    invariant(Object.keys(recipe.output).length === 1)
+    invariant(Object.values(recipe.output).at(0) === 1)
+    const entityType = ItemType.parse(
+      Object.keys(recipe.output).at(0),
+    )
+
+    let entity: Entity
+    const entityId = `${draft.nextEntityId++}`
+
+    const inventory: Inventory = {
+      id: `${draft.nextInventoryId++}`,
+      items: {},
+    }
+    invariant(!draft.inventories[inventory.id])
+    draft.inventories[inventory.id] = inventory
+
+    // TODO
+    const position: Vec2 = { x: 0, y: 0 }
+
+    switch (entityType) {
+      case ItemType.enum.Smelter: {
+        entity = {
+          type: entityType,
+          id: entityId,
+          inventoryId: inventory.id,
+          position,
+          radius: 1,
+        }
+        break
+      }
+      default:
+        invariant(false)
+    }
+
+    invariant(!draft.entities[entity.id])
+    draft.entities[entity.id] = entity
+  })
+}
 
 export const RenderPrimaryButton = React.memo(
   function RenderPrimaryButton({
