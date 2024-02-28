@@ -2,6 +2,7 @@ import React from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { getPatchItemType } from './inventory.js'
+import { Recipe, getAvailableRecipes } from './recipe.js'
 import styles from './render-primary-button.module.scss'
 import { Cursor, Inventory, World } from './world.js'
 
@@ -44,21 +45,31 @@ function mine(setWorld: Updater<World>): void {
   })
 }
 
-function build(setWorld: Updater<World>): void {}
+function build(
+  recipe: Recipe,
+  setWorld: Updater<World>,
+): void {}
 
 export const RenderPrimaryButton = React.memo(
   function RenderPrimaryButton({
     cursor,
+    cursorInventory,
     setWorld,
   }: RenderPrimaryButtonProps) {
-    let onPointerUp: undefined | (() => void)
+    let onPointerUp: undefined | (() => void) = undefined
     let label: string
 
     if (cursor.patchId) {
       onPointerUp = () => mine(setWorld)
       label = 'Mine'
     } else {
-      onPointerUp = () => build(setWorld)
+      const availableRecipes =
+        getAvailableRecipes(cursorInventory)
+      if (availableRecipes.length > 0) {
+        const first = availableRecipes.at(0)
+        invariant(first)
+        onPointerUp = () => build(first, setWorld)
+      }
       label = 'Build'
     }
 
