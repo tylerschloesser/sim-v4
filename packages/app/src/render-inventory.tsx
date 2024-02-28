@@ -1,25 +1,33 @@
-import React, { Fragment } from 'react'
+import React from 'react'
+import { getPatchItemType } from './inventory.js'
 import styles from './render-inventory.module.scss'
 import { Inventory } from './world.js'
 
 export interface RenderInventoryProps {
-  inventory: Inventory
+  cursorInventory: Inventory
+  patchInventory?: Inventory
 }
 
 export const RenderInventory = React.memo(
   function RenderInventory({
-    inventory,
+    cursorInventory,
+    patchInventory,
   }: RenderInventoryProps) {
+    if (!patchInventory) {
+      return null
+    }
+
+    const itemType = getPatchItemType(patchInventory)
+
     return (
       <div className={styles.inventory}>
-        {Object.entries(inventory.items).map(
-          ([key, value]) => (
-            <Fragment key={key}>
-              <div>{key}</div>
-              <div>{value}</div>
-            </Fragment>
-          ),
-        )}
+        <div>{itemType}</div>
+        <div>
+          Inventory: {cursorInventory.items[itemType] ?? 0}
+        </div>
+        <div>
+          Patch: {patchInventory.items[itemType] ?? 0}
+        </div>
       </div>
     )
   },

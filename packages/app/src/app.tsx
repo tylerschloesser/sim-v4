@@ -11,7 +11,7 @@ import { RenderPrimaryButton } from './render-primary-button.js'
 import { RenderViewport } from './render-viewport.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
-import { loadWorld, saveWorld } from './world.js'
+import { Inventory, loadWorld, saveWorld } from './world.js'
 
 function rectToViewport(rect: DOMRect): Viewport {
   return {
@@ -78,9 +78,17 @@ export function App() {
     console.log('cursor patchId', world.cursor.patchId)
   }, [world.cursor.patchId])
 
-  const inventory =
+  const cursorInventory =
     world.inventories[world.cursor.inventoryId]
-  invariant(inventory)
+  invariant(cursorInventory)
+
+  let patchInventory: Inventory | undefined = undefined
+  if (world.cursor.patchId) {
+    const patch = world.patches[world.cursor.patchId]
+    invariant(patch)
+    patchInventory = world.inventories[patch.inventoryId]
+    invariant(patchInventory)
+  }
 
   return (
     <div className={styles.app} ref={app}>
@@ -90,7 +98,10 @@ export function App() {
             world={world}
             setWorld={setWorld}
           />
-          <RenderInventory inventory={inventory} />
+          <RenderInventory
+            cursorInventory={cursorInventory}
+            patchInventory={patchInventory}
+          />
           <RenderPrimaryButton
             cursor={world.cursor}
             setWorld={setWorld}
