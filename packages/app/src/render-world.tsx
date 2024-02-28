@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { RenderCursor } from './render-cursor.js'
+import { RenderEntity } from './render-entity.js'
 import { RenderPatch } from './render-patch.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
@@ -57,6 +58,11 @@ export function RenderWorld({
             patch={patch}
             inventory={inventory}
           />
+        )
+      })}
+      {Object.values(world.entities).map((entity) => {
+        return (
+          <RenderEntity key={entity.id} entity={entity} />
         )
       })}
     </g>
