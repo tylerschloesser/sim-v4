@@ -15,7 +15,10 @@ export interface RenderCursorProps {
 }
 
 export const RenderCursor = React.memo(
-  function RenderCursor({ patches }: RenderCursorProps) {
+  function RenderCursor({
+    patches,
+    setWorld,
+  }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
@@ -63,6 +66,12 @@ export const RenderCursor = React.memo(
 
         let dir: Vec2
         if (closest && closest.d < 3) {
+          setWorld((draft) => {
+            if (draft.cursor.patchId !== closest.patch.id) {
+              draft.cursor.patchId = closest.patch.id
+            }
+          })
+
           const pull = vec2.clone(camera$.value.position)
           vec2.sub(pull, closest.patch.position)
           vec2.mul(pull, (vec2.len(pull) / (2 * 3)) ** 2.5)
@@ -72,6 +81,12 @@ export const RenderCursor = React.memo(
 
           vec2.sub(dir, position.current)
         } else {
+          setWorld((draft) => {
+            if (draft.cursor.patchId) {
+              draft.cursor.patchId = null
+            }
+          })
+
           dir = vec2.clone(camera$.value.position)
           vec2.sub(dir, position.current)
         }

@@ -73,6 +73,10 @@ export function App() {
     }
   }, [])
 
+  useEffect(() => {
+    console.log('cursor patchId', world.cursor.patchId)
+  }, [world.cursor.patchId])
+
   return (
     <div className={styles.app} ref={app}>
       {viewport && (
