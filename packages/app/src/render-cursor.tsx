@@ -61,12 +61,13 @@ export const RenderCursor = React.memo(
 
         let dir: Vec2
         if (closest && closest.d < 3) {
-          dir = { ...closest.patch.position }
+          dir = vec2.clone(closest.patch.position)
+          vec2.sub(dir, position.current)
         } else {
-          dir = { ...camera$.value.position }
+          dir = vec2.clone(camera$.value.position)
+          vec2.sub(dir, position.current)
         }
 
-        vec2.sub(dir, position.current)
         const d = vec2.len(dir)
         vec2.norm(dir)
 
@@ -82,7 +83,7 @@ export const RenderCursor = React.memo(
           //
           // https://www.wolframalpha.com/input?i=plot+%28x+%2B+1%29+**+4+from+0+to+2
           //
-          vmag = (d + 1) ** 2
+          vmag = (d + 1) ** 2.5
 
           // rotate velocity if needed
           vec2.copy(velocity.current, dir)

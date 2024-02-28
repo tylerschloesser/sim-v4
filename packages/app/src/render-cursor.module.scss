@@ -2,6 +2,8 @@
 }
 
 .line {
+  visibility: hidden;
+
   stroke-width: var(--stroke-width);
   stroke: var(--stroke, magenta);
 }
