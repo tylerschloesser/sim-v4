@@ -76,6 +76,8 @@ function build(
       count -= value
       if (count === 0) {
         delete cursorInventory.items[itemType]
+      } else {
+        cursorInventory.items[itemType] = count
       }
     }
 
