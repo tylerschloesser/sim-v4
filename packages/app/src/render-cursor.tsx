@@ -104,9 +104,9 @@ export const RenderCursor = React.memo(
         } else if (d > threshold || vmag) {
           // speed is a function of the distance
           //
-          // https://www.wolframalpha.com/input?i=plot+%28x+%2B+1%29+**+4+from+0+to+2
+          // https://www.wolframalpha.com/input?i=plot+%28x+%2B+1%29+**+2+-+1+from+0+to+.5
           //
-          vmag = (d + 1) ** 2.5
+          vmag = (d + 1) ** 3 + 1
 
           // rotate velocity if needed
           vec2.copy(velocity.current, dir)
