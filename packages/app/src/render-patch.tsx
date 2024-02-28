@@ -7,14 +7,21 @@ import React, {
 } from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
-import { getColor } from './color.js'
+import { getItemColor } from './color.js'
 import { smooth } from './math.js'
 import styles from './render-patch.module.scss'
 import { Vec2, vec2 } from './vec2.js'
-import { Patch } from './world.js'
+import { Inventory, ItemType, Patch } from './world.js'
 
 export interface RenderPatchProps {
   patch: Patch
+  inventory: Inventory
+}
+
+function getItemType({ items }: Inventory): ItemType {
+  invariant(Object.keys(items).length === 1)
+  const key = Object.keys(items).at(0)
+  return ItemType.parse(key)
 }
 
 export const RenderPatch = React.memo(function Circle({
@@ -23,12 +30,15 @@ export const RenderPatch = React.memo(function Circle({
     position: { x, y },
     radius,
   },
+  inventory,
 }: RenderPatchProps) {
   const [pops, setPops] = useImmer<Set<string>>(new Set())
 
   const nextPopId = useRef<number>(0)
 
   const [mine, setMine] = useState<boolean>(false)
+
+  const itemType = getItemType(inventory)
 
   useEffect(() => {
     if (!mine) {
@@ -68,7 +78,7 @@ export const RenderPatch = React.memo(function Circle({
         r={radius}
         style={
           {
-            '--color': getColor(id),
+            '--color': getItemColor(itemType),
           } as React.CSSProperties
         }
       />

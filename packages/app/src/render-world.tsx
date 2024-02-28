@@ -47,9 +47,18 @@ export function RenderWorld({
         patches={world.patches}
         setWorld={setWorld}
       />
-      {Object.values(world.patches).map((patch) => (
-        <RenderPatch key={patch.id} patch={patch} />
-      ))}
+      {Object.values(world.patches).map((patch) => {
+        const inventory =
+          world.inventories[patch.inventoryId]
+        invariant(inventory)
+        return (
+          <RenderPatch
+            key={patch.id}
+            patch={patch}
+            inventory={inventory}
+          />
+        )
+      })}
     </g>
   )
 }
