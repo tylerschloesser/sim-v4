@@ -1,6 +1,8 @@
+import { words } from 'lodash-es'
 import React from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { getPatchItemType } from './inventory.js'
 import styles from './render-primary-button.module.scss'
 import { Cursor, ItemType, World } from './world.js'
 
@@ -24,13 +26,39 @@ export const RenderPrimaryButton = React.memo(
             return
           }
           setWorld((draft) => {
-            const inventory =
-              draft.inventories[draft.cursor.inventoryId]
-            invariant(inventory)
+            invariant(draft.cursor.patchId)
+            const patch =
+              draft.patches[draft.cursor.patchId]
+            invariant(patch)
 
-            const itemType = ItemType.enum.IronOre
-            const count = inventory.items[itemType]
-            inventory.items[itemType] = (count ?? 0) + 1
+            const patchInventory =
+              draft.inventories[patch.inventoryId]
+            invariant(patchInventory)
+
+            const cursorInventory =
+              draft.inventories[draft.cursor.inventoryId]
+            invariant(cursorInventory)
+
+            const itemType =
+              getPatchItemType(patchInventory)
+
+            const patchCount =
+              patchInventory.items[itemType]
+            invariant(
+              typeof patchCount === 'number' &&
+                patchCount >= 1,
+            )
+            patchInventory.items[itemType] = patchCount - 1
+
+            if (patchCount === 1) {
+              delete draft.patches[patch.id]
+              delete draft.inventories[patch.inventoryId]
+            }
+
+            const cursorCount =
+              cursorInventory.items[itemType]
+            cursorInventory.items[itemType] =
+              (cursorCount ?? 0) + 1
           })
         }}
       >
