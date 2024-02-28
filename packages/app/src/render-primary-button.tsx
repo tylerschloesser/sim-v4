@@ -1,10 +1,9 @@
-import { words } from 'lodash-es'
 import React from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { getPatchItemType } from './inventory.js'
 import styles from './render-primary-button.module.scss'
-import { Cursor, ItemType, World } from './world.js'
+import { Cursor, World } from './world.js'
 
 export interface RenderPrimaryButtonProps {
   cursor: Cursor
