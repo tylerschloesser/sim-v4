@@ -12,6 +12,20 @@ export const ItemType = z.enum([
 ])
 export type ItemType = z.infer<typeof ItemType>
 
+export const SmelterEntity = z.strictObject({
+  type: z.literal(ItemType.enum.Smelter),
+  id: z.string(),
+  position: Vec2,
+  inventoryId: z.string(),
+  radius: z.number().positive(),
+})
+export type SmelterEntity = z.infer<typeof SmelterEntity>
+
+export const Entity = z.discriminatedUnion('type', [
+  SmelterEntity,
+])
+export type Entity = z.infer<typeof Entity>
+
 export const Patch = z.strictObject({
   id: z.string(),
   inventoryId: z.string(),
@@ -35,9 +49,11 @@ export type Inventory = z.infer<typeof Inventory>
 export const World = z.strictObject({
   cursor: Cursor,
   patches: z.record(z.string(), Patch),
+  entities: z.record(z.string(), Entity),
   inventories: z.record(z.string(), Inventory),
 
   nextPatchId: z.number().int().nonnegative(),
+  nextEntityId: z.number().int().nonnegative(),
   nextInventoryId: z.number().int().nonnegative(),
 })
 export type World = z.infer<typeof World>
@@ -88,7 +104,9 @@ function initWorld(seed: string = ''): World {
       inventoryId: inventory.id,
     },
     patches: {},
+    entities: {},
     nextPatchId: 0,
+    nextEntityId: 0,
     nextInventoryId,
     inventories: {
       [inventory.id]: inventory,
