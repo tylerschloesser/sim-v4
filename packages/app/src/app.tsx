@@ -6,7 +6,7 @@ import { AppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { handlePointer } from './pointer.js'
-import { RenderInventory } from './render-inventory.js'
+import { RenderInfo } from './render-info.js'
 import { RenderPrimaryButton } from './render-primary-button.js'
 import { RenderViewport } from './render-viewport.js'
 import { Viewport } from './viewport.js'
@@ -78,18 +78,6 @@ export function App() {
     console.log('cursor patchId', world.cursor.patchId)
   }, [world.cursor.patchId])
 
-  const cursorInventory =
-    world.inventories[world.cursor.inventoryId]
-  invariant(cursorInventory)
-
-  let patchInventory: Inventory | undefined = undefined
-  if (world.cursor.patchId) {
-    const patch = world.patches[world.cursor.patchId]
-    invariant(patch)
-    patchInventory = world.inventories[patch.inventoryId]
-    invariant(patchInventory)
-  }
-
   return (
     <div className={styles.app} ref={app}>
       {viewport && (
@@ -98,10 +86,7 @@ export function App() {
             world={world}
             setWorld={setWorld}
           />
-          <RenderInventory
-            cursorInventory={cursorInventory}
-            patchInventory={patchInventory}
-          />
+          <RenderInfo world={world} />
           <RenderPrimaryButton
             cursor={world.cursor}
             setWorld={setWorld}
