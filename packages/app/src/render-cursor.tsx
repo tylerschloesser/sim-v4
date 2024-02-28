@@ -44,7 +44,9 @@ export const RenderCursor = React.memo(
           }
         }
       }
-      update(getClosestPatch(camera$.value, patches)?.id)
+      update(
+        getClosestPatch(camera$.value, patches)?.patch.id,
+      )
 
       let last = self.performance.now()
       function render() {
@@ -57,7 +59,13 @@ export const RenderCursor = React.memo(
           patches,
         )
 
-        const dir = vec2.clone(camera$.value.position)
+        let dir: Vec2
+        if (closest && closest.d < 3) {
+          dir = { ...closest.patch.position }
+        } else {
+          dir = { ...camera$.value.position }
+        }
+
         vec2.sub(dir, position.current)
         const d = vec2.len(dir)
         vec2.norm(dir)
@@ -74,7 +82,7 @@ export const RenderCursor = React.memo(
           //
           // https://www.wolframalpha.com/input?i=plot+%28x+%2B+1%29+**+4+from+0+to+2
           //
-          vmag = (d + 1) ** 4
+          vmag = (d + 1) ** 2
 
           // rotate velocity if needed
           vec2.copy(velocity.current, dir)
@@ -86,7 +94,7 @@ export const RenderCursor = React.memo(
             velocity.current.x * (elapsed / 1000)
           position.current.y +=
             velocity.current.y * (elapsed / 1000)
-          update(closest?.id)
+          update(closest?.patch.id)
         }
 
         handle.current = self.requestAnimationFrame(render)
@@ -137,7 +145,7 @@ export const RenderCursor = React.memo(
 function getClosestPatch(
   camera: Camera,
   patches: World['patches'],
-): Patch | null {
+): { patch: Patch; d: number } | null {
   let closest: Patch | null = null
   let min: number = Number.MAX_VALUE
   for (const patch of Object.values(patches)) {
@@ -149,5 +157,8 @@ function getClosestPatch(
       closest = patch
     }
   }
-  return closest
+  if (closest === null) {
+    return null
+  }
+  return { patch: closest, d: min }
 }
