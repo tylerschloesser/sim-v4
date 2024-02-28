@@ -20,8 +20,14 @@ export const Pickaxe = z.strictObject({
 })
 export type Pickaxe = z.infer<typeof Pickaxe>
 
+export const Cursor = z.strictObject({
+  patchId: z.string().nullable(),
+})
+export type Cursor = z.infer<typeof Cursor>
+
 export const World = z.strictObject({
   pickaxe: Pickaxe,
+  cursor: Cursor,
   patches: z.record(z.string(), Patch),
   nextPatchId: z.number().int().nonnegative(),
   inventory: z.record(ItemType, z.number()),
@@ -56,6 +62,9 @@ function initWorld(seed: string = ''): World {
     pickaxe: {
       patchId: null,
       radius: 0.25,
+    },
+    cursor: {
+      patchId: null,
     },
     patches: {},
     nextPatchId: 0,
