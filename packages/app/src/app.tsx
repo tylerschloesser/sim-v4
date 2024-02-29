@@ -9,10 +9,11 @@ import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
-import { PathBuildMiner } from './path-build-miner.js'
-import { PathRoot } from './path-root.js'
+import { PathRootBuildMiner } from './path-root-build-miner.js'
+import { PathRootIndex } from './path-root-index.js'
 import { handlePointer } from './pointer.js'
 import { RenderViewport } from './render-viewport.js'
+import { RouteId } from './route.js'
 import { tickWorld } from './tick-world.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
@@ -44,11 +45,18 @@ function useTickWorld(setWorld: Updater<World>) {
 const router = createBrowserRouter([
   {
     path: '/',
-    Component: PathRoot,
-  },
-  {
-    path: '/build-miner',
-    Component: PathBuildMiner,
+    children: [
+      {
+        index: true,
+        Component: PathRootIndex,
+        id: RouteId.enum.Root,
+      },
+      {
+        path: 'build-miner',
+        Component: PathRootBuildMiner,
+        id: RouteId.enum.BuildMiner,
+      },
+    ],
   },
 ])
 

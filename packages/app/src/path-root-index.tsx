@@ -9,7 +9,7 @@ import { RenderInfo } from './render-info.js'
 import { RenderPrimaryButton } from './render-primary-button.js'
 import { Entity, Inventory } from './world.js'
 
-export function PathRoot() {
+export function PathRootIndex() {
   const { world, setWorld } = useContext(AppContext)
 
   const cursorInventory = getCursorInventory(
