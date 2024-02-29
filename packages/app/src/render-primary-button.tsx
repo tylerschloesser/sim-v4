@@ -185,8 +185,13 @@ function RenderDefaultPrimaryButton({
 // eslint-disable-next-line
 function RenderSmelterPrimaryButton({}: RenderPrimaryButtonProps) {
   return (
-    <button className={styles['primary-button']}>
-      TODO
-    </button>
+    <>
+      <button className={styles['secondary-button']}>
+        Second
+      </button>
+      <button className={styles['primary-button']}>
+        First
+      </button>
+    </>
   )
 }

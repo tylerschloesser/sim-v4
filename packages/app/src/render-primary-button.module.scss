@@ -1,4 +1,4 @@
-.primary-button {
+@mixin button {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -24,4 +24,13 @@
   &:disabled {
     opacity: 0.5;
   }
+}
+
+.primary-button {
+  @include button;
+}
+
+.secondary-button {
+  @include button;
+  bottom: calc(var(--size) + 2em);
 }
