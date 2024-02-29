@@ -7,15 +7,17 @@ import styles from './render-cursor.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
-import { World } from './world.js'
+import { Cursor, World } from './world.js'
 
 export interface RenderCursorProps {
+  cursor: Cursor
   entities: World['entities']
   setWorld: Updater<World>
 }
 
 export const RenderCursor = React.memo(
   function RenderCursor({
+    cursor,
     entities,
     setWorld,
   }: RenderCursorProps) {
@@ -162,7 +164,11 @@ export const RenderCursor = React.memo(
             y2={position.y}
           />
         ))}
-        <circle r={1} fill={'red'} ref={circle} />
+        <circle
+          r={cursor.radius}
+          fill={'red'}
+          ref={circle}
+        />
       </g>
     )
   },

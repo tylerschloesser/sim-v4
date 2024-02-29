@@ -110,7 +110,7 @@ function build(
           id: entityId,
           inventoryId: inventory.id,
           position,
-          radius: 1,
+          radius: 0.75,
         }
         break
       }

@@ -14,7 +14,7 @@ export const SmelterEntity = z.strictObject({
   id: z.string(),
   position: Vec2,
   inventoryId: z.string(),
-  radius: z.number().positive(),
+  radius: z.literal(0.75),
 })
 export type SmelterEntity = z.infer<typeof SmelterEntity>
 
@@ -23,7 +23,7 @@ export const PatchEntity = z.strictObject({
   id: z.string(),
   position: Vec2,
   inventoryId: z.string(),
-  radius: z.number().positive(),
+  radius: z.literal(0.75),
 })
 export type PatchEntity = z.infer<typeof PatchEntity>
 
@@ -36,6 +36,7 @@ export type Entity = z.infer<typeof Entity>
 export const Cursor = z.strictObject({
   entityId: z.string().nullable(),
   inventoryId: z.string(),
+  radius: z.literal(1),
 })
 export type Cursor = z.infer<typeof Cursor>
 
@@ -64,7 +65,7 @@ function addPatch({
 }: {
   world: World
   position: Vec2
-  radius: number
+  radius: 0.75
   itemType: ItemType
   count: number
 }): void {
@@ -100,6 +101,7 @@ function initWorld(seed: string = ''): World {
     cursor: {
       entityId: null,
       inventoryId: inventory.id,
+      radius: 1,
     },
     entities: {},
     nextEntityId: 0,
@@ -115,7 +117,6 @@ function initWorld(seed: string = ''): World {
     count: number,
   ): void {
     const dist = 4 + rng.next() * 4
-    const radius = 0.25 + rng.next() * 0.5
 
     const position = { x: dist, y: 0 }
     vec2.rotate(position, angle)
@@ -123,7 +124,7 @@ function initWorld(seed: string = ''): World {
     addPatch({
       world,
       position,
-      radius,
+      radius: 0.75,
       itemType,
       count,
     })

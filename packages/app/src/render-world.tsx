@@ -45,6 +45,7 @@ export function RenderWorld({
   return (
     <g data-group="world" ref={root}>
       <RenderCursor
+        cursor={world.cursor}
         entities={world.entities}
         setWorld={setWorld}
       />
