@@ -25,6 +25,9 @@ export const RenderCursor = React.memo(
     const { camera$ } = useContext(AppContext)
 
     const routeId = useRouteId()
+    useEffect(() => {
+      console.log('routeId', routeId)
+    }, [routeId])
 
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
