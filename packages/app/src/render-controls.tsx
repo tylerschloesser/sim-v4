@@ -128,6 +128,40 @@ function RenderSecondaryButton({
   )
 }
 
+function minePatch(setWorld: Updater<World>): void {
+  setWorld((draft) => {
+    invariant(draft.cursor.entityId)
+    const entity = draft.entities[draft.cursor.entityId]
+
+    invariant(entity?.type === EntityType.enum.Patch)
+
+    const patchInventory =
+      draft.inventories[entity.inventoryId]
+    invariant(patchInventory)
+
+    const cursorInventory =
+      draft.inventories[draft.cursor.inventoryId]
+    invariant(cursorInventory)
+
+    const { itemType } = entity
+
+    const patchCount = patchInventory.items[itemType]
+    invariant(
+      typeof patchCount === 'number' && patchCount >= 1,
+    )
+    patchInventory.items[itemType] = patchCount - 1
+
+    if (patchCount === 1) {
+      delete draft.entities[entity.id]
+      delete draft.inventories[entity.inventoryId]
+      draft.cursor.entityId = null
+    }
+
+    const cursorCount = cursorInventory.items[itemType]
+    cursorInventory.items[itemType] = (cursorCount ?? 0) + 1
+  })
+}
+
 interface RenderPatchControlsProps {
   cursorInventory: Inventory
   setWorld: Updater<World>
@@ -144,46 +178,7 @@ function RenderPatchControls({
   return (
     <>
       <RenderPrimaryButton
-        onPointerUp={() => {
-          setWorld((draft) => {
-            invariant(draft.cursor.entityId)
-            const entity =
-              draft.entities[draft.cursor.entityId]
-
-            invariant(
-              entity?.type === EntityType.enum.Patch,
-            )
-
-            const patchInventory =
-              draft.inventories[entity.inventoryId]
-            invariant(patchInventory)
-
-            const cursorInventory =
-              draft.inventories[draft.cursor.inventoryId]
-            invariant(cursorInventory)
-
-            const { itemType } = entity
-
-            const patchCount =
-              patchInventory.items[itemType]
-            invariant(
-              typeof patchCount === 'number' &&
-                patchCount >= 1,
-            )
-            patchInventory.items[itemType] = patchCount - 1
-
-            if (patchCount === 1) {
-              delete draft.entities[entity.id]
-              delete draft.inventories[entity.inventoryId]
-              draft.cursor.entityId = null
-            }
-
-            const cursorCount =
-              cursorInventory.items[itemType]
-            cursorInventory.items[itemType] =
-              (cursorCount ?? 0) + 1
-          })
-        }}
+        onPointerUp={() => minePatch(setWorld)}
       >
         Mine
       </RenderPrimaryButton>
@@ -296,21 +291,24 @@ function RenderDefaultControls({
 
 function takeAllFromSmelter(
   setWorld: Updater<World>,
-  entityId: string,
 ): void {
   setWorld((world) => {
     const cursorInventory = getCursorInventory(
       world.cursor,
       world.inventories,
     )
-    const entity = getEntity(world.entities, entityId)
+
+    invariant(world.cursor.entityId)
+    const entity = getEntity(
+      world.entities,
+      world.cursor.entityId,
+    )
+    invariant(entity.type === EntityType.enum.Smelter)
 
     const entityInventory = getEntityInventory(
       entity,
       world.inventories,
     )
-
-    invariant(entity.type === EntityType.enum.Smelter)
 
     invariant(entity.recipeId)
     const recipe = smelterRecipes[entity.recipeId]
