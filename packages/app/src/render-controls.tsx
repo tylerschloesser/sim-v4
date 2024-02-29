@@ -327,33 +327,13 @@ function RenderSmelterControls({
           disabled={!hasIron}
           onPointerUp={() => {
             if (!hasIron) return
-            setWorld((draft) => {
-              const cursorInventory = getCursorInventory(
-                draft.cursor,
-                draft.inventories,
-              )
-              const entity = getCursorEntity(
-                draft.cursor,
-                draft.entities,
-              )
-              invariant(
-                entity?.type === EntityType.enum.Smelter,
-              )
-              const entityInventory = getEntityInventory(
-                entity,
-                draft.inventories,
-              )
-              const items = { [ItemType.enum.IronOre]: 1 }
-              inventorySub(cursorInventory, items)
-              inventoryAdd(entityInventory, items)
-            })
+            moveItemFromCursorToSmelter(
+              setWorld,
+              ItemType.enum.IronOre,
+            )
           }}
         >
-          Add
-          <br />
-          Iron
-          <br />
-          Ore
+          Add Iron Ore
         </button>
       </>
     )
