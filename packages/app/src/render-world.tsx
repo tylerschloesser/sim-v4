@@ -1,4 +1,4 @@
-import { useContext, useRef } from 'react'
+import React, { useContext, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
@@ -6,15 +6,17 @@ import { RenderCursor } from './render-cursor.js'
 import { RenderEntity } from './render-entity.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { World } from './world.js'
+import { Cursor, World } from './world.js'
 
 export interface RenderWorldProps {
-  world: World
+  cursor: Cursor
+  entities: World['entities']
   setWorld: Updater<World>
 }
 
-export function RenderWorld({
-  world,
+export const RenderWorld = React.memo(function RenderWorld({
+  cursor,
+  entities,
   setWorld,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
@@ -44,15 +46,15 @@ export function RenderWorld({
   return (
     <g data-group="world" ref={root}>
       <RenderCursor
-        cursor={world.cursor}
-        entities={world.entities}
+        cursor={cursor}
+        entities={entities}
         setWorld={setWorld}
       />
-      {Object.values(world.entities).map((entity) => {
+      {Object.values(entities).map((entity) => {
         return (
           <RenderEntity key={entity.id} entity={entity} />
         )
       })}
     </g>
   )
-}
+})

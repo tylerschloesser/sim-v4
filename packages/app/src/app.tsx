@@ -121,10 +121,7 @@ export function App() {
         <AppContext.Provider
           value={{ camera$, viewport, world, setWorld }}
         >
-          <RenderViewport
-            world={world}
-            setWorld={setWorld}
-          />
+          <RenderViewport />
           <RouterProvider router={router} />
         </AppContext.Provider>
       )}
