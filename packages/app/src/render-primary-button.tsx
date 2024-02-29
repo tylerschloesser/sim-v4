@@ -33,40 +33,6 @@ export interface RenderPrimaryButtonProps {
   setWorld: Updater<World>
 }
 
-function mine(setWorld: Updater<World>): void {
-  setWorld((draft) => {
-    invariant(draft.cursor.entityId)
-    const entity = draft.entities[draft.cursor.entityId]
-
-    invariant(entity?.type === EntityType.enum.Patch)
-
-    const patchInventory =
-      draft.inventories[entity.inventoryId]
-    invariant(patchInventory)
-
-    const cursorInventory =
-      draft.inventories[draft.cursor.inventoryId]
-    invariant(cursorInventory)
-
-    const itemType = getPatchItemType(patchInventory)
-
-    const patchCount = patchInventory.items[itemType]
-    invariant(
-      typeof patchCount === 'number' && patchCount >= 1,
-    )
-    patchInventory.items[itemType] = patchCount - 1
-
-    if (patchCount === 1) {
-      delete draft.entities[entity.id]
-      delete draft.inventories[entity.inventoryId]
-      draft.cursor.entityId = null
-    }
-
-    const cursorCount = cursorInventory.items[itemType]
-    cursorInventory.items[itemType] = (cursorCount ?? 0) + 1
-  })
-}
-
 function build(
   recipe: EntityRecipe,
   camera: Camera,
@@ -139,43 +105,107 @@ function useIsBuildValid(
 ) {}
 
 export const RenderPrimaryButton = React.memo(
-  function RenderPrimaryButton({
-    cursor,
-    cursorInventory,
-    entities,
-    setWorld,
-  }: RenderPrimaryButtonProps) {
-    let onPointerUp: undefined | (() => void) = undefined
-    let label: string
-
-    const { camera$ } = useContext(AppContext)
-    const entity = getCursorEntity(cursor, entities)
-
-    if (entity?.type === EntityType.enum.Patch) {
-      onPointerUp = () => mine(setWorld)
-      label = 'Mine'
-    } else {
-      const availableRecipes =
-        getAvailableRecipes(cursorInventory)
-      if (availableRecipes.length > 0) {
-        const first = availableRecipes.at(0)
-        invariant(first)
-        onPointerUp = () =>
-          build(first, camera$.value, setWorld)
-      }
-      label = 'Build'
-    }
-
-    const disabled = onPointerUp === undefined
-
-    return (
-      <button
-        className={styles['primary-button']}
-        disabled={disabled}
-        onPointerUp={onPointerUp}
-      >
-        {label}
-      </button>
+  function RenderPrimaryButton(
+    props: RenderPrimaryButtonProps,
+  ) {
+    const entity = getCursorEntity(
+      props.cursor,
+      props.entities,
     )
+
+    switch (entity?.type) {
+      case EntityType.enum.Patch:
+        return <RenderPatchPrimaryButton {...props} />
+      case EntityType.enum.Smelter:
+        return <RenderSmelterPrimaryButton {...props} />
+      default:
+        return <RenderDefaultPrimaryButton {...props} />
+    }
   },
 )
+
+function RenderPatchPrimaryButton({
+  setWorld,
+}: RenderPrimaryButtonProps) {
+  return (
+    <button
+      className={styles['primary-button']}
+      onPointerUp={() => {
+        setWorld((draft) => {
+          invariant(draft.cursor.entityId)
+          const entity =
+            draft.entities[draft.cursor.entityId]
+
+          invariant(entity?.type === EntityType.enum.Patch)
+
+          const patchInventory =
+            draft.inventories[entity.inventoryId]
+          invariant(patchInventory)
+
+          const cursorInventory =
+            draft.inventories[draft.cursor.inventoryId]
+          invariant(cursorInventory)
+
+          const itemType = getPatchItemType(patchInventory)
+
+          const patchCount = patchInventory.items[itemType]
+          invariant(
+            typeof patchCount === 'number' &&
+              patchCount >= 1,
+          )
+          patchInventory.items[itemType] = patchCount - 1
+
+          if (patchCount === 1) {
+            delete draft.entities[entity.id]
+            delete draft.inventories[entity.inventoryId]
+            draft.cursor.entityId = null
+          }
+
+          const cursorCount =
+            cursorInventory.items[itemType]
+          cursorInventory.items[itemType] =
+            (cursorCount ?? 0) + 1
+        })
+      }}
+    >
+      Mine
+    </button>
+  )
+}
+
+function RenderDefaultPrimaryButton({
+  cursorInventory,
+  setWorld,
+}: RenderPrimaryButtonProps) {
+  const { camera$ } = useContext(AppContext)
+
+  let onPointerUp: (() => void) | undefined = undefined
+  const availableRecipes =
+    getAvailableRecipes(cursorInventory)
+  if (availableRecipes.length > 0) {
+    const first = availableRecipes.at(0)
+    invariant(first)
+    onPointerUp = () =>
+      build(first, camera$.value, setWorld)
+  }
+
+  const disabled = onPointerUp === undefined
+
+  return (
+    <button
+      className={styles['primary-button']}
+      disabled={disabled}
+      onPointerUp={onPointerUp}
+    >
+      Build
+    </button>
+  )
+}
+
+function RenderSmelterPrimaryButton({}: RenderPrimaryButtonProps) {
+  return (
+    <button className={styles['primary-button']}>
+      TODO
+    </button>
+  )
+}
