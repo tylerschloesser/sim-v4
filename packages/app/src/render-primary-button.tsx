@@ -182,15 +182,27 @@ function RenderDefaultPrimaryButton({
   )
 }
 
-// eslint-disable-next-line
-function RenderSmelterPrimaryButton({}: RenderPrimaryButtonProps) {
+function RenderSmelterPrimaryButton({
+  cursorInventory,
+}: RenderPrimaryButtonProps) {
+  const hasCoal =
+    (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
+  const hasIron =
+    (cursorInventory.items[ItemType.enum.IronOre] ?? 0) > 0
+
   return (
     <>
-      <button className={styles['secondary-button']}>
-        Second
+      <button
+        className={styles['secondary-button']}
+        disabled={!hasCoal}
+      >
+        +Coal
       </button>
-      <button className={styles['primary-button']}>
-        First
+      <button
+        className={styles['primary-button']}
+        disabled={!hasIron}
+      >
+        +Iron
       </button>
     </>
   )
