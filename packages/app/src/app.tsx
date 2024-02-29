@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -46,6 +51,47 @@ function useTickWorld(setWorld: Updater<World>) {
       self.clearInterval(interval.current)
     }
   }, [])
+}
+
+function RootPath() {
+  const { world, setWorld } = useContext(AppContext)
+
+  const cursorInventory = getCursorInventory(
+    world.cursor,
+    world.inventories,
+  )
+
+  let entity: Entity | undefined = undefined
+  if (world.cursor.entityId) {
+    entity = getEntity(
+      world.entities,
+      world.cursor.entityId,
+    )
+  }
+  let entityInventory: Inventory | undefined = undefined
+  if (entity) {
+    entityInventory = getEntityInventory(
+      entity,
+      world.inventories,
+    )
+  }
+
+  return (
+    <>
+      <RenderInfo
+        cursor={world.cursor}
+        entities={world.entities}
+        inventories={world.inventories}
+      />
+      <RenderPrimaryButton
+        cursorInventory={cursorInventory}
+        entities={world.entities}
+        setWorld={setWorld}
+        entity={entity}
+        entityInventory={entityInventory}
+      />
+    </>
+  )
 }
 
 export function App() {
@@ -101,46 +147,17 @@ export function App() {
     }
   }, [])
 
-  const cursorInventory = getCursorInventory(
-    world.cursor,
-    world.inventories,
-  )
-
-  let entity: Entity | undefined = undefined
-  if (world.cursor.entityId) {
-    entity = getEntity(
-      world.entities,
-      world.cursor.entityId,
-    )
-  }
-  let entityInventory: Inventory | undefined = undefined
-  if (entity) {
-    entityInventory = getEntityInventory(
-      entity,
-      world.inventories,
-    )
-  }
-
   return (
     <div className={styles.app} ref={app}>
       {viewport && (
-        <AppContext.Provider value={{ camera$, viewport }}>
+        <AppContext.Provider
+          value={{ camera$, viewport, world, setWorld }}
+        >
           <RenderViewport
             world={world}
             setWorld={setWorld}
           />
-          <RenderInfo
-            cursor={world.cursor}
-            entities={world.entities}
-            inventories={world.inventories}
-          />
-          <RenderPrimaryButton
-            cursorInventory={cursorInventory}
-            entities={world.entities}
-            setWorld={setWorld}
-            entity={entity}
-            entityInventory={entityInventory}
-          />
+          <RootPath />
         </AppContext.Provider>
       )}
       <ResetButton />
