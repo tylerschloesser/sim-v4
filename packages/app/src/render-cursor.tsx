@@ -4,6 +4,7 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getClosestEntity } from './closest.js'
 import styles from './render-cursor.module.scss'
+import { useRouteId } from './route.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
@@ -22,6 +23,9 @@ export const RenderCursor = React.memo(
     setWorld,
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
+
+    const routeId = useRouteId()
+
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
     const lines = useRef<
@@ -136,22 +140,18 @@ export const RenderCursor = React.memo(
       }
     }, [entities])
 
-    useCameraEffect(
-      (camera, viewport) => {
-        const { x: vx, y: vy } = viewport.size
+    useCameraEffect((camera, viewport) => {
+      const { x: vx, y: vy } = viewport.size
 
-        const scale = getScale(camera.zoom, vx, vy)
+      const scale = getScale(camera.zoom, vx, vy)
 
-        invariant(circle.current)
-        invariant(root.current)
+      invariant(root.current)
 
-        root.current.style.setProperty(
-          '--stroke-width',
-          `${((1 / scale) * 2).toFixed(2)}`,
-        )
-      },
-      [entities],
-    )
+      root.current.style.setProperty(
+        '--stroke-width',
+        `${((1 / scale) * 2).toFixed(2)}`,
+      )
+    })
 
     return (
       <g data-group="cursor" ref={root}>

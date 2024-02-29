@@ -13,7 +13,6 @@ import { PathRootBuildMiner } from './path-root-build-miner.js'
 import { PathRootIndex } from './path-root-index.js'
 import { PathRoot } from './path-root.js'
 import { handlePointer } from './pointer.js'
-import { RenderViewport } from './render-viewport.js'
 import { RouteId } from './route.js'
 import { tickWorld } from './tick-world.js'
 import { Viewport } from './viewport.js'
@@ -121,7 +120,6 @@ export function App() {
         <AppContext.Provider
           value={{ camera$, viewport, world, setWorld }}
         >
-          <RenderViewport />
           <RouterProvider router={router} />
         </AppContext.Provider>
       )}
