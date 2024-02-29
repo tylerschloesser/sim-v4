@@ -6,7 +6,7 @@ import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
 import { getClosestEntity } from './closest.js'
 import styles from './render-cursor.module.scss'
-import { useRouteId } from './route.js'
+import { RouteId, useRouteId } from './route.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
@@ -40,6 +40,15 @@ export const RenderCursor = React.memo(
     useEffect(() => {
       invariant(circle.current)
       invariant(lines.current)
+      if (routeId === RouteId.enum.BuildMiner) {
+        return initBuildCursor({
+          camera$,
+          circle: circle.current,
+          entities,
+          lines: lines.current,
+          setWorld,
+        })
+      }
       return initDefaultCursor({
         camera$,
         circle: circle.current,
@@ -47,7 +56,7 @@ export const RenderCursor = React.memo(
         lines: lines.current,
         setWorld,
       })
-    }, [entities])
+    }, [entities, routeId])
 
     useCameraEffect((camera, viewport) => {
       const { x: vx, y: vy } = viewport.size
@@ -82,6 +91,22 @@ export const RenderCursor = React.memo(
     )
   },
 )
+
+function initBuildCursor({
+  camera$,
+  circle,
+  lines,
+  entities,
+  setWorld,
+}: {
+  camera$: BehaviorSubject<Camera>
+  circle: SVGCircleElement
+  lines: Record<string, SVGLineElement | null>
+  entities: World['entities']
+  setWorld: Updater<World>
+}): () => void {
+  return () => {}
+}
 
 function initDefaultCursor({
   camera$,
