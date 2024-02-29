@@ -1,35 +1,37 @@
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
-import { Inventory, ItemType } from './world.js'
+import { EntityType, Inventory, ItemType } from './world.js'
 
-export const Recipe = z.strictObject({
+export const EntityRecipe = z.strictObject({
   id: z.string(),
   input: z.record(ItemType, z.number()),
-  output: z.record(ItemType, z.number()),
+  output: EntityType,
 })
-export type Recipe = z.infer<typeof Recipe>
+export type EntityRecipe = z.infer<typeof EntityRecipe>
 
-const recipes: Record<string, Recipe> = {}
+const recipes: Record<string, EntityRecipe> = {}
 
-function addRecipe(recipe: Recipe) {
-  invariant(!recipes[recipe.id])
-  recipes[recipe.id] = recipe
+function addEntityRecipe(
+  type: EntityType,
+  input: EntityRecipe['input'],
+) {
+  const id = type
+  invariant(!recipes[id])
+  recipes[id] = {
+    id,
+    input,
+    output: type,
+  }
 }
 
-addRecipe({
-  id: ItemType.enum.Smelter,
-  input: {
-    [ItemType.enum.Stone]: 20,
-  },
-  output: {
-    [ItemType.enum.Smelter]: 1,
-  },
+addEntityRecipe(EntityType.enum.Smelter, {
+  [ItemType.enum.Stone]: 20,
 })
 
 export function getAvailableRecipes(
   inventory: Inventory,
-): Recipe[] {
-  const available = new Array<Recipe>()
+): EntityRecipe[] {
+  const available = new Array<EntityRecipe>()
   for (const recipe of Object.values(recipes)) {
     let fulfilled = true
     for (const [key, value] of Object.entries(
