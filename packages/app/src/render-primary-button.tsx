@@ -8,7 +8,10 @@ import {
   getCursorInventory,
   getPatchItemType,
 } from './inventory.js'
-import { Recipe, getAvailableRecipes } from './recipe.js'
+import {
+  EntityRecipe,
+  getAvailableRecipes,
+} from './recipe.js'
 import styles from './render-primary-button.module.scss'
 import { Vec2, vec2 } from './vec2.js'
 import {
@@ -65,7 +68,7 @@ function mine(setWorld: Updater<World>): void {
 }
 
 function build(
-  recipe: Recipe,
+  recipe: EntityRecipe,
   camera: Camera,
   setWorld: Updater<World>,
 ): void {
@@ -86,11 +89,7 @@ function build(
       }
     }
 
-    invariant(Object.keys(recipe.output).length === 1)
-    invariant(Object.values(recipe.output).at(0) === 1)
-    const entityType = EntityType.parse(
-      Object.keys(recipe.output).at(0),
-    )
+    const entityType = recipe.output
 
     let entity: Entity
     const entityId = `${draft.nextEntityId++}`
