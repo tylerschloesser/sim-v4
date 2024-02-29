@@ -35,7 +35,6 @@ export const RenderCursor = React.memo(
       Record<string, SVGLineElement | null>
     >({})
 
-    const handle = useRef<number>()
     const position = useRef(camera$.value.position)
 
     const velocity = useRef<Vec2>({ x: 0, y: 0 })
@@ -64,6 +63,7 @@ export const RenderCursor = React.memo(
       )
 
       let last = self.performance.now()
+      let handle: number | undefined = undefined
       function render() {
         const now = self.performance.now()
         const elapsed = now - last
@@ -133,12 +133,12 @@ export const RenderCursor = React.memo(
           update(closest?.entity.id)
         }
 
-        handle.current = self.requestAnimationFrame(render)
+        handle = self.requestAnimationFrame(render)
       }
-      handle.current = self.requestAnimationFrame(render)
+      handle = self.requestAnimationFrame(render)
       return () => {
-        if (handle.current) {
-          self.cancelAnimationFrame(handle.current)
+        if (handle) {
+          self.cancelAnimationFrame(handle)
         }
       }
     }, [entities])
