@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { getCursorEntity } from './cursor.js'
 import { getEntity } from './entity.js'
 import {
   getCursorInventory,
@@ -8,7 +9,7 @@ import {
   inventorySub,
 } from './inventory.js'
 import { smelterRecipes } from './recipe.js'
-import { EntityType, World } from './world.js'
+import { EntityType, ItemType, World } from './world.js'
 
 export function takeAllFromSmelter(
   setWorld: Updater<World>,
@@ -79,5 +80,29 @@ export function minePatch(setWorld: Updater<World>): void {
 
     const cursorCount = cursorInventory.items[itemType]
     cursorInventory.items[itemType] = (cursorCount ?? 0) + 1
+  })
+}
+
+export function moveItemFromCursorToSmelter(
+  setWorld: Updater<World>,
+  itemType: ItemType,
+): void {
+  setWorld((draft) => {
+    const cursorInventory = getCursorInventory(
+      draft.cursor,
+      draft.inventories,
+    )
+    const entity = getCursorEntity(
+      draft.cursor,
+      draft.entities,
+    )
+    invariant(entity?.type === EntityType.enum.Smelter)
+    const entityInventory = getEntityInventory(
+      entity,
+      draft.inventories,
+    )
+    const items = { [itemType]: 1 }
+    inventorySub(cursorInventory, items)
+    inventoryAdd(entityInventory, items)
   })
 }

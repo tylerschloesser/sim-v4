@@ -2,7 +2,11 @@ import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { minePatch, takeAllFromSmelter } from './action.js'
+import {
+  minePatch,
+  moveItemFromCursorToSmelter,
+  takeAllFromSmelter,
+} from './action.js'
 import { AppContext } from './app-context.js'
 import { getCursorEntity } from './cursor.js'
 import {
@@ -285,9 +289,7 @@ function RenderSmelterControls({
           takeAllFromSmelter(setWorld)
         }}
       >
-        Take
-        <br />
-        All
+        Take All
       </button>
     )
   }
@@ -305,31 +307,13 @@ function RenderSmelterControls({
         className={styles['primary-button']}
         onPointerUp={() => {
           if (!hasCoal) return
-          setWorld((draft) => {
-            const cursorInventory = getCursorInventory(
-              draft.cursor,
-              draft.inventories,
-            )
-            const entity = getCursorEntity(
-              draft.cursor,
-              draft.entities,
-            )
-            invariant(
-              entity?.type === EntityType.enum.Smelter,
-            )
-            const entityInventory = getEntityInventory(
-              entity,
-              draft.inventories,
-            )
-            const items = { [ItemType.enum.Coal]: 1 }
-            inventorySub(cursorInventory, items)
-            inventoryAdd(entityInventory, items)
-          })
+          moveItemFromCursorToSmelter(
+            setWorld,
+            ItemType.enum.Coal,
+          )
         }}
       >
-        Add
-        <br />
-        Coal
+        Add Coal
       </button>
     )
   } else {
