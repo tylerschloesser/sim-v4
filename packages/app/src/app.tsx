@@ -75,7 +75,10 @@ export function App() {
     }
   }, [])
 
-  const cursorInventory = getCursorInventory(world)
+  const cursorInventory = getCursorInventory(
+    world.cursor,
+    world.inventories,
+  )
 
   return (
     <div className={styles.app} ref={app}>
@@ -85,7 +88,11 @@ export function App() {
             world={world}
             setWorld={setWorld}
           />
-          <RenderInfo world={world} />
+          <RenderInfo
+            cursor={world.cursor}
+            entities={world.entities}
+            inventories={world.inventories}
+          />
           <RenderPrimaryButton
             cursor={world.cursor}
             cursorInventory={cursorInventory}

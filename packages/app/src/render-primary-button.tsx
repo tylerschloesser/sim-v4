@@ -73,7 +73,10 @@ function build(
   setWorld: Updater<World>,
 ): void {
   setWorld((draft) => {
-    const cursorInventory = getCursorInventory(draft)
+    const cursorInventory = getCursorInventory(
+      draft.cursor,
+      draft.inventories,
+    )
 
     for (const [key, value] of Object.entries(
       recipe.input,

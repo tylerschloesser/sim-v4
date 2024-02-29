@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import {
+  Cursor,
   Entity,
   Inventory,
   ItemType,
@@ -15,19 +16,19 @@ export function getPatchItemType({
 }
 
 export function getCursorInventory(
-  world: World,
+  cursor: Cursor,
+  inventories: World['inventories'],
 ): Inventory {
-  const inventory =
-    world.inventories[world.cursor.inventoryId]
+  const inventory = inventories[cursor.inventoryId]
   invariant(inventory)
   return inventory
 }
 
 export function getEntityInventory(
-  world: World,
   entity: Entity,
+  inventories: World['inventories'],
 ): Inventory {
-  const inventory = world.inventories[entity.inventoryId]
+  const inventory = inventories[entity.inventoryId]
   invariant(inventory)
   return inventory
 }
