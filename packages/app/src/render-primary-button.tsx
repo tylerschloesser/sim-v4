@@ -9,9 +9,11 @@ import {
   getEntityInventory,
   getPatchItemType,
   inventoryAdd,
+  inventoryHas,
   inventorySub,
 } from './inventory.js'
 import {
+  entityRecipes,
   getAvailableEntityRecipes,
   smelterRecipes,
 } from './recipe.js'
@@ -49,9 +51,23 @@ export const RenderPrimaryButton = React.memo(
 )
 
 function RenderPatchPrimaryButton({
+  cursorInventory,
   setWorld,
 }: RenderPrimaryButtonProps) {
-  return (
+  let secondary: JSX.Element | null = null
+
+  const minerRecipe = entityRecipes[EntityType.enum.Miner]
+  invariant(minerRecipe)
+
+  if (inventoryHas(cursorInventory, minerRecipe.input)) {
+    secondary = (
+      <button className={styles['secondary-button']}>
+        Build Miner
+      </button>
+    )
+  }
+
+  const primary = (
     <button
       className={styles['primary-button']}
       onPointerUp={() => {
@@ -94,6 +110,13 @@ function RenderPatchPrimaryButton({
     >
       Mine
     </button>
+  )
+
+  return (
+    <>
+      {primary}
+      {secondary}
+    </>
   )
 }
 
