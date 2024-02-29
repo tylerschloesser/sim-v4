@@ -12,7 +12,6 @@ import {
   inventorySub,
 } from './inventory.js'
 import {
-  SmelterRecipe,
   getAvailableEntityRecipes,
   smelterRecipes,
 } from './recipe.js'
@@ -107,9 +106,10 @@ function RenderDefaultPrimaryButton({
   let onPointerUp: (() => void) | undefined = undefined
   const availableRecipes =
     getAvailableEntityRecipes(cursorInventory)
-  if (availableRecipes.length > 0) {
-    const recipe = availableRecipes.at(0)
-    invariant(recipe)
+
+  const recipe = availableRecipes.at(0)
+
+  if (recipe) {
     onPointerUp = () => {
       const camera = camera$.value
       setWorld((draft) => {
@@ -180,7 +180,7 @@ function RenderDefaultPrimaryButton({
       disabled={disabled}
       onPointerUp={onPointerUp}
     >
-      Build
+      Build {recipe?.id}
     </button>
   )
 }
