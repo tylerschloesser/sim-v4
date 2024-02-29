@@ -20,6 +20,8 @@ export const SmelterEntity = z.strictObject({
   position: Vec2,
   inventoryId: z.string(),
   radius: z.literal(0.75),
+
+  recipeId: z.string().nullable(),
 })
 export type SmelterEntity = z.infer<typeof SmelterEntity>
 

@@ -153,6 +153,7 @@ function RenderDefaultPrimaryButton({
               inventoryId: inventory.id,
               position,
               radius: 0.75,
+              recipeId: null,
             }
             break
           }
