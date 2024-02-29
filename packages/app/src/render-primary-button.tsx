@@ -8,7 +8,6 @@ import { getEntity } from './entity.js'
 import {
   getCursorInventory,
   getEntityInventory,
-  getPatchItemType,
   inventoryAdd,
   inventoryHas,
   inventorySub,
@@ -114,7 +113,7 @@ function RenderPatchControls({
             draft.inventories[draft.cursor.inventoryId]
           invariant(cursorInventory)
 
-          const itemType = getPatchItemType(patchInventory)
+          const { itemType } = entity
 
           const patchCount = patchInventory.items[itemType]
           invariant(
