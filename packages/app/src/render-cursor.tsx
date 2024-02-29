@@ -26,7 +26,7 @@ export const RenderCursor = React.memo(
 
     const routeId = useRouteId()
     useEffect(() => {
-      console.log('routeId!!!!!!', routeId)
+      console.log('routeId', routeId)
     }, [routeId])
 
     const root = useRef<SVGGElement>(null)

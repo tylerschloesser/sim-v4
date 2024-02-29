@@ -33,7 +33,14 @@ export const RenderWorld = React.memo(function RenderWorld({
     const { x: cx, y: cy } = camera.position
 
     const tx = -cx * scale
-    const ty = -cy * scale
+
+    // shift the world up a bit to allow more room on the bottom
+    // for finger gestures
+    // TODO this probably messes up the grid, but since
+    // the world/entities aren't actually aligned to a grid
+    // it's not noticable
+    //
+    const ty = -cy * scale - vy * 0.1
 
     const transform = [
       `translate(${tx.toFixed(4)} ${ty.toFixed(4)})`,
