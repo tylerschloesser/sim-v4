@@ -1,15 +1,11 @@
 @mixin button {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  margin: 2em;
-  padding: 1em;
+  margin: 0;
+  padding: 0;
   border-radius: 100%;
   border: none;
   background: var(--black);
   color: var(--white);
-
-  --size: 12vmax;
 
   width: var(--size);
   height: var(--size);
@@ -27,10 +23,19 @@
 }
 
 .primary-button {
+  --size: 12vmax;
+  bottom: calc(
+    env(safe-area-inset-bottom) + var(--size) / 2
+  );
+  left: calc(50% - var(--size) / 2);
+
   @include button;
 }
 
 .secondary-button {
+  --size: 8vmax;
+  bottom: calc(env(safe-area-inset-bottom) + 16vmax / 2);
+  left: calc(50% + 16vmax / 2);
+
   @include button;
-  bottom: calc(var(--size) + 2em);
 }

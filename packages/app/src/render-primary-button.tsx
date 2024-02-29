@@ -79,6 +79,7 @@ function RenderPatchPrimaryButton({
   const primary = (
     <button
       className={styles['primary-button']}
+      data-pointer="capture"
       onPointerUp={() => {
         setWorld((draft) => {
           invariant(draft.cursor.entityId)
