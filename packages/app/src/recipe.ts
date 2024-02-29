@@ -37,6 +37,10 @@ function addEntityRecipe(
 addEntityRecipe(EntityType.enum.Smelter, {
   [ItemType.enum.Stone]: 20,
 })
+addEntityRecipe(EntityType.enum.Miner, {
+  [ItemType.enum.Stone]: 20,
+  [ItemType.enum.IronPlate]: 20,
+})
 
 function addSmelterRecipe(
   type: ItemType,
