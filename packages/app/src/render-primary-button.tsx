@@ -5,7 +5,10 @@ import { AppContext } from './app-context.js'
 import { getCursorEntity } from './cursor.js'
 import {
   getCursorInventory,
+  getEntityInventory,
   getPatchItemType,
+  inventoryAdd,
+  inventorySub,
 } from './inventory.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-primary-button.module.scss'
@@ -16,6 +19,7 @@ import {
   EntityType,
   Inventory,
   ItemType,
+  SmelterEntity,
   World,
 } from './world.js'
 
@@ -184,6 +188,7 @@ function RenderDefaultPrimaryButton({
 
 function RenderSmelterPrimaryButton({
   cursorInventory,
+  setWorld,
 }: RenderPrimaryButtonProps) {
   const hasCoal =
     (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
@@ -195,12 +200,58 @@ function RenderSmelterPrimaryButton({
       <button
         className={styles['secondary-button']}
         disabled={!hasCoal}
+        onPointerUp={() => {
+          if (!hasCoal) return
+          setWorld((draft) => {
+            const cursorInventory = getCursorInventory(
+              draft.cursor,
+              draft.inventories,
+            )
+            const entity = getCursorEntity(
+              draft.cursor,
+              draft.entities,
+            )
+            invariant(
+              entity?.type === EntityType.enum.Smelter,
+            )
+            const entityInventory = getEntityInventory(
+              entity,
+              draft.inventories,
+            )
+            const items = { [ItemType.enum.Coal]: 1 }
+            inventorySub(cursorInventory, items)
+            inventoryAdd(entityInventory, items)
+          })
+        }}
       >
         +Coal
       </button>
       <button
         className={styles['primary-button']}
         disabled={!hasIron}
+        onPointerUp={() => {
+          if (!hasIron) return
+          setWorld((draft) => {
+            const cursorInventory = getCursorInventory(
+              draft.cursor,
+              draft.inventories,
+            )
+            const entity = getCursorEntity(
+              draft.cursor,
+              draft.entities,
+            )
+            invariant(
+              entity?.type === EntityType.enum.Smelter,
+            )
+            const entityInventory = getEntityInventory(
+              entity,
+              draft.inventories,
+            )
+            const items = { [ItemType.enum.IronOre]: 1 }
+            inventorySub(cursorInventory, items)
+            inventoryAdd(entityInventory, items)
+          })
+        }}
       >
         +Iron
       </button>
