@@ -118,7 +118,7 @@ function RenderSecondaryButton({
 }: ButtonProps) {
   return (
     <button
-      className={styles['primary-button']}
+      className={styles['secondary-button']}
       data-pointer="capture"
       onPointerUp={onPointerUp}
       disabled={disabled}
