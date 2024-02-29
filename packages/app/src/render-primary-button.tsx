@@ -10,7 +10,11 @@ import {
   inventoryAdd,
   inventorySub,
 } from './inventory.js'
-import { getAvailableEntityRecipes } from './recipe.js'
+import {
+  SmelterRecipe,
+  getAvailableEntityRecipes,
+  smelterRecipes,
+} from './recipe.js'
 import styles from './render-primary-button.module.scss'
 import { Vec2, vec2 } from './vec2.js'
 import {
@@ -190,19 +194,23 @@ function RenderSmelterPrimaryButton({
   invariant(entityInventory?.id === entity.inventoryId)
 
   let secondary: JSX.Element | null = null
-  if (entityInventory.items[ItemType.enum.IronPlate]) {
+  {
+    const hasIronPlate =
+      (entityInventory.items[ItemType.enum.IronPlate] ??
+        0) > 0
+
     secondary = (
       <button
         className={styles['secondary-button']}
+        disabled={hasIronPlate}
         onPointerUp={() => {
+          if (!hasIronPlate) return
           console.log('todo')
         }}
       >
         Take
         <br />
-        Iron
-        <br />
-        Plate
+        All
       </button>
     )
   }
