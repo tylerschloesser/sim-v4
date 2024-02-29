@@ -5,8 +5,8 @@ import {
   getCursorInventory,
   getEntityInventory,
 } from './inventory.js'
+import { RenderControls } from './render-controls.js'
 import { RenderInfo } from './render-info.js'
-import { RenderPrimaryButton } from './render-primary-button.js'
 import { Entity, Inventory } from './world.js'
 
 export function PathRootIndex() {
@@ -39,9 +39,8 @@ export function PathRootIndex() {
         entities={world.entities}
         inventories={world.inventories}
       />
-      <RenderPrimaryButton
+      <RenderControls
         cursorInventory={cursorInventory}
-        entities={world.entities}
         setWorld={setWorld}
         entity={entity}
         entityInventory={entityInventory}

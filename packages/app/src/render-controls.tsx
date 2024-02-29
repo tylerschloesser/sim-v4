@@ -17,7 +17,7 @@ import {
   getAvailableEntityRecipes,
   smelterRecipes,
 } from './recipe.js'
-import styles from './render-primary-button.module.scss'
+import styles from './render-controls.module.scss'
 import { RouteId, useRouteId } from './route.js'
 import { Vec2, vec2 } from './vec2.js'
 import {
@@ -25,21 +25,24 @@ import {
   EntityType,
   Inventory,
   ItemType,
+  SmelterEntity,
   World,
 } from './world.js'
 
-export interface RenderPrimaryButtonProps {
+export interface RenderControlsProps {
   cursorInventory: Inventory
-  entities: World['entities']
   setWorld: Updater<World>
   entity?: Entity
   entityInventory?: Inventory
 }
 
-export const RenderPrimaryButton = React.memo(
-  function RenderPrimaryButton(
-    props: RenderPrimaryButtonProps,
-  ) {
+export const RenderControls = React.memo(
+  function RenderControls({
+    cursorInventory,
+    setWorld,
+    entity,
+    entityInventory,
+  }: RenderControlsProps) {
     const navigate = useNavigate()
 
     const routeId = useRouteId()
@@ -57,21 +60,44 @@ export const RenderPrimaryButton = React.memo(
       )
     }
 
-    switch (props.entity?.type) {
+    switch (entity?.type) {
       case EntityType.enum.Patch:
-        return <RenderPatchControls {...props} />
+        return (
+          <RenderPatchControls
+            cursorInventory={cursorInventory}
+            setWorld={setWorld}
+          />
+        )
       case EntityType.enum.Smelter:
-        return <RenderSmelterControls {...props} />
+        invariant(entityInventory)
+        return (
+          <RenderSmelterControls
+            cursorInventory={cursorInventory}
+            setWorld={setWorld}
+            entity={entity}
+            entityInventory={entityInventory}
+          />
+        )
       default:
-        return <RenderDefaultControls {...props} />
+        return (
+          <RenderDefaultControls
+            cursorInventory={cursorInventory}
+            setWorld={setWorld}
+          />
+        )
     }
   },
 )
 
+interface RenderPatchControlsProps {
+  cursorInventory: Inventory
+  setWorld: Updater<World>
+}
+
 function RenderPatchControls({
   cursorInventory,
   setWorld,
-}: RenderPrimaryButtonProps) {
+}: RenderPatchControlsProps) {
   const navigate = useNavigate()
 
   let secondary: JSX.Element | null = null
@@ -147,10 +173,15 @@ function RenderPatchControls({
   )
 }
 
+interface RenderDefaultControlsProps {
+  cursorInventory: Inventory
+  setWorld: Updater<World>
+}
+
 function RenderDefaultControls({
   cursorInventory,
   setWorld,
-}: RenderPrimaryButtonProps) {
+}: RenderDefaultControlsProps) {
   const { camera$ } = useContext(AppContext)
 
   let onPointerUp: (() => void) | undefined = undefined
@@ -270,12 +301,19 @@ function takeAllFromSmelter(
   })
 }
 
+interface RenderSmelterControlsProps {
+  cursorInventory: Inventory
+  setWorld: Updater<World>
+  entity: SmelterEntity
+  entityInventory: Inventory
+}
+
 function RenderSmelterControls({
   cursorInventory,
   setWorld,
   entity,
   entityInventory,
-}: RenderPrimaryButtonProps) {
+}: RenderSmelterControlsProps) {
   invariant(entity?.type === EntityType.enum.Smelter)
   invariant(entityInventory?.id === entity.inventoryId)
 
