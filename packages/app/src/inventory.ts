@@ -32,3 +32,36 @@ export function getEntityInventory(
   invariant(inventory)
   return inventory
 }
+
+export function inventoryHas(
+  inventory: Inventory,
+  items: Partial<Record<ItemType, number>>,
+): boolean {
+  for (const [key, count] of Object.entries(items)) {
+    const itemType = ItemType.parse(key)
+    if ((inventory.items[itemType] ?? 0) < count) {
+      return false
+    }
+  }
+  return true
+}
+
+export function inventorySub(
+  inventory: Inventory,
+  items: Partial<Record<ItemType, number>>,
+): void {
+  for (const [key, count] of Object.entries(items)) {
+    const itemType = ItemType.parse(key)
+
+    let inventoryCount = inventory.items[itemType] ?? 0
+    invariant(inventoryCount >= count)
+
+    inventoryCount -= count
+
+    if (inventoryCount === 0) {
+      delete inventory.items[itemType]
+    } else {
+      inventory.items[itemType] = inventoryCount
+    }
+  }
+}

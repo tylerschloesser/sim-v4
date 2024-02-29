@@ -16,8 +16,10 @@ export const SmelterRecipe = z.strictObject({
 })
 export type SmelterRecipe = z.infer<typeof SmelterRecipe>
 
-const entityRecipes: Record<string, EntityRecipe> = {}
-const smelterRecipes: Record<string, SmelterRecipe> = {}
+export const entityRecipes: Record<string, EntityRecipe> =
+  {}
+export const smelterRecipes: Record<string, SmelterRecipe> =
+  {}
 
 function addEntityRecipe(
   type: EntityType,

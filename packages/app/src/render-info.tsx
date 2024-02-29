@@ -43,7 +43,15 @@ export const RenderInfo = React.memo(function RenderInfo({
     case EntityType.enum.Smelter: {
       return (
         <div className={styles.info}>
-          Recipe: {entity.recipeId ?? 'None'}
+          <div>Recipe: {entity.recipeId ?? 'None'}</div>
+          <div>
+            Fuel Ticks Remaining:{' '}
+            {entity.fuelTicksRemaining}
+          </div>
+          <div>
+            Smelt Ticks Remaining:{' '}
+            {entity.smeltTicksRemaining}
+          </div>
         </div>
       )
     }
