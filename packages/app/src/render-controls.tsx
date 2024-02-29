@@ -2,9 +2,9 @@ import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { takeAllFromSmelter } from './action.js'
 import { AppContext } from './app-context.js'
 import { getCursorEntity } from './cursor.js'
-import { getEntity } from './entity.js'
 import {
   getCursorInventory,
   getEntityInventory,
@@ -15,7 +15,6 @@ import {
 import {
   entityRecipes,
   getAvailableEntityRecipes,
-  smelterRecipes,
 } from './recipe.js'
 import styles from './render-controls.module.scss'
 import { RouteId, useRouteId } from './route.js'
@@ -289,44 +288,6 @@ function RenderDefaultControls({
   )
 }
 
-function takeAllFromSmelter(
-  setWorld: Updater<World>,
-): void {
-  setWorld((world) => {
-    const cursorInventory = getCursorInventory(
-      world.cursor,
-      world.inventories,
-    )
-
-    invariant(world.cursor.entityId)
-    const entity = getEntity(
-      world.entities,
-      world.cursor.entityId,
-    )
-    invariant(entity.type === EntityType.enum.Smelter)
-
-    const entityInventory = getEntityInventory(
-      entity,
-      world.inventories,
-    )
-
-    invariant(entity.recipeId)
-    const recipe = smelterRecipes[entity.recipeId]
-    invariant(recipe)
-    const itemType = recipe.output
-
-    const count = entityInventory.items[itemType]
-    invariant(typeof count === 'number' && count > 0)
-    const items = { [itemType]: count }
-    inventorySub(entityInventory, items)
-    inventoryAdd(cursorInventory, items)
-
-    if (entity.smeltTicksRemaining === null) {
-      entity.recipeId = null
-    }
-  })
-}
-
 interface RenderSmelterControlsProps {
   cursorInventory: Inventory
   setWorld: Updater<World>
@@ -355,7 +316,7 @@ function RenderSmelterControls({
         disabled={!hasOutput}
         onPointerUp={() => {
           if (!hasOutput) return
-          takeAllFromSmelter(setWorld, entity.id)
+          takeAllFromSmelter(setWorld)
         }}
       >
         Take
