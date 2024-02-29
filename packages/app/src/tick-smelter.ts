@@ -86,9 +86,14 @@ export function tickSmelter(
   }
 
   if (
-    entity.smeltTicksRemaining === null &&
-    entity.recipeId
+    entity.recipeId &&
+    entity.smeltTicksRemaining === null
   ) {
-    entity.recipeId = null
+    const recipe = smelterRecipes[entity.recipeId]
+    invariant(recipe)
+
+    if (!inventory.items[recipe.output]) {
+      entity.recipeId = null
+    }
   }
 }

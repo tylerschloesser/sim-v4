@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getCursorEntity } from './cursor.js'
+import { getEntity } from './entity.js'
 import {
   getCursorInventory,
   getEntityInventory,
@@ -184,6 +185,41 @@ function RenderDefaultPrimaryButton({
   )
 }
 
+function takeAllFromSmelter(
+  setWorld: Updater<World>,
+  entityId: string,
+): void {
+  setWorld((world) => {
+    const cursorInventory = getCursorInventory(
+      world.cursor,
+      world.inventories,
+    )
+    const entity = getEntity(world.entities, entityId)
+
+    const entityInventory = getEntityInventory(
+      entity,
+      world.inventories,
+    )
+
+    invariant(entity.type === EntityType.enum.Smelter)
+
+    invariant(entity.recipeId)
+    const recipe = smelterRecipes[entity.recipeId]
+    invariant(recipe)
+    const itemType = recipe.output
+
+    const count = entityInventory.items[itemType]
+    invariant(typeof count === 'number' && count > 0)
+    const items = { [itemType]: count }
+    inventorySub(entityInventory, items)
+    inventoryAdd(cursorInventory, items)
+
+    if (entity.smeltTicksRemaining === null) {
+      entity.recipeId = null
+    }
+  })
+}
+
 function RenderSmelterPrimaryButton({
   cursorInventory,
   setWorld,
@@ -193,19 +229,19 @@ function RenderSmelterPrimaryButton({
   invariant(entity?.type === EntityType.enum.Smelter)
   invariant(entityInventory?.id === entity.inventoryId)
 
-  let secondary: JSX.Element | null = null
+  let secondary: JSX.Element
   {
-    const hasIronPlate =
-      (entityInventory.items[ItemType.enum.IronPlate] ??
-        0) > 0
+    const itemType = ItemType.enum.IronPlate
+    const hasOutput =
+      (entityInventory.items[itemType] ?? 0) > 0
 
     secondary = (
       <button
         className={styles['secondary-button']}
-        disabled={hasIronPlate}
+        disabled={!hasOutput}
         onPointerUp={() => {
-          if (!hasIronPlate) return
-          console.log('todo')
+          if (!hasOutput) return
+          takeAllFromSmelter(setWorld, entity.id)
         }}
       >
         Take

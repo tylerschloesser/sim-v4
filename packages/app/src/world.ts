@@ -11,7 +11,11 @@ export const ItemType = z.enum([
 ])
 export type ItemType = z.infer<typeof ItemType>
 
-export const EntityType = z.enum(['Smelter', 'Patch'])
+export const EntityType = z.enum([
+  'Smelter',
+  'Patch',
+  'Miner',
+])
 export type EntityType = z.infer<typeof EntityType>
 
 export const SmelterEntity = z.strictObject({
@@ -48,9 +52,19 @@ export const PatchEntity = z.strictObject({
 })
 export type PatchEntity = z.infer<typeof PatchEntity>
 
+export const MinerEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Miner),
+  id: z.string(),
+  position: Vec2,
+  inventoryId: z.string(),
+  radius: z.literal(0.75),
+})
+export type MinerEntity = z.infer<typeof MinerEntity>
+
 export const Entity = z.discriminatedUnion('type', [
   SmelterEntity,
   PatchEntity,
+  MinerEntity,
 ])
 export type Entity = z.infer<typeof Entity>
 
