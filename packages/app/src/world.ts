@@ -22,6 +22,18 @@ export const SmelterEntity = z.strictObject({
   radius: z.literal(0.75),
 
   recipeId: z.string().nullable(),
+
+  smeltTicksRemaining: z
+    .number()
+    .int()
+    .positive()
+    .nullable(),
+
+  fuelTicksRemaining: z
+    .number()
+    .int()
+    .positive()
+    .nullable(),
 })
 export type SmelterEntity = z.infer<typeof SmelterEntity>
 

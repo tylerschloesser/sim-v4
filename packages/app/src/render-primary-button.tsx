@@ -154,6 +154,8 @@ function RenderDefaultPrimaryButton({
               position,
               radius: 0.75,
               recipeId: null,
+              smeltTicksRemaining: null,
+              fuelTicksRemaining: null,
             }
             break
           }
