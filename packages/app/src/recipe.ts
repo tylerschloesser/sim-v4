@@ -9,7 +9,15 @@ export const EntityRecipe = z.strictObject({
 })
 export type EntityRecipe = z.infer<typeof EntityRecipe>
 
+export const SmelterRecipe = z.strictObject({
+  id: z.string(),
+  input: z.record(ItemType, z.number()),
+  output: ItemType,
+})
+export type SmelterRecipe = z.infer<typeof SmelterRecipe>
+
 const entityRecipes: Record<string, EntityRecipe> = {}
+const smelterRecipes: Record<string, SmelterRecipe> = {}
 
 function addEntityRecipe(
   type: EntityType,
@@ -26,6 +34,23 @@ function addEntityRecipe(
 
 addEntityRecipe(EntityType.enum.Smelter, {
   [ItemType.enum.Stone]: 20,
+})
+
+function addSmelterRecipe(
+  type: ItemType,
+  input: SmelterRecipe['input'],
+) {
+  const id = type
+  invariant(!smelterRecipes[id])
+  smelterRecipes[id] = {
+    id,
+    input,
+    output: type,
+  }
+}
+
+addSmelterRecipe(ItemType.enum.IronPlate, {
+  [ItemType.enum.IronOre]: 1,
 })
 
 export function getAvailableEntityRecipes(

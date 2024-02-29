@@ -3,7 +3,12 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { Vec2, vec2 } from './vec2.js'
 
-export const ItemType = z.enum(['IronOre', 'Stone', 'Coal'])
+export const ItemType = z.enum([
+  'IronOre',
+  'Stone',
+  'Coal',
+  'IronPlate',
+])
 export type ItemType = z.infer<typeof ItemType>
 
 export const EntityType = z.enum(['Smelter', 'Patch'])
