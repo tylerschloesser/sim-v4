@@ -7,6 +7,10 @@ export const Vec2 = z.strictObject({
 })
 export type Vec2 = z.infer<typeof Vec2>
 
+function init(x: number, y: number): Vec2 {
+  return { x, y }
+}
+
 function reset(v: Vec2): void {
   v.x = 0
   v.y = 0
@@ -63,6 +67,7 @@ function norm(v: Vec2): void {
 }
 
 export const vec2 = {
+  init,
   reset,
   copy,
   clone,
