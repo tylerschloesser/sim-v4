@@ -11,6 +11,7 @@ import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { PathRootBuildMiner } from './path-root-build-miner.js'
 import { PathRootIndex } from './path-root-index.js'
+import { PathRoot } from './path-root.js'
 import { handlePointer } from './pointer.js'
 import { RenderViewport } from './render-viewport.js'
 import { RouteId } from './route.js'
@@ -45,6 +46,7 @@ function useTickWorld(setWorld: Updater<World>) {
 const router = createBrowserRouter([
   {
     path: '/',
+    Component: PathRoot,
     children: [
       {
         index: true,
