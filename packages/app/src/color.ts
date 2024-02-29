@@ -1,7 +1,12 @@
 import { memoize } from 'lodash-es'
 import Prando from 'prando'
 import invariant from 'tiny-invariant'
-import { ItemType } from './world.js'
+import {
+  Entity,
+  EntityType,
+  ItemType,
+  PatchEntity,
+} from './world.js'
 
 const rng = new Prando(1)
 
@@ -11,13 +16,27 @@ export const getRandomColor = memoize((_id: string) => {
   return `hsl(${h}, 50%, 50%)`
 })
 
-export function getPatchColor(type: ItemType): {
+interface Color {
   fill: string
   stroke?: string
-} {
+}
+
+export function getEntityColor(entity: Entity): Color {
+  switch (entity.type) {
+    case EntityType.enum.Patch:
+      return getPatchColor(entity)
+    case EntityType.enum.Smelter:
+      return { fill: 'pink' }
+    default:
+      invariant(false)
+  }
+}
+
+function getPatchColor(entity: PatchEntity) {
   let fill: string
   let stroke: string | undefined
-  switch (type) {
+
+  switch (entity.itemType) {
     case ItemType.enum.Coal:
       fill = 'black'
       stroke = 'gray'
@@ -31,7 +50,10 @@ export function getPatchColor(type: ItemType): {
       stroke = 'gray'
       break
     default:
-      invariant(false, `TODO define color for ${type}`)
+      invariant(
+        false,
+        `TODO define color for ${entity.itemType}`,
+      )
   }
   return { fill, stroke }
 }

@@ -4,10 +4,9 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { RenderCursor } from './render-cursor.js'
 import { RenderEntity } from './render-entity.js'
-import { RenderPatch } from './render-patch.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { EntityType, World } from './world.js'
+import { World } from './world.js'
 
 export interface RenderWorldProps {
   world: World
@@ -50,18 +49,6 @@ export function RenderWorld({
         setWorld={setWorld}
       />
       {Object.values(world.entities).map((entity) => {
-        if (entity.type === EntityType.enum.Patch) {
-          const inventory =
-            world.inventories[entity.inventoryId]
-          invariant(inventory)
-          return (
-            <RenderPatch
-              key={entity.id}
-              patch={entity}
-              inventory={inventory}
-            />
-          )
-        }
         return (
           <RenderEntity key={entity.id} entity={entity} />
         )
