@@ -4,6 +4,7 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
+import { getCursorEntity } from './cursor.js'
 import {
   getCursorInventory,
   getPatchItemType,
@@ -37,7 +38,6 @@ function mine(setWorld: Updater<World>): void {
     invariant(draft.cursor.entityId)
     const entity = draft.entities[draft.cursor.entityId]
 
-    // TODO support other entities
     invariant(entity?.type === EntityType.enum.Patch)
 
     const patchInventory =
@@ -146,8 +146,9 @@ export const RenderPrimaryButton = React.memo(
     let label: string
 
     const { camera$ } = useContext(AppContext)
+    const entity = getCursorEntity(cursor, entities)
 
-    if (cursor.entityId) {
+    if (entity?.type === EntityType.enum.Patch) {
       onPointerUp = () => mine(setWorld)
       label = 'Mine'
     } else {
