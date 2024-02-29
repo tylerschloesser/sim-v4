@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import {
+  RouterProvider,
+  createBrowserRouter,
+} from 'react-router-dom'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -35,6 +39,13 @@ function useTickWorld(setWorld: Updater<World>) {
     }
   }, [])
 }
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    Component: PathRoot,
+  },
+])
 
 export function App() {
   const app = useRef<HTMLDivElement>(null)
@@ -99,7 +110,7 @@ export function App() {
             world={world}
             setWorld={setWorld}
           />
-          <PathRoot />
+          <RouterProvider router={router} />
         </AppContext.Provider>
       )}
       <ResetButton />
