@@ -14,7 +14,6 @@ import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-primary-button.module.scss'
 import { Vec2, vec2 } from './vec2.js'
 import {
-  Cursor,
   Entity,
   EntityType,
   Inventory,
@@ -23,22 +22,18 @@ import {
 } from './world.js'
 
 export interface RenderPrimaryButtonProps {
-  cursor: Cursor
   cursorInventory: Inventory
   entities: World['entities']
   setWorld: Updater<World>
+  entity?: Entity
+  entityInventory?: Inventory
 }
 
 export const RenderPrimaryButton = React.memo(
   function RenderPrimaryButton(
     props: RenderPrimaryButtonProps,
   ) {
-    const entity = getCursorEntity(
-      props.cursor,
-      props.entities,
-    )
-
-    switch (entity?.type) {
+    switch (props.entity?.type) {
       case EntityType.enum.Patch:
         return <RenderPatchPrimaryButton {...props} />
       case EntityType.enum.Smelter:
@@ -188,17 +183,41 @@ function RenderDefaultPrimaryButton({
 function RenderSmelterPrimaryButton({
   cursorInventory,
   setWorld,
+  entity,
+  entityInventory,
 }: RenderPrimaryButtonProps) {
-  const hasCoal =
-    (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
-  const hasIron =
-    (cursorInventory.items[ItemType.enum.IronOre] ?? 0) > 0
+  invariant(entity?.type === EntityType.enum.Smelter)
+  invariant(entityInventory?.id === entity.inventoryId)
 
-  return (
-    <>
+  let secondary: JSX.Element | null = null
+  if (entityInventory.items[ItemType.enum.IronPlate]) {
+    secondary = (
       <button
         className={styles['secondary-button']}
-        disabled={!hasCoal}
+        onPointerUp={() => {
+          console.log('todo')
+        }}
+      >
+        Take
+        <br />
+        Iron
+        <br />
+        Plate
+      </button>
+    )
+  }
+
+  const coalCount =
+    entityInventory.items[ItemType.enum.Coal] ?? 0
+  const hasCoal =
+    (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
+
+  let primary: JSX.Element
+
+  if (coalCount < 5 && hasCoal) {
+    primary = (
+      <button
+        className={styles['primary-button']}
         onPointerUp={() => {
           if (!hasCoal) return
           setWorld((draft) => {
@@ -223,37 +242,58 @@ function RenderSmelterPrimaryButton({
           })
         }}
       >
-        +Coal
+        Add
+        <br />
+        Coal
       </button>
-      <button
-        className={styles['primary-button']}
-        disabled={!hasIron}
-        onPointerUp={() => {
-          if (!hasIron) return
-          setWorld((draft) => {
-            const cursorInventory = getCursorInventory(
-              draft.cursor,
-              draft.inventories,
-            )
-            const entity = getCursorEntity(
-              draft.cursor,
-              draft.entities,
-            )
-            invariant(
-              entity?.type === EntityType.enum.Smelter,
-            )
-            const entityInventory = getEntityInventory(
-              entity,
-              draft.inventories,
-            )
-            const items = { [ItemType.enum.IronOre]: 1 }
-            inventorySub(cursorInventory, items)
-            inventoryAdd(entityInventory, items)
-          })
-        }}
-      >
-        +Iron
-      </button>
+    )
+  } else {
+    const hasIron =
+      (cursorInventory.items[ItemType.enum.IronOre] ?? 0) >
+      0
+    primary = (
+      <>
+        <button
+          className={styles['primary-button']}
+          disabled={!hasIron}
+          onPointerUp={() => {
+            if (!hasIron) return
+            setWorld((draft) => {
+              const cursorInventory = getCursorInventory(
+                draft.cursor,
+                draft.inventories,
+              )
+              const entity = getCursorEntity(
+                draft.cursor,
+                draft.entities,
+              )
+              invariant(
+                entity?.type === EntityType.enum.Smelter,
+              )
+              const entityInventory = getEntityInventory(
+                entity,
+                draft.inventories,
+              )
+              const items = { [ItemType.enum.IronOre]: 1 }
+              inventorySub(cursorInventory, items)
+              inventoryAdd(entityInventory, items)
+            })
+          }}
+        >
+          Add
+          <br />
+          Iron
+          <br />
+          Ore
+        </button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      {primary}
+      {secondary}
     </>
   )
 }

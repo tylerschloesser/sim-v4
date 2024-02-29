@@ -5,7 +5,11 @@ import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
-import { getCursorInventory } from './inventory.js'
+import { getEntity } from './entity.js'
+import {
+  getCursorInventory,
+  getEntityInventory,
+} from './inventory.js'
 import { handlePointer } from './pointer.js'
 import { RenderInfo } from './render-info.js'
 import { RenderPrimaryButton } from './render-primary-button.js'
@@ -13,7 +17,13 @@ import { RenderViewport } from './render-viewport.js'
 import { tickWorld } from './tick-world.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
-import { World, loadWorld, saveWorld } from './world.js'
+import {
+  Entity,
+  Inventory,
+  World,
+  loadWorld,
+  saveWorld,
+} from './world.js'
 
 function rectToViewport(rect: DOMRect): Viewport {
   return {
@@ -95,6 +105,21 @@ export function App() {
     world.inventories,
   )
 
+  let entity: Entity | undefined = undefined
+  if (world.cursor.entityId) {
+    entity = getEntity(
+      world.entities,
+      world.cursor.entityId,
+    )
+  }
+  let entityInventory: Inventory | undefined = undefined
+  if (entity) {
+    entityInventory = getEntityInventory(
+      entity,
+      world.inventories,
+    )
+  }
+
   return (
     <div className={styles.app} ref={app}>
       {viewport && (
@@ -109,10 +134,11 @@ export function App() {
             inventories={world.inventories}
           />
           <RenderPrimaryButton
-            cursor={world.cursor}
             cursorInventory={cursorInventory}
             entities={world.entities}
             setWorld={setWorld}
+            entity={entity}
+            entityInventory={entityInventory}
           />
         </AppContext.Provider>
       )}
