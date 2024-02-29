@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
@@ -54,6 +55,8 @@ function RenderPatchPrimaryButton({
   cursorInventory,
   setWorld,
 }: RenderPrimaryButtonProps) {
+  const navigate = useNavigate()
+
   let secondary: JSX.Element | null = null
 
   const minerRecipe = entityRecipes[EntityType.enum.Miner]
@@ -61,7 +64,13 @@ function RenderPatchPrimaryButton({
 
   if (inventoryHas(cursorInventory, minerRecipe.input)) {
     secondary = (
-      <button className={styles['secondary-button']}>
+      <button
+        className={styles['secondary-button']}
+        data-pointer="capture"
+        onPointerUp={() => {
+          navigate('build-miner')
+        }}
+      >
         Build Miner
       </button>
     )

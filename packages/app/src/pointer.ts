@@ -17,6 +17,13 @@ export function handlePointer(
   camera$: BehaviorSubject<Camera>,
   viewport$: BehaviorSubject<Viewport>,
 ): void {
+  if (
+    ev.target instanceof HTMLElement &&
+    ev.target.dataset['pointer'] === 'capture'
+  ) {
+    return
+  }
+
   switch (ev.type) {
     case 'pointerout':
     case 'pointerleave':
