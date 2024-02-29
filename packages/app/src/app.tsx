@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import invariant from 'tiny-invariant'
-import { useImmer } from 'use-immer'
+import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
@@ -10,9 +10,10 @@ import { handlePointer } from './pointer.js'
 import { RenderInfo } from './render-info.js'
 import { RenderPrimaryButton } from './render-primary-button.js'
 import { RenderViewport } from './render-viewport.js'
+import { tickWorld } from './tick-world.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
-import { loadWorld, saveWorld } from './world.js'
+import { World, loadWorld, saveWorld } from './world.js'
 
 function rectToViewport(rect: DOMRect): Viewport {
   return {
@@ -22,6 +23,18 @@ function rectToViewport(rect: DOMRect): Viewport {
     },
     dpr: window.devicePixelRatio, // TODO refactor this
   }
+}
+
+function useTickWorld(setWorld: Updater<World>) {
+  const interval = useRef<number>()
+  useEffect(() => {
+    interval.current = self.setInterval(() => {
+      tickWorld(setWorld)
+    }, 100)
+    return () => {
+      self.clearInterval(interval.current)
+    }
+  }, [])
 }
 
 export function App() {
@@ -34,6 +47,8 @@ export function App() {
   const [viewport, setViewport] = useState<Viewport | null>(
     null,
   )
+
+  useTickWorld(setWorld)
 
   useEffect(() => {
     saveWorld(world)
