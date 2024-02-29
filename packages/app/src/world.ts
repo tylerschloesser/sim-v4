@@ -47,6 +47,8 @@ export const Inventory = z.strictObject({
 export type Inventory = z.infer<typeof Inventory>
 
 export const World = z.strictObject({
+  tick: z.number().int().nonnegative(),
+
   cursor: Cursor,
   entities: z.record(z.string(), Entity),
   inventories: z.record(z.string(), Inventory),
@@ -98,6 +100,7 @@ function initWorld(seed: string = ''): World {
   }
 
   const world: World = {
+    tick: 0,
     cursor: {
       entityId: null,
       inventoryId: inventory.id,

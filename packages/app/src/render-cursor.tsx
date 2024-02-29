@@ -111,7 +111,7 @@ export const RenderCursor = React.memo(
           //
           // https://www.wolframalpha.com/input?i=plot+%28x+%2B+1%29+**+2+-+1+from+0+to+.5
           //
-          vmag = (d + 1) ** 3 + 1
+          vmag = (d * 4) ** 1.5
 
           // rotate velocity if needed
           vec2.copy(velocity.current, dir)
