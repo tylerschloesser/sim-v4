@@ -60,16 +60,16 @@ export const RenderPrimaryButton = React.memo(
 
     switch (props.entity?.type) {
       case EntityType.enum.Patch:
-        return <RenderPatchPrimaryButton {...props} />
+        return <RenderPatchControls {...props} />
       case EntityType.enum.Smelter:
-        return <RenderSmelterPrimaryButton {...props} />
+        return <RenderSmelterControls {...props} />
       default:
-        return <RenderDefaultPrimaryButton {...props} />
+        return <RenderDefaultControls {...props} />
     }
   },
 )
 
-function RenderPatchPrimaryButton({
+function RenderPatchControls({
   cursorInventory,
   setWorld,
 }: RenderPrimaryButtonProps) {
@@ -148,7 +148,7 @@ function RenderPatchPrimaryButton({
   )
 }
 
-function RenderDefaultPrimaryButton({
+function RenderDefaultControls({
   cursorInventory,
   setWorld,
 }: RenderPrimaryButtonProps) {
@@ -271,7 +271,7 @@ function takeAllFromSmelter(
   })
 }
 
-function RenderSmelterPrimaryButton({
+function RenderSmelterControls({
   cursorInventory,
   setWorld,
   entity,
