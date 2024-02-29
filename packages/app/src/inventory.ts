@@ -65,3 +65,17 @@ export function inventorySub(
     }
   }
 }
+
+export function inventoryAdd(
+  inventory: Inventory,
+  items: Partial<Record<ItemType, number>>,
+): void {
+  for (const [key, count] of Object.entries(items)) {
+    const itemType = ItemType.parse(key)
+
+    let inventoryCount = inventory.items[itemType] ?? 0
+    inventoryCount += count
+
+    inventory.items[itemType] = inventoryCount
+  }
+}

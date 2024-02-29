@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant'
 import {
-  getCursorInventory,
+  getEntityInventory,
+  inventoryAdd,
   inventoryHas,
   inventorySub,
 } from './inventory.js'
@@ -11,63 +12,83 @@ export function tickSmelter(
   world: World,
   entity: SmelterEntity,
 ): void {
-  if (world.cursor.entityId === entity.id) {
-    const cursorInventory = getCursorInventory(
-      world.cursor,
-      world.inventories,
-    )
+  const inventory = getEntityInventory(
+    entity,
+    world.inventories,
+  )
 
-    if (entity.fuelTicksRemaining === null) {
-      let coalCount =
-        cursorInventory.items[ItemType.enum.Coal] ?? 0
-      if (coalCount >= 1) {
-        coalCount -= 1
-        entity.fuelTicksRemaining = 50
-        if (coalCount === 0) {
-          delete cursorInventory.items[ItemType.enum.Coal]
-        } else {
-          cursorInventory.items[ItemType.enum.Coal] =
-            coalCount
+  if (
+    entity.fuelTicksRemaining !== null &&
+    entity.smeltTicksRemaining !== null
+  ) {
+    invariant(entity.fuelTicksRemaining > 0)
+    invariant(entity.smeltTicksRemaining > 0)
+
+    invariant(entity.recipeId)
+    const recipe = smelterRecipes[entity.recipeId]
+    invariant(recipe)
+
+    entity.fuelTicksRemaining -= 1
+    entity.smeltTicksRemaining -= 1
+
+    if (entity.fuelTicksRemaining === 0) {
+      entity.fuelTicksRemaining = null
+    }
+
+    if (entity.smeltTicksRemaining === 0) {
+      inventoryAdd(inventory, {
+        [recipe.output]: 1,
+      })
+      entity.smeltTicksRemaining = null
+    }
+  }
+
+  const fuel = { [ItemType.enum.Coal]: 1 }
+
+  if (
+    entity.fuelTicksRemaining === null &&
+    entity.smeltTicksRemaining !== null
+  ) {
+    if (inventoryHas(inventory, fuel)) {
+      inventorySub(inventory, fuel)
+      entity.fuelTicksRemaining = 50
+    }
+  }
+
+  if (
+    entity.smeltTicksRemaining === null &&
+    (entity.fuelTicksRemaining ||
+      inventoryHas(inventory, fuel))
+  ) {
+    if (!entity.recipeId) {
+      for (const recipe of Object.values(smelterRecipes)) {
+        if (inventoryHas(inventory, recipe.input)) {
+          entity.recipeId = recipe.id
+          break
         }
       }
     }
 
-    if (entity.smeltTicksRemaining === null) {
-      if (entity.recipeId === null) {
-        for (const recipe of Object.values(
-          smelterRecipes,
-        )) {
-          if (inventoryHas(cursorInventory, recipe.input)) {
-            entity.recipeId = recipe.id
-            break
-          }
-        }
-      }
+    if (entity.recipeId) {
+      const recipe = smelterRecipes[entity.recipeId]
+      invariant(recipe)
 
-      if (entity.recipeId) {
-        const recipe = smelterRecipes[entity.recipeId]
-        invariant(recipe)
-
-        if (inventoryHas(cursorInventory, recipe.input)) {
-          inventorySub(cursorInventory, recipe.input)
-          entity.smeltTicksRemaining = 10
+      if (inventoryHas(inventory, recipe.input)) {
+        if (entity.fuelTicksRemaining === null) {
+          inventorySub(inventory, fuel)
+          entity.fuelTicksRemaining = 50
         }
+
+        inventorySub(inventory, recipe.input)
+        entity.smeltTicksRemaining = 10
       }
     }
   }
 
   if (
-    entity.fuelTicksRemaining === null ||
-    entity.smeltTicksRemaining === null
+    entity.smeltTicksRemaining === null &&
+    entity.recipeId
   ) {
-    return
+    entity.recipeId = null
   }
-
-  invariant(entity.recipeId)
-
-  const recipe = smelterRecipes[entity.recipeId]
-  invariant(recipe)
-
-  invariant(entity.fuelTicksRemaining > 0)
-  invariant(entity.smeltTicksRemaining > 0)
 }
