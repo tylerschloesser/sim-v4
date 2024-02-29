@@ -87,6 +87,21 @@ export const RenderInfo = React.memo(function RenderInfo({
   return (
     <div className={styles.info}>
       <div>
+        Inventory:{' '}
+        {Object.keys(cursorInventory).length === 0 &&
+          'None'}
+        {Object.entries(cursorInventory.items).map(
+          ([key, value]) => {
+            const itemType = ItemType.parse(key)
+            return (
+              <div key={key}>
+                {itemType}: {value}
+              </div>
+            )
+          },
+        )}
+      </div>
+      <div>
         Available Recipes:{' '}
         {availableRecipes.length === 0 && 'None'}
       </div>
