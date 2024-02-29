@@ -26,6 +26,7 @@ export function PathRoot() {
       world.cursor.entityId,
     )
   }
+
   let entityInventory: Inventory | undefined = undefined
   if (entity) {
     entityInventory = getEntityInventory(
@@ -33,6 +34,7 @@ export function PathRoot() {
       world.inventories,
     )
   }
+
   return (
     <>
       <RenderViewport />

@@ -7,6 +7,7 @@ import {
 } from './inventory.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
+import { RouteId, useRouteId } from './route.js'
 import {
   Cursor,
   EntityType,
@@ -134,6 +135,11 @@ export const RenderInfo = React.memo(function RenderInfo({
     cursor,
     inventories,
   )
+
+  const routeId = useRouteId()
+  if (routeId === RouteId.enum.BuildMiner) {
+    return null
+  }
 
   return (
     <div className={styles.info}>
