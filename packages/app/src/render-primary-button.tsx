@@ -19,7 +19,6 @@ import {
   EntityType,
   Inventory,
   ItemType,
-  SmelterEntity,
   World,
 } from './world.js'
 
