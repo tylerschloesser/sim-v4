@@ -19,6 +19,7 @@ import {
   smelterRecipes,
 } from './recipe.js'
 import styles from './render-primary-button.module.scss'
+import { RouteId, useRouteId } from './route.js'
 import { Vec2, vec2 } from './vec2.js'
 import {
   Entity,
@@ -40,6 +41,23 @@ export const RenderPrimaryButton = React.memo(
   function RenderPrimaryButton(
     props: RenderPrimaryButtonProps,
   ) {
+    const navigate = useNavigate()
+
+    const routeId = useRouteId()
+    if (routeId === RouteId.enum.BuildMiner) {
+      return (
+        <button
+          className={styles['primary-button']}
+          data-pointer="capture"
+          onPointerUp={() => {
+            navigate('..')
+          }}
+        >
+          Back
+        </button>
+      )
+    }
+
     switch (props.entity?.type) {
       case EntityType.enum.Patch:
         return <RenderPatchPrimaryButton {...props} />
