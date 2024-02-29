@@ -31,7 +31,8 @@ function rectToViewport(rect: DOMRect): Viewport {
       x: rect.width,
       y: rect.height,
     },
-    dpr: window.devicePixelRatio, // TODO refactor this
+    // TODO support changes to this value via media query
+    dpr: window.devicePixelRatio,
   }
 }
 
