@@ -7,7 +7,7 @@ import { RenderEntity } from './render-entity.js'
 import { RenderPatch } from './render-patch.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { World } from './world.js'
+import { EntityType, World } from './world.js'
 
 export interface RenderWorldProps {
   world: World
@@ -45,22 +45,22 @@ export function RenderWorld({
   return (
     <g data-group="world" ref={root}>
       <RenderCursor
-        patches={world.patches}
+        entities={world.entities}
         setWorld={setWorld}
       />
-      {Object.values(world.patches).map((patch) => {
-        const inventory =
-          world.inventories[patch.inventoryId]
-        invariant(inventory)
-        return (
-          <RenderPatch
-            key={patch.id}
-            patch={patch}
-            inventory={inventory}
-          />
-        )
-      })}
       {Object.values(world.entities).map((entity) => {
+        if (entity.type === EntityType.enum.Patch) {
+          const inventory =
+            world.inventories[entity.inventoryId]
+          invariant(inventory)
+          return (
+            <RenderPatch
+              key={entity.id}
+              patch={entity}
+              inventory={inventory}
+            />
+          )
+        }
         return (
           <RenderEntity key={entity.id} entity={entity} />
         )
