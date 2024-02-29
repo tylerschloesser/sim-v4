@@ -1,10 +1,13 @@
 import React from 'react'
 import invariant from 'tiny-invariant'
-import { getCursorInventory } from './inventory.js'
+import {
+  getCursorInventory,
+  getEntityInventory,
+} from './inventory.js'
 import { getAvailableRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RenderInventory } from './render-inventory.js'
-import { EntityType, Inventory, World } from './world.js'
+import { Entity, EntityType, World } from './world.js'
 
 export interface RenderInfoProps {
   world: World
@@ -13,26 +16,27 @@ export interface RenderInfoProps {
 export const RenderInfo = React.memo(function RenderInfo({
   world,
 }: RenderInfoProps) {
-  const cursorInventory = getCursorInventory(world)
-
-  let patchInventory: Inventory | undefined = undefined
+  let entity: Entity | undefined = undefined
   if (world.cursor.entityId) {
-    const entity = world.entities[world.cursor.entityId]
-
-    // TODO allow other entities
-    invariant(entity?.type === EntityType.enum.Patch)
-
-    patchInventory = world.inventories[entity.inventoryId]
-    invariant(patchInventory)
+    entity = world.entities[world.cursor.entityId]
+    invariant(entity)
   }
 
-  if (patchInventory) {
-    return (
-      <RenderInventory
-        cursorInventory={cursorInventory}
-        patchInventory={patchInventory}
-      />
-    )
+  const cursorInventory = getCursorInventory(world)
+
+  switch (entity?.type) {
+    case EntityType.enum.Patch: {
+      const patchInventory = getEntityInventory(
+        world,
+        entity,
+      )
+      return (
+        <RenderInventory
+          cursorInventory={cursorInventory}
+          patchInventory={patchInventory}
+        />
+      )
+    }
   }
 
   const availableRecipes =
