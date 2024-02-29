@@ -89,6 +89,45 @@ export const RenderControls = React.memo(
   },
 )
 
+type ButtonProps = React.PropsWithChildren<{
+  disabled?: boolean
+  onPointerUp(): void
+}>
+
+function RenderPrimaryButton({
+  disabled = false,
+  onPointerUp,
+  children,
+}: ButtonProps) {
+  return (
+    <button
+      className={styles['primary-button']}
+      data-pointer="capture"
+      onPointerUp={onPointerUp}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  )
+}
+
+function RenderSecondaryButton({
+  disabled = false,
+  onPointerUp,
+  children,
+}: ButtonProps) {
+  return (
+    <button
+      className={styles['primary-button']}
+      data-pointer="capture"
+      onPointerUp={onPointerUp}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  )
+}
+
 interface RenderPatchControlsProps {
   cursorInventory: Inventory
   setWorld: Updater<World>
@@ -99,76 +138,65 @@ function RenderPatchControls({
   setWorld,
 }: RenderPatchControlsProps) {
   const navigate = useNavigate()
-
-  let secondary: JSX.Element | null = null
-
   const minerRecipe = entityRecipes[EntityType.enum.Miner]
   invariant(minerRecipe)
 
-  if (inventoryHas(cursorInventory, minerRecipe.input)) {
-    secondary = (
-      <button
-        className={styles['secondary-button']}
-        data-pointer="capture"
-        onPointerUp={() => {
-          navigate('build-miner')
-        }}
-      >
-        Build Miner
-      </button>
-    )
-  }
-
-  const primary = (
-    <button
-      className={styles['primary-button']}
-      data-pointer="capture"
-      onPointerUp={() => {
-        setWorld((draft) => {
-          invariant(draft.cursor.entityId)
-          const entity =
-            draft.entities[draft.cursor.entityId]
-
-          invariant(entity?.type === EntityType.enum.Patch)
-
-          const patchInventory =
-            draft.inventories[entity.inventoryId]
-          invariant(patchInventory)
-
-          const cursorInventory =
-            draft.inventories[draft.cursor.inventoryId]
-          invariant(cursorInventory)
-
-          const { itemType } = entity
-
-          const patchCount = patchInventory.items[itemType]
-          invariant(
-            typeof patchCount === 'number' &&
-              patchCount >= 1,
-          )
-          patchInventory.items[itemType] = patchCount - 1
-
-          if (patchCount === 1) {
-            delete draft.entities[entity.id]
-            delete draft.inventories[entity.inventoryId]
-            draft.cursor.entityId = null
-          }
-
-          const cursorCount =
-            cursorInventory.items[itemType]
-          cursorInventory.items[itemType] =
-            (cursorCount ?? 0) + 1
-        })
-      }}
-    >
-      Mine
-    </button>
-  )
-
   return (
     <>
-      {primary}
-      {secondary}
+      <RenderPrimaryButton
+        onPointerUp={() => {
+          setWorld((draft) => {
+            invariant(draft.cursor.entityId)
+            const entity =
+              draft.entities[draft.cursor.entityId]
+
+            invariant(
+              entity?.type === EntityType.enum.Patch,
+            )
+
+            const patchInventory =
+              draft.inventories[entity.inventoryId]
+            invariant(patchInventory)
+
+            const cursorInventory =
+              draft.inventories[draft.cursor.inventoryId]
+            invariant(cursorInventory)
+
+            const { itemType } = entity
+
+            const patchCount =
+              patchInventory.items[itemType]
+            invariant(
+              typeof patchCount === 'number' &&
+                patchCount >= 1,
+            )
+            patchInventory.items[itemType] = patchCount - 1
+
+            if (patchCount === 1) {
+              delete draft.entities[entity.id]
+              delete draft.inventories[entity.inventoryId]
+              draft.cursor.entityId = null
+            }
+
+            const cursorCount =
+              cursorInventory.items[itemType]
+            cursorInventory.items[itemType] =
+              (cursorCount ?? 0) + 1
+          })
+        }}
+      >
+        Mine
+      </RenderPrimaryButton>
+
+      {inventoryHas(cursorInventory, minerRecipe.input) && (
+        <RenderSecondaryButton
+          onPointerUp={() => {
+            navigate('build-miner')
+          }}
+        >
+          Build Miner
+        </RenderSecondaryButton>
+      )}
     </>
   )
 }
