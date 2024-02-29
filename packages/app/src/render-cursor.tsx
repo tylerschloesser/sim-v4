@@ -18,6 +18,71 @@ export interface RenderCursorProps {
   setWorld: Updater<World>
 }
 
+export const RenderCursor = React.memo(
+  function RenderCursor({
+    cursor,
+    entities,
+    setWorld,
+  }: RenderCursorProps) {
+    const { camera$ } = useContext(AppContext)
+
+    const routeId = useRouteId()
+    useEffect(() => {
+      console.log('routeId', routeId)
+    }, [routeId])
+
+    const root = useRef<SVGGElement>(null)
+    const circle = useRef<SVGCircleElement>(null)
+    const lines = useRef<
+      Record<string, SVGLineElement | null>
+    >({})
+
+    useEffect(() => {
+      invariant(circle.current)
+      invariant(lines.current)
+      return initDefaultCursor({
+        camera$,
+        circle: circle.current,
+        entities,
+        lines: lines.current,
+        setWorld,
+      })
+    }, [entities])
+
+    useCameraEffect((camera, viewport) => {
+      const { x: vx, y: vy } = viewport.size
+
+      const scale = getScale(camera.zoom, vx, vy)
+
+      invariant(root.current)
+
+      root.current.style.setProperty(
+        '--stroke-width',
+        `${((1 / scale) * 2).toFixed(2)}`,
+      )
+    })
+
+    return (
+      <g data-group="cursor" ref={root}>
+        {Object.values(entities).map(({ id, position }) => (
+          <line
+            ref={(line) => (lines.current[id] = line)}
+            className={styles.line}
+            key={id}
+            x2={position.x}
+            y2={position.y}
+          />
+        ))}
+        <circle
+          r={cursor.radius}
+          fill={'red'}
+          ref={circle}
+        />
+      </g>
+    )
+  },
+)
+
 function initDefaultCursor({
   camera$,
   circle,
@@ -130,68 +195,3 @@ function initDefaultCursor({
     }
   }
 }
-
-export const RenderCursor = React.memo(
-  function RenderCursor({
-    cursor,
-    entities,
-    setWorld,
-  }: RenderCursorProps) {
-    const { camera$ } = useContext(AppContext)
-
-    const routeId = useRouteId()
-    useEffect(() => {
-      console.log('routeId', routeId)
-    }, [routeId])
-
-    const root = useRef<SVGGElement>(null)
-    const circle = useRef<SVGCircleElement>(null)
-    const lines = useRef<
-      Record<string, SVGLineElement | null>
-    >({})
-
-    useEffect(() => {
-      invariant(circle.current)
-      invariant(lines.current)
-      return initDefaultCursor({
-        camera$,
-        circle: circle.current,
-        entities,
-        lines: lines.current,
-        setWorld,
-      })
-    }, [entities])
-
-    useCameraEffect((camera, viewport) => {
-      const { x: vx, y: vy } = viewport.size
-
-      const scale = getScale(camera.zoom, vx, vy)
-
-      invariant(root.current)
-
-      root.current.style.setProperty(
-        '--stroke-width',
-        `${((1 / scale) * 2).toFixed(2)}`,
-      )
-    })
-
-    return (
-      <g data-group="cursor" ref={root}>
-        {Object.values(entities).map(({ id, position }) => (
-          <line
-            ref={(line) => (lines.current[id] = line)}
-            className={styles.line}
-            key={id}
-            x2={position.x}
-            y2={position.y}
-          />
-        ))}
-        <circle
-          r={cursor.radius}
-          fill={'red'}
-          ref={circle}
-        />
-      </g>
-    )
-  },
-)
