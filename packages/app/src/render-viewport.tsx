@@ -11,7 +11,7 @@ export function RenderViewport() {
   const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
   return (
     <svg className={styles.viewport} viewBox={viewBox}>
-      <RenderGrid />
+      <RenderGrid viewport={viewport} />
       <RenderWorld
         cursor={world.cursor}
         entities={world.entities}
