@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { takeAllFromSmelter } from './action.js'
+import { minePatch, takeAllFromSmelter } from './action.js'
 import { AppContext } from './app-context.js'
 import { getCursorEntity } from './cursor.js'
 import {
@@ -125,40 +125,6 @@ function RenderSecondaryButton({
       {children}
     </button>
   )
-}
-
-function minePatch(setWorld: Updater<World>): void {
-  setWorld((draft) => {
-    invariant(draft.cursor.entityId)
-    const entity = draft.entities[draft.cursor.entityId]
-
-    invariant(entity?.type === EntityType.enum.Patch)
-
-    const patchInventory =
-      draft.inventories[entity.inventoryId]
-    invariant(patchInventory)
-
-    const cursorInventory =
-      draft.inventories[draft.cursor.inventoryId]
-    invariant(cursorInventory)
-
-    const { itemType } = entity
-
-    const patchCount = patchInventory.items[itemType]
-    invariant(
-      typeof patchCount === 'number' && patchCount >= 1,
-    )
-    patchInventory.items[itemType] = patchCount - 1
-
-    if (patchCount === 1) {
-      delete draft.entities[entity.id]
-      delete draft.inventories[entity.inventoryId]
-      draft.cursor.entityId = null
-    }
-
-    const cursorCount = cursorInventory.items[itemType]
-    cursorInventory.items[itemType] = (cursorCount ?? 0) + 1
-  })
 }
 
 interface RenderPatchControlsProps {

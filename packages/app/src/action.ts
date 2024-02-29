@@ -47,3 +47,37 @@ export function takeAllFromSmelter(
     }
   })
 }
+
+export function minePatch(setWorld: Updater<World>): void {
+  setWorld((draft) => {
+    invariant(draft.cursor.entityId)
+    const entity = draft.entities[draft.cursor.entityId]
+
+    invariant(entity?.type === EntityType.enum.Patch)
+
+    const patchInventory =
+      draft.inventories[entity.inventoryId]
+    invariant(patchInventory)
+
+    const cursorInventory =
+      draft.inventories[draft.cursor.inventoryId]
+    invariant(cursorInventory)
+
+    const { itemType } = entity
+
+    const patchCount = patchInventory.items[itemType]
+    invariant(
+      typeof patchCount === 'number' && patchCount >= 1,
+    )
+    patchInventory.items[itemType] = patchCount - 1
+
+    if (patchCount === 1) {
+      delete draft.entities[entity.id]
+      delete draft.inventories[entity.inventoryId]
+      draft.cursor.entityId = null
+    }
+
+    const cursorCount = cursorInventory.items[itemType]
+    cursorInventory.items[itemType] = (cursorCount ?? 0) + 1
+  })
+}
