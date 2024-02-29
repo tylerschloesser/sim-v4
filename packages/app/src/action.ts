@@ -8,8 +8,15 @@ import {
   inventoryAdd,
   inventorySub,
 } from './inventory.js'
-import { smelterRecipes } from './recipe.js'
-import { EntityType, ItemType, World } from './world.js'
+import { entityRecipes, smelterRecipes } from './recipe.js'
+import { Vec2 } from './vec2.js'
+import {
+  EntityType,
+  Inventory,
+  ItemType,
+  SmelterEntity,
+  World,
+} from './world.js'
 
 export function takeAllFromSmelter(
   setWorld: Updater<World>,
@@ -104,5 +111,59 @@ export function moveItemFromCursorToSmelter(
     const items = { [itemType]: 1 }
     inventorySub(cursorInventory, items)
     inventoryAdd(entityInventory, items)
+  })
+}
+
+export function buildSmelter(
+  setWorld: Updater<World>,
+  position: Vec2,
+): void {
+  const recipe = entityRecipes[EntityType.enum.Smelter]
+  invariant(recipe)
+
+  setWorld((draft) => {
+    const cursorInventory = getCursorInventory(
+      draft.cursor,
+      draft.inventories,
+    )
+
+    for (const [key, value] of Object.entries(
+      recipe.input,
+    )) {
+      const itemType = ItemType.parse(key)
+      let count = cursorInventory.items[itemType]
+      invariant(typeof count === 'number' && count >= value)
+      count -= value
+      if (count === 0) {
+        delete cursorInventory.items[itemType]
+      } else {
+        cursorInventory.items[itemType] = count
+      }
+    }
+
+    invariant(recipe.output === EntityType.enum.Smelter)
+
+    const entityId = `${draft.nextEntityId++}`
+
+    const inventory: Inventory = {
+      id: `${draft.nextInventoryId++}`,
+      items: {},
+    }
+    invariant(!draft.inventories[inventory.id])
+    draft.inventories[inventory.id] = inventory
+
+    const entity: SmelterEntity = {
+      type: recipe.output,
+      id: entityId,
+      inventoryId: inventory.id,
+      position,
+      radius: 0.75,
+      recipeId: null,
+      smeltTicksRemaining: null,
+      fuelTicksRemaining: null,
+    }
+
+    invariant(!draft.entities[entity.id])
+    draft.entities[entity.id] = entity
   })
 }

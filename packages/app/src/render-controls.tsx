@@ -3,22 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
+  buildSmelter,
   minePatch,
   moveItemFromCursorToSmelter,
   takeAllFromSmelter,
 } from './action.js'
 import { AppContext } from './app-context.js'
-import {
-  getCursorInventory,
-  inventoryHas,
-} from './inventory.js'
+import { inventoryHas } from './inventory.js'
 import {
   entityRecipes,
   getAvailableEntityRecipes,
 } from './recipe.js'
 import styles from './render-controls.module.scss'
 import { RouteId, useRouteId } from './route.js'
-import { Vec2, vec2 } from './vec2.js'
+import { vec2 } from './vec2.js'
 import {
   Entity,
   EntityType,
@@ -181,63 +179,7 @@ function RenderDefaultControls({
   if (recipe) {
     onPointerUp = () => {
       const camera = camera$.value
-      setWorld((draft) => {
-        const cursorInventory = getCursorInventory(
-          draft.cursor,
-          draft.inventories,
-        )
-
-        for (const [key, value] of Object.entries(
-          recipe.input,
-        )) {
-          const itemType = ItemType.parse(key)
-          let count = cursorInventory.items[itemType]
-          invariant(
-            typeof count === 'number' && count >= value,
-          )
-          count -= value
-          if (count === 0) {
-            delete cursorInventory.items[itemType]
-          } else {
-            cursorInventory.items[itemType] = count
-          }
-        }
-
-        const entityType = recipe.output
-
-        let entity: Entity
-        const entityId = `${draft.nextEntityId++}`
-
-        const inventory: Inventory = {
-          id: `${draft.nextInventoryId++}`,
-          items: {},
-        }
-        invariant(!draft.inventories[inventory.id])
-        draft.inventories[inventory.id] = inventory
-
-        const position: Vec2 = vec2.clone(camera.position)
-
-        switch (entityType) {
-          case EntityType.enum.Smelter: {
-            entity = {
-              type: entityType,
-              id: entityId,
-              inventoryId: inventory.id,
-              position,
-              radius: 0.75,
-              recipeId: null,
-              smeltTicksRemaining: null,
-              fuelTicksRemaining: null,
-            }
-            break
-          }
-          default:
-            invariant(false)
-        }
-
-        invariant(!draft.entities[entity.id])
-        draft.entities[entity.id] = entity
-      })
+      buildSmelter(setWorld, vec2.clone(camera.position))
     }
   }
 
