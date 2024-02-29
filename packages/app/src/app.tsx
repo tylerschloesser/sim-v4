@@ -49,12 +49,12 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: PathRootIndex,
+        element: null,
         id: RouteId.enum.Root,
       },
       {
         path: 'build-miner',
-        Component: PathRootBuildMiner,
+        element: null,
         id: RouteId.enum.BuildMiner,
       },
     ],
