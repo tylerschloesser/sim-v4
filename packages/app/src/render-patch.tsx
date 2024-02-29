@@ -12,10 +12,10 @@ import { getPatchItemType } from './inventory.js'
 import { smooth } from './math.js'
 import styles from './render-patch.module.scss'
 import { Vec2, vec2 } from './vec2.js'
-import { Inventory, Patch } from './world.js'
+import { Inventory, PatchEntity } from './world.js'
 
 export interface RenderPatchProps {
-  patch: Patch
+  patch: PatchEntity
   inventory: Inventory
 }
 
