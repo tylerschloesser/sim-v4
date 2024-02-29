@@ -7,7 +7,12 @@ import {
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RenderInventory } from './render-inventory.js'
-import { Cursor, EntityType, World } from './world.js'
+import {
+  Cursor,
+  EntityType,
+  ItemType,
+  World,
+} from './world.js'
 
 export interface RenderInfoProps {
   cursor: Cursor
@@ -41,6 +46,10 @@ export const RenderInfo = React.memo(function RenderInfo({
       )
     }
     case EntityType.enum.Smelter: {
+      const entityInventory = getEntityInventory(
+        entity,
+        inventories,
+      )
       return (
         <div className={styles.info}>
           <div>Recipe: {entity.recipeId ?? 'None'}</div>
@@ -52,6 +61,21 @@ export const RenderInfo = React.memo(function RenderInfo({
             Smelt Ticks Remaining:{' '}
             {entity.smeltTicksRemaining}
           </div>
+          {Object.entries(entityInventory.items).map(
+            ([key, value]) => {
+              const itemType = ItemType.parse(key)
+              return (
+                <div key={key}>
+                  {itemType}: {value}{' '}
+                  {cursorInventory.items[itemType] && (
+                    <span>
+                      {`[Inventory: ${cursorInventory.items[itemType]!}]`}
+                    </span>
+                  )}
+                </div>
+              )
+            },
+          )}
         </div>
       )
     }
