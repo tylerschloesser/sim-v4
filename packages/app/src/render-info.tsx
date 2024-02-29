@@ -4,7 +4,7 @@ import {
   getCursorInventory,
   getEntityInventory,
 } from './inventory.js'
-import { getAvailableRecipes } from './recipe.js'
+import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RenderInventory } from './render-inventory.js'
 import { Cursor, EntityType, World } from './world.js'
@@ -43,7 +43,7 @@ export const RenderInfo = React.memo(function RenderInfo({
   }
 
   const availableRecipes =
-    getAvailableRecipes(cursorInventory)
+    getAvailableEntityRecipes(cursorInventory)
 
   return (
     <div className={styles.info}>

@@ -9,15 +9,15 @@ export const EntityRecipe = z.strictObject({
 })
 export type EntityRecipe = z.infer<typeof EntityRecipe>
 
-const recipes: Record<string, EntityRecipe> = {}
+const entityRecipes: Record<string, EntityRecipe> = {}
 
 function addEntityRecipe(
   type: EntityType,
   input: EntityRecipe['input'],
 ) {
   const id = type
-  invariant(!recipes[id])
-  recipes[id] = {
+  invariant(!entityRecipes[id])
+  entityRecipes[id] = {
     id,
     input,
     output: type,
@@ -28,11 +28,11 @@ addEntityRecipe(EntityType.enum.Smelter, {
   [ItemType.enum.Stone]: 20,
 })
 
-export function getAvailableRecipes(
+export function getAvailableEntityRecipes(
   inventory: Inventory,
 ): EntityRecipe[] {
   const available = new Array<EntityRecipe>()
-  for (const recipe of Object.values(recipes)) {
+  for (const recipe of Object.values(entityRecipes)) {
     let fulfilled = true
     for (const [key, value] of Object.entries(
       recipe.input,

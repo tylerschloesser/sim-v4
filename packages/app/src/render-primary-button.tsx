@@ -7,7 +7,7 @@ import {
   getCursorInventory,
   getPatchItemType,
 } from './inventory.js'
-import { getAvailableRecipes } from './recipe.js'
+import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-primary-button.module.scss'
 import { Vec2, vec2 } from './vec2.js'
 import {
@@ -101,15 +101,14 @@ function RenderDefaultPrimaryButton({
 }: RenderPrimaryButtonProps) {
   const { camera$ } = useContext(AppContext)
 
-  const camera = camera$.value
-
   let onPointerUp: (() => void) | undefined = undefined
   const availableRecipes =
-    getAvailableRecipes(cursorInventory)
+    getAvailableEntityRecipes(cursorInventory)
   if (availableRecipes.length > 0) {
     const recipe = availableRecipes.at(0)
     invariant(recipe)
     onPointerUp = () => {
+      const camera = camera$.value
       setWorld((draft) => {
         const cursorInventory = getCursorInventory(
           draft.cursor,
