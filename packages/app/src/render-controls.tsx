@@ -225,11 +225,13 @@ function RenderPatchControls({
   const minerRecipe = entityRecipes[EntityType.enum.Miner]
   invariant(minerRecipe)
 
+  const mine = useCallback(() => {
+    minePatch(setWorld)
+  }, [])
+
   return (
     <>
-      <RenderPrimaryButton
-        onHold={() => minePatch(setWorld)}
-      >
+      <RenderPrimaryButton onHold={mine}>
         Mine
       </RenderPrimaryButton>
 
