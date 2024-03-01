@@ -340,7 +340,7 @@ function RenderSmelterControls({
         Take All
       </RenderSecondaryButton>
       {coalCount < 5 && hasCoal ? (
-        <RenderPrimaryButton onTap={addCoal}>
+        <RenderPrimaryButton onHold={addCoal}>
           Add Coal
         </RenderPrimaryButton>
       ) : (
