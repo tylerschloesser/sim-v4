@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
 import { inventoryHas } from './inventory.js'
+import { hasConnectedPatch } from './miner.js'
 import { entityRecipes } from './recipe.js'
 import { RenderControls } from './render-controls.js'
 import { RenderInfo } from './render-info.js'
@@ -52,7 +53,9 @@ export function PathRoot() {
     invariant(
       connectEntityShape?.type === EntityType.enum.Miner,
     )
-    if (connectEntityShape.patchId) {
+    if (
+      hasConnectedPatch(connectEntityShape, world.shapes)
+    ) {
       navigate('..')
     }
   }, [routeId, connectEntityShape])
@@ -69,10 +72,10 @@ export function PathRoot() {
         cursorEntity={cursorEntity}
       />
       <RenderControls
-        cursorInventory={cursorInventory}
+        cursor={cursor}
+        cursorEntity={cursorEntity}
+        shapes={world.shapes}
         setWorld={setWorld}
-        entity={entity}
-        entityInventory={entityInventory}
         buildValid={buildValid}
         connectValid={connectValid}
       />

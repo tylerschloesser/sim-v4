@@ -123,6 +123,7 @@ export function buildEntity(
         world.states[id] = {
           type: EntityType.enum.Smelter,
           id,
+          recipeId: null,
           fuelTicksRemaining: null,
           smeltTicksRemaining: null,
           input: {},
