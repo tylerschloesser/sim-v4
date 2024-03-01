@@ -3,6 +3,9 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { Vec2, vec2 } from './vec2.js'
 
+export const EntityId = z.string()
+export type EntityId = z.infer<typeof EntityId>
+
 export const ItemType = z.enum([
   'IronOre',
   'Stone',
@@ -22,13 +25,14 @@ export const EntityType = z.enum([
 export type EntityType = z.infer<typeof EntityType>
 
 const EntityShapeBase = z.strictObject({
-  id: z.string(),
+  id: EntityId,
   position: Vec2,
   radius: z.literal(0.75),
+  connections: z.record(EntityId, z.literal(true)),
 })
 
 const EntityStateBase = z.strictObject({
-  id: z.string(),
+  id: EntityId,
   input: Inventory,
   output: Inventory,
 })
@@ -53,7 +57,7 @@ export type SmelterEntityState = z.infer<
 >
 export const SmelterEntity = z.strictObject({
   type: z.literal(EntityType.enum.Smelter),
-  id: z.string(),
+  id: EntityId,
   shape: SmelterEntityShape,
   state: SmelterEntityState,
 })
@@ -64,8 +68,6 @@ export type SmelterEntity = z.infer<typeof SmelterEntity>
 //
 export const PatchEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Patch),
-  // TODO refactor connections
-  minerIds: z.record(z.string(), z.literal(true)),
 })
 export type PatchEntityShape = z.infer<
   typeof PatchEntityShape
@@ -78,7 +80,7 @@ export type PatchEntityState = z.infer<
 >
 export const PatchEntity = z.strictObject({
   type: z.literal(EntityType.enum.Patch),
-  id: z.string(),
+  id: EntityId,
   shape: PatchEntityShape,
   state: PatchEntityState,
 })
@@ -89,8 +91,6 @@ export type PatchEntity = z.infer<typeof PatchEntity>
 //
 export const MinerEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Miner),
-  // TODO refactor connections
-  patchId: z.string().nullable(),
 })
 export type MinerEntityShape = z.infer<
   typeof MinerEntityShape
@@ -106,7 +106,7 @@ export type MinerEntityState = z.infer<
 >
 export const MinerEntity = z.strictObject({
   type: z.literal(EntityType.enum.Miner),
-  id: z.string(),
+  id: EntityId,
   shape: MinerEntityShape,
   state: MinerEntityState,
 })
@@ -134,7 +134,7 @@ export const Entity = z.discriminatedUnion('type', [
 export type Entity = z.infer<typeof Entity>
 
 export const Cursor = z.strictObject({
-  entityId: z.string().nullable(),
+  entityId: EntityId.nullable(),
   inventory: Inventory,
   radius: z.literal(1),
 })
@@ -145,14 +145,14 @@ export const World = z.strictObject({
 
   cursor: Cursor,
 
-  shapes: z.record(z.string(), EntityShape),
-  states: z.record(z.string(), EntityState),
+  shapes: z.record(EntityId, EntityShape),
+  states: z.record(EntityId, EntityState),
 
   nextEntityId: z.number().int().nonnegative(),
 })
 export type World = z.infer<typeof World>
 
-function getNextEntityId(world: World): string {
+function getNextEntityId(world: World): EntityId {
   const next = `${world.nextEntityId++}`
   invariant(!world.shapes[next])
   invariant(!world.states[next])
@@ -179,7 +179,7 @@ function addPatch({
   const shape: PatchEntityShape = {
     id,
     type,
-    minerIds: {},
+    connections: {},
     position,
     radius,
   }
@@ -269,7 +269,7 @@ export function saveWorld(world: World) {
   localStorage.setItem('world', JSON.stringify(world))
 }
 
-const entityCache = new Map<string, Entity>()
+const entityCache = new Map<EntityId, Entity>()
 function cacheEntity(
   shape: EntityShape,
   state: EntityState,
@@ -315,7 +315,7 @@ function cacheEntity(
 
 export function getEntity(
   world: World,
-  entityId: string,
+  entityId: EntityId,
 ): Entity {
   const shape = world.shapes[entityId]
   invariant(shape)

@@ -1,3 +1,4 @@
+import { words } from 'lodash-es'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { getCursorEntity } from './cursor.js'
@@ -12,6 +13,9 @@ import {
 import { entityRecipes } from './recipe.js'
 import { Vec2 } from './vec2.js'
 import {
+  Entity,
+  EntityShape,
+  EntityState,
   EntityType,
   Inventory,
   ItemType,
@@ -96,21 +100,21 @@ export function buildEntity(
   const recipe = entityRecipes[entityType]
   invariant(recipe)
 
-  setWorld((draft) => {
-    const cursorInventory = getCursorInventory(
-      draft.cursor,
-      draft.inventories,
-    )
-    inventorySub(cursorInventory, recipe.input)
+  setWorld((world) => {
+    inventorySub(world.cursor.inventory, recipe.input)
 
-    const entityId = `${draft.nextEntityId++}`
+    const entityId = `${world.nextEntityId++}`
 
-    const inventory: Inventory = {
-      id: `${draft.nextInventoryId++}`,
-      items: {},
+  let shape: EntityShape
+    let state: EntityState
+
+    switch (entityType) {
+      case EntityType.enum.Miner: {
+        entity = {
+
+        }
+      }
     }
-    invariant(!draft.inventories[inventory.id])
-    draft.inventories[inventory.id] = inventory
 
     const entity: SmelterEntity = {
       type: EntityType.enum.Smelter,
@@ -119,8 +123,8 @@ export function buildEntity(
       radius: 0.75,
     }
 
-    invariant(!draft.entities[entity.id])
-    draft.entities[entity.id] = entity
+    invariant(!world.entities[entity.id])
+    world.entities[entity.id] = entity
 
     const state: SmelterEntityState = {
       type: EntityType.enum.Smelter,
@@ -129,8 +133,8 @@ export function buildEntity(
       smeltTicksRemaining: null,
       fuelTicksRemaining: null,
     }
-    invariant(!draft.states[state.id])
-    draft.states[state.id] = state
+    invariant(!world.states[state.id])
+    world.states[state.id] = state
   })
 }
 
