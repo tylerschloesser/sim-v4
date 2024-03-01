@@ -1,37 +1,13 @@
 import invariant from 'tiny-invariant'
-import {
-  Cursor,
-  Entity,
-  Inventory,
-  ItemType,
-  World,
-} from './world.js'
-
-export function getCursorInventory(
-  cursor: Cursor,
-  inventories: World['inventories'],
-): Inventory {
-  const inventory = inventories[cursor.inventoryId]
-  invariant(inventory)
-  return inventory
-}
-
-export function getEntityInventory(
-  entity: Entity,
-  inventories: World['inventories'],
-): Inventory {
-  const inventory = inventories[entity.inventoryId]
-  invariant(inventory)
-  return inventory
-}
+import { Inventory, ItemType } from './world.js'
 
 export function inventoryHas(
   inventory: Inventory,
-  items: Partial<Record<ItemType, number>>,
+  items: Inventory,
 ): boolean {
   for (const [key, count] of Object.entries(items)) {
     const itemType = ItemType.parse(key)
-    if ((inventory.items[itemType] ?? 0) < count) {
+    if ((inventory[itemType] ?? 0) < count) {
       return false
     }
   }
@@ -45,15 +21,15 @@ export function inventorySub(
   for (const [key, count] of Object.entries(items)) {
     const itemType = ItemType.parse(key)
 
-    let inventoryCount = inventory.items[itemType] ?? 0
+    let inventoryCount = inventory[itemType] ?? 0
     invariant(inventoryCount >= count)
 
     inventoryCount -= count
 
     if (inventoryCount === 0) {
-      delete inventory.items[itemType]
+      delete inventory[itemType]
     } else {
-      inventory.items[itemType] = inventoryCount
+      inventory[itemType] = inventoryCount
     }
   }
 }
@@ -65,9 +41,37 @@ export function inventoryAdd(
   for (const [key, count] of Object.entries(items)) {
     const itemType = ItemType.parse(key)
 
-    let inventoryCount = inventory.items[itemType] ?? 0
+    let inventoryCount = inventory[itemType] ?? 0
     inventoryCount += count
 
-    inventory.items[itemType] = inventoryCount
+    inventory[itemType] = inventoryCount
+  }
+}
+
+export function inventoryMove(
+  source: Inventory,
+  target: Inventory,
+  items?: Partial<Record<ItemType, number>>,
+): void {
+  if (!items) {
+    items = source
+  }
+
+  for (const [key, count] of Object.entries(items)) {
+    invariant(count > 0)
+    const itemType = ItemType.parse(key)
+
+    let sourceCount = source[itemType] ?? 0
+    invariant(sourceCount >= count)
+    sourceCount -= count
+    if (sourceCount > 0) {
+      source[itemType] = sourceCount
+    } else {
+      delete source[itemType]
+    }
+
+    let targetCount = target[itemType] ?? 0
+    targetCount += count
+    target[itemType] = targetCount
   }
 }
