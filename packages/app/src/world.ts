@@ -318,5 +318,8 @@ export function getEntity(
   invariant(shape)
   const state = world.states[entityId]
   invariant(state)
+
+  // if shape and state don't change, return the same
+  // object so we can memoize react components
   return cacheEntity(shape, state)
 }
