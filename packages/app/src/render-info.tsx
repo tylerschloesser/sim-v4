@@ -38,12 +38,10 @@ function RenderPatchInfo({
   const { itemType } = entity
   return (
     <>
-      <div>{itemType}</div>
+      <div>Patch</div>
       <div>
-        Inventory: {cursorInventory.items[itemType] ?? 0}
-      </div>
-      <div>
-        Patch: {entityInventory.items[itemType] ?? 0}
+        {itemType}: {entityInventory.items[itemType] ?? 0}{' '}
+        [Inventory: {cursorInventory.items[itemType] ?? 0}]
       </div>
     </>
   )
