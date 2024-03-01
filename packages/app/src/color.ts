@@ -27,6 +27,8 @@ export function getEntityColor(entity: Entity): Color {
       return getPatchColor(entity)
     case EntityType.enum.Smelter:
       return { fill: 'pink' }
+    case EntityType.enum.Miner:
+      return { fill: 'orange' }
     default:
       invariant(false)
   }

@@ -9,6 +9,8 @@ import {
   EntityType,
   Inventory,
   ItemType,
+  MinerEntity,
+  MinerEntityState,
   PatchEntity,
   SmelterEntity,
   SmelterEntityState,
@@ -59,6 +61,47 @@ function RenderSmelterInfo({
       </div>
       <div>
         Smelt Ticks Remaining: {state.smeltTicksRemaining}
+      </div>
+      {Object.entries(entityInventory.items).map(
+        ([key, value]) => {
+          const itemType = ItemType.parse(key)
+          return (
+            <div key={key}>
+              {itemType}: {value}{' '}
+              {cursorInventory.items[itemType] && (
+                <span>
+                  {`[Inventory: ${cursorInventory.items[itemType]!}]`}
+                </span>
+              )}
+            </div>
+          )
+        },
+      )}
+    </>
+  )
+}
+
+interface RenderMinerInfoProps {
+  entity: MinerEntity
+  state: MinerEntityState
+  entityInventory: Inventory
+  cursorInventory: Inventory
+}
+
+function RenderMinerInfo({
+  entity,
+  state,
+  entityInventory,
+  cursorInventory,
+}: RenderMinerInfoProps) {
+  return (
+    <>
+      <div>{entity.type}</div>
+      <div>
+        Fuel Ticks Remaining: {state.fuelTicksRemaining}
+      </div>
+      <div>
+        Mine Ticks Remaining: {state.mineTicksRemaining}
       </div>
       {Object.entries(entityInventory.items).map(
         ([key, value]) => {
@@ -163,6 +206,20 @@ export const RenderInfo = React.memo(function RenderInfo({
             )
             return (
               <RenderSmelterInfo
+                entity={entity}
+                cursorInventory={cursorInventory}
+                entityInventory={entityInventory}
+                state={entityState}
+              />
+            )
+          }
+          case EntityType.enum.Miner: {
+            invariant(entityInventory)
+            invariant(
+              entityState?.type === EntityType.enum.Miner,
+            )
+            return (
+              <RenderMinerInfo
                 entity={entity}
                 cursorInventory={cursorInventory}
                 entityInventory={entityInventory}
