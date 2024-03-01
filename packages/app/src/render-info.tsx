@@ -35,6 +35,9 @@ function RenderPatchInfo({
         {itemType}: {entityInventory.items[itemType] ?? 0}{' '}
         [Inventory: {cursorInventory.items[itemType] ?? 0}]
       </div>
+      <div>
+        Miners: {Object.keys(entity.minerIds).length}
+      </div>
     </>
   )
 }
