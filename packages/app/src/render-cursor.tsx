@@ -159,6 +159,7 @@ function initDefaultCursor({
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
   }
+  update()
 
   let last = self.performance.now()
   let handle: number | undefined = undefined
