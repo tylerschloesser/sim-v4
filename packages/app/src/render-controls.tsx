@@ -388,45 +388,34 @@ function RenderMinerControls({
   invariant(entity?.type === EntityType.enum.Miner)
   invariant(entityInventory?.id === entity.inventoryId)
 
+  const { itemType: outputType } = entity
+  const hasOutput =
+    (entityInventory.items[outputType] ?? 0) > 0
+  const hasCoal =
+    (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
+
+  const addCoal = useCallback(() => {
+    if (!hasCoal) return
+    moveItemFromCursorToMiner(setWorld, ItemType.enum.Coal)
+  }, [hasCoal])
+
   return (
     <>
-      {(() => {
-        const { itemType } = entity
-        const hasOutput =
-          (entityInventory.items[itemType] ?? 0) > 0
-
-        return (
-          <RenderSecondaryButton
-            disabled={!hasOutput}
-            onTap={() => {
-              if (!hasOutput) return
-              takeAllFromMiner(setWorld)
-            }}
-          >
-            Take All
-          </RenderSecondaryButton>
-        )
-      })()}
-      {(() => {
-        const hasCoal =
-          (cursorInventory.items[ItemType.enum.Coal] ?? 0) >
-          0
-
-        return (
-          <RenderPrimaryButton
-            disabled={!hasCoal}
-            onTap={() => {
-              if (!hasCoal) return
-              moveItemFromCursorToMiner(
-                setWorld,
-                ItemType.enum.Coal,
-              )
-            }}
-          >
-            Add Coal
-          </RenderPrimaryButton>
-        )
-      })()}
+      <RenderSecondaryButton
+        disabled={!hasOutput}
+        onTap={() => {
+          if (!hasOutput) return
+          takeAllFromMiner(setWorld)
+        }}
+      >
+        Take All
+      </RenderSecondaryButton>
+      <RenderPrimaryButton
+        disabled={!hasCoal}
+        onTap={addCoal}
+      >
+        Add Coal
+      </RenderPrimaryButton>
     </>
   )
 }
