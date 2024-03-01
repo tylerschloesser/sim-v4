@@ -16,11 +16,11 @@ import {
 
 export function moveFromEntityOutputToCursor(
   setWorld: Updater<World>,
+  entityId: EntityId,
   items?: Inventory,
 ): void {
   setWorld((world) => {
-    invariant(world.cursor.entityId)
-    const entity = getEntity(world, world.cursor.entityId)
+    const entity = getEntity(world, entityId)
 
     // TODO define which entities this can be done on
     invariant(entity.type !== EntityType.enum.Patch)
@@ -66,11 +66,11 @@ export function minePatch(setWorld: Updater<World>): void {
 
 export function moveFromCursorToEntityInput(
   setWorld: Updater<World>,
+  entityId: EntityId,
   items: Inventory,
 ): void {
   setWorld((world) => {
-    invariant(world.cursor.entityId)
-    const entity = getEntity(world, world.cursor.entityId)
+    const entity = getEntity(world, entityId)
     inventoryMove(
       world.cursor.inventory,
       entity.state.input,
@@ -133,6 +133,12 @@ export function buildEntity(
       default: {
         invariant(false)
       }
+    }
+
+    for (const peerId of Object.keys(connections)) {
+      const peer = getEntity(world, peerId)
+      invariant(!peer.shape.connections[id])
+      peer.shape.connections[id] = true
     }
   })
 }

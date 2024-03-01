@@ -9,14 +9,11 @@ import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
-  buildMiner,
-  buildSmelter,
-  connectMinerToPatch,
+  addConnection,
+  buildEntity,
   minePatch,
-  moveItemFromCursorToMiner,
-  moveItemFromCursorToSmelter,
-  takeAllFromMiner,
-  takeAllFromSmelter,
+  moveFromCursorToEntityInput,
+  moveFromEntityOutputToCursor,
 } from './action.js'
 import { AppContext } from './app-context.js'
 import { inventoryHas } from './inventory.js'
@@ -46,6 +43,7 @@ import {
 export interface RenderControlsProps {
   cursor: Cursor
   cursorEntity: Entity | null
+  shapes: World['shapes']
   setWorld: Updater<World>
   buildValid: boolean | null
   connectValid: boolean | null
@@ -55,6 +53,7 @@ export const RenderControls = React.memo(
   function RenderControls({
     cursor,
     cursorEntity,
+    shapes,
     setWorld,
     buildValid,
     connectValid,
@@ -74,10 +73,13 @@ export const RenderControls = React.memo(
             onTap={() => {
               if (buildValid !== true) return
               invariant(patchId)
-              buildMiner(
+              buildEntity(
                 setWorld,
+                EntityType.enum.Miner,
                 vec2.clone(camera$.value.position),
-                patchId,
+                {
+                  [patchId]: true,
+                },
               )
             }}
           >
@@ -102,7 +104,12 @@ export const RenderControls = React.memo(
             onTap={() => {
               if (connectValid !== true) return
               invariant(connectEntityId)
-              connectMinerToPatch(setWorld, connectEntityId)
+              invariant(cursor.entityId)
+              addConnection(
+                setWorld,
+                connectEntityId,
+                cursor.entityId,
+              )
             }}
           >
             Connect
@@ -141,6 +148,7 @@ export const RenderControls = React.memo(
             <RenderMinerControls
               cursor={cursor}
               entity={cursorEntity}
+              shapes={shapes}
               setWorld={setWorld}
             />
           )
@@ -329,12 +337,17 @@ function RenderDefaultControls({
   const onTap = () => {
     if (!recipe) return
     const camera = camera$.value
-    buildSmelter(setWorld, vec2.clone(camera.position))
+    buildEntity(
+      setWorld,
+      EntityType.enum.Smelter,
+      vec2.clone(camera.position),
+      {},
+    )
   }
 
   return (
     <RenderPrimaryButton disabled={disabled} onTap={onTap}>
-      Build {recipe?.id}
+      Build {recipe?.output}
     </RenderPrimaryButton>
   )
 }
@@ -362,18 +375,16 @@ function RenderSmelterControls({
 
   const addCoal = useCallback(() => {
     if (!hasCoal) return
-    moveItemFromCursorToSmelter(
-      setWorld,
-      ItemType.enum.Coal,
-    )
+    moveFromCursorToEntityInput(setWorld, entity.id, {
+      [ItemType.enum.Coal]: 1,
+    })
   }, [hasCoal])
 
   const addIronOre = useCallback(() => {
     if (!hasIronOre) return
-    moveItemFromCursorToSmelter(
-      setWorld,
-      ItemType.enum.IronOre,
-    )
+    moveFromCursorToEntityInput(setWorld, entity.id, {
+      [ItemType.enum.IronOre]: 1,
+    })
   }, [hasIronOre])
 
   return (
@@ -382,7 +393,11 @@ function RenderSmelterControls({
         disabled={!hasOutput}
         onTap={() => {
           if (!hasOutput) return
-          takeAllFromSmelter(setWorld)
+          invariant(cursor.entityId)
+          moveFromEntityOutputToCursor(
+            setWorld,
+            cursor.entityId,
+          )
         }}
       >
         Take All
@@ -406,12 +421,14 @@ function RenderSmelterControls({
 interface RenderMinerControlsProps {
   cursor: Cursor
   entity: MinerEntity
+  shapes: World['shapes']
   setWorld: Updater<World>
 }
 
 function RenderMinerControls({
   cursor,
   entity,
+  shapes,
   setWorld,
 }: RenderMinerControlsProps) {
   const outputType = (() => {
@@ -425,8 +442,18 @@ function RenderMinerControls({
 
   const addCoal = useCallback(() => {
     if (!hasCoal) return
-    moveItemFromCursorToMiner(setWorld, ItemType.enum.Coal)
+    moveFromCursorToEntityInput(setWorld, entity.id, {
+      [ItemType.enum.Coal]: 1,
+    })
   }, [hasCoal])
+
+  const isConnectedToPatch = !!Object.keys(
+    entity.shape.connections,
+  ).find((peerId) => {
+    const peerShape = shapes[peerId]
+    invariant(peerShape)
+    return peerShape.type === EntityType.enum.Patch
+  })
 
   const navigate = useNavigate()
 
@@ -436,12 +463,12 @@ function RenderMinerControls({
         disabled={!hasOutput}
         onTap={() => {
           if (!hasOutput) return
-          takeAllFromMiner(setWorld)
+          moveFromEntityOutputToCursor(setWorld, entity.id)
         }}
       >
         Take All
       </RenderSecondaryButton>
-      {entity.shape.patchId ? (
+      {isConnectedToPatch ? (
         <RenderPrimaryButton
           disabled={!hasCoal}
           onHold={addCoal}
