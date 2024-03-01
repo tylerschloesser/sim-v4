@@ -1,4 +1,3 @@
-import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { inventoryHas } from './inventory.js'
 import { EntityType, Inventory, ItemType } from './world.js'
