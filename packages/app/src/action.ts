@@ -109,16 +109,23 @@ export function minePatch(setWorld: Updater<World>): void {
 
     const { itemType } = entity
 
-    const patchCount = patchInventory.items[itemType]
+    let patchCount = patchInventory.items[itemType]
     invariant(
       typeof patchCount === 'number' && patchCount >= 1,
     )
-    patchInventory.items[itemType] = patchCount - 1
+    patchCount -= 1
 
-    if (patchCount === 1) {
+    if (patchCount === 0) {
       delete draft.entities[entity.id]
       delete draft.inventories[entity.inventoryId]
+      for (const minerId of Object.keys(entity.minerIds)) {
+        const miner = draft.entities[minerId]
+        invariant(miner?.type === EntityType.enum.Miner)
+        miner.patchId = null
+      }
       draft.cursor.entityId = null
+    } else {
+      patchInventory.items[itemType] = patchCount
     }
 
     const cursorCount = cursorInventory.items[itemType]
