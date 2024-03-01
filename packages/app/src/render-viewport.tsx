@@ -11,6 +11,8 @@ export function RenderViewport() {
     setWorld,
     buildValid,
     setBuildValid,
+    connectValid,
+    setConnectValid,
   } = useContext(AppContext)
   const { x: vx, y: vy } = viewport.size
   const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
@@ -23,6 +25,8 @@ export function RenderViewport() {
         setWorld={setWorld}
         buildValid={buildValid}
         setBuildValid={setBuildValid}
+        connectValid={connectValid}
+        setConnectValid={setConnectValid}
       />
     </svg>
   )

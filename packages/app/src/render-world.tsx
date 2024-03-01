@@ -13,8 +13,12 @@ export interface RenderWorldProps {
   cursor: Cursor
   entities: World['entities']
   setWorld: Updater<World>
+
   buildValid: boolean | null
   setBuildValid(valid: boolean | null): void
+
+  connectValid: boolean | null
+  setConnectValid(valid: boolean | null): void
 }
 
 export const RenderWorld = React.memo(function RenderWorld({
@@ -23,6 +27,8 @@ export const RenderWorld = React.memo(function RenderWorld({
   setWorld,
   buildValid,
   setBuildValid,
+  connectValid,
+  setConnectValid,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
   const { viewport } = useContext(AppContext)
@@ -76,10 +82,8 @@ export const RenderWorld = React.memo(function RenderWorld({
         setWorld={setWorld}
         buildValid={buildValid}
         setBuildValid={setBuildValid}
-        connectValid={false}
-        setConnectValid={() => {
-          console.log('TODO')
-        }}
+        connectValid={connectValid}
+        setConnectValid={setConnectValid}
       />
       {Object.values(entities).map((entity) => {
         return (
