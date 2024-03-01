@@ -12,7 +12,11 @@ import { entityRecipes } from './recipe.js'
 import { RenderControls } from './render-controls.js'
 import { RenderInfo } from './render-info.js'
 import { RenderViewport } from './render-viewport.js'
-import { RouteId, useRouteId } from './route.js'
+import {
+  RouteId,
+  useConnectEntityId,
+  useRouteId,
+} from './route.js'
 import {
   Entity,
   EntityState,
@@ -38,16 +42,31 @@ export function PathRoot() {
       ? inventoryHas(cursorInventory, minerRecipe.input)
       : null
 
+  const connectEntityId = useConnectEntityId()
+  const connectEntity = connectEntityId
+    ? world.entities[connectEntityId]
+    : null
   const navigate = useNavigate()
+
   useEffect(() => {
     if (routeId !== RouteId.enum.BuildMiner) {
       return
     }
     invariant(hasMiner !== null)
     if (routeId === RouteId.enum.BuildMiner && !hasMiner) {
-      navigate('/')
+      navigate('..')
     }
   }, [routeId, hasMiner])
+
+  useEffect(() => {
+    if (routeId !== RouteId.enum.Connect) {
+      return
+    }
+    invariant(connectEntity?.type === EntityType.enum.Miner)
+    if (connectEntity.patchId) {
+      navigate('..')
+    }
+  }, [routeId, connectEntity])
 
   let entity: Entity | null = null
   if (world.cursor.entityId) {

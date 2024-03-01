@@ -6,11 +6,13 @@ import React, {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { connect } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
   buildMiner,
   buildSmelter,
+  connectMinerToPatch,
   minePatch,
   moveItemFromCursorToMiner,
   moveItemFromCursorToSmelter,
@@ -24,7 +26,12 @@ import {
   getAvailableEntityRecipes,
 } from './recipe.js'
 import styles from './render-controls.module.scss'
-import { RouteId, usePatchId, useRouteId } from './route.js'
+import {
+  RouteId,
+  useConnectEntityId,
+  usePatchId,
+  useRouteId,
+} from './route.js'
 import { vec2 } from './vec2.js'
 import {
   Entity,
@@ -60,6 +67,7 @@ export const RenderControls = React.memo(
 
     const routeId = useRouteId()
     const patchId = usePatchId()
+    const connectEntityId = useConnectEntityId()
 
     if (routeId === RouteId.enum.BuildMiner) {
       return (
@@ -94,6 +102,11 @@ export const RenderControls = React.memo(
         <>
           <RenderPrimaryButton
             disabled={connectValid !== true}
+            onTap={() => {
+              if (connectValid !== true) return
+              invariant(connectEntityId)
+              connectMinerToPatch(setWorld, connectEntityId)
+            }}
           >
             Connect
           </RenderPrimaryButton>

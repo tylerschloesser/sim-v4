@@ -10,7 +10,12 @@ export function isConnectValid(
   }
 
   invariant(source.type === EntityType.enum.Miner)
-  invariant(source.patchId === null)
+
+  if (source.patchId !== null) {
+    // this should only happen immediately after connecting,
+    // but before we navigate back
+    return false
+  }
 
   if (target.type !== EntityType.enum.Patch) {
     return false

@@ -272,3 +272,24 @@ export function buildMiner(
     draft.states[state.id] = state
   })
 }
+
+export function connectMinerToPatch(
+  setWorld: Updater<World>,
+  minerId: string,
+): void {
+  setWorld((draft) => {
+    const miner = draft.entities[minerId]
+    invariant(miner?.type === EntityType.enum.Miner)
+    invariant(miner.patchId === null)
+
+    // get patch from cursor
+    const patchId = draft.cursor.entityId
+    invariant(patchId)
+    const patch = draft.entities[patchId]
+    invariant(patch?.type === EntityType.enum.Patch)
+    invariant(!patch.minerIds[minerId])
+
+    miner.patchId = patchId
+    patch.minerIds[minerId] = true
+  })
+}
