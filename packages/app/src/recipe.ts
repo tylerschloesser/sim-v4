@@ -15,9 +15,7 @@ export const SmelterRecipe = z.strictObject({
 })
 export type SmelterRecipe = z.infer<typeof SmelterRecipe>
 
-export const entityRecipes: Partial<
-  Record<EntityType, EntityRecipe>
-> = {
+export const entityRecipes: Record<string, EntityRecipe> = {
   [EntityType.enum.Smelter]: {
     input: {
       [ItemType.enum.Stone]: 20,
@@ -33,18 +31,17 @@ export const entityRecipes: Partial<
   },
 }
 
-export const smelterRecipes: Partial<
-  Record<ItemType, SmelterRecipe>
-> = {
-  [ItemType.enum.IronPlate]: {
-    input: {
-      [ItemType.enum.IronOre]: 1,
+export const smelterRecipes: Record<string, SmelterRecipe> =
+  {
+    [ItemType.enum.IronPlate]: {
+      input: {
+        [ItemType.enum.IronOre]: 1,
+      },
+      output: {
+        [ItemType.enum.IronPlate]: 1,
+      },
     },
-    output: {
-      [ItemType.enum.IronPlate]: 1,
-    },
-  },
-}
+  }
 
 export function getAvailableEntityRecipes(
   inventory: Inventory,

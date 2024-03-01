@@ -49,6 +49,7 @@ export type SmelterEntityShape = z.infer<
 // prettier-ignore
 export const SmelterEntityState = EntityStateBase.extend({
   type: z.literal(EntityType.enum.Smelter),
+  recipeId: z.string().nullable(),
   smeltTicksRemaining: z.number().int().positive().nullable(),
   fuelTicksRemaining: z.number().int().positive().nullable(),
 })

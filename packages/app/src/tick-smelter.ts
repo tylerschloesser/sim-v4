@@ -1,36 +1,25 @@
 import invariant from 'tiny-invariant'
 import {
-  getEntityInventory,
   inventoryAdd,
   inventoryHas,
   inventorySub,
 } from './inventory.js'
 import { smelterRecipes } from './recipe.js'
-import {
-  ItemType,
-  SmelterEntity,
-  SmelterEntityState,
-  World,
-} from './world.js'
+import { ItemType, SmelterEntity, World } from './world.js'
 
 export function tickSmelter(
-  world: World,
+  _world: World,
   entity: SmelterEntity,
-  state: SmelterEntityState,
 ): void {
-  const inventory = getEntityInventory(
-    entity,
-    world.inventories,
-  )
-
+  const { state } = entity
   if (
     state.fuelTicksRemaining !== null &&
     state.smeltTicksRemaining !== null
   ) {
     invariant(state.fuelTicksRemaining > 0)
     invariant(state.smeltTicksRemaining > 0)
-
     invariant(state.recipeId)
+
     const recipe = smelterRecipes[state.recipeId]
     invariant(recipe)
 
@@ -42,64 +31,38 @@ export function tickSmelter(
     }
 
     if (state.smeltTicksRemaining === 0) {
-      inventoryAdd(inventory, {
-        [recipe.output]: 1,
-      })
+      inventoryAdd(state.output, recipe.output)
       state.smeltTicksRemaining = null
+      state.recipeId = null
     }
   }
 
   const fuel = { [ItemType.enum.Coal]: 1 }
+  const hasFuel =
+    state.fuelTicksRemaining ||
+    inventoryHas(state.input, fuel)
 
-  if (
-    state.fuelTicksRemaining === null &&
-    state.smeltTicksRemaining !== null
-  ) {
-    if (inventoryHas(inventory, fuel)) {
-      inventorySub(inventory, fuel)
-      state.fuelTicksRemaining = 50
-    }
-  }
+  if (state.smeltTicksRemaining === null && hasFuel) {
+    invariant(state.recipeId === null)
 
-  if (
-    state.smeltTicksRemaining === null &&
-    (state.fuelTicksRemaining ||
-      inventoryHas(inventory, fuel))
-  ) {
-    if (!state.recipeId) {
-      for (const recipe of Object.values(smelterRecipes)) {
-        if (inventoryHas(inventory, recipe.input)) {
-          state.recipeId = recipe.id
-          break
-        }
-      }
-    }
-
-    if (state.recipeId) {
-      const recipe = smelterRecipes[state.recipeId]
-      invariant(recipe)
-
-      if (inventoryHas(inventory, recipe.input)) {
-        if (state.fuelTicksRemaining === null) {
-          inventorySub(inventory, fuel)
-          state.fuelTicksRemaining = 50
-        }
-
-        inventorySub(inventory, recipe.input)
+    for (const [recipeId, recipe] of Object.entries(
+      smelterRecipes,
+    )) {
+      if (inventoryHas(state.input, recipe.input)) {
+        state.recipeId = recipeId
+        inventorySub(state.input, recipe.input)
         state.smeltTicksRemaining = 10
+        break
       }
     }
   }
 
   if (
-    state.recipeId &&
-    state.smeltTicksRemaining === null
+    state.smeltTicksRemaining !== null &&
+    state.fuelTicksRemaining === null &&
+    hasFuel
   ) {
-    const recipe = smelterRecipes[state.recipeId]
-    invariant(recipe)
-
-    if (!inventory.items[recipe.output]) {
-      state.recipeId = null
-    }
+    inventorySub(state.input, fuel)
+    state.fuelTicksRemaining = 50
   }
 }
