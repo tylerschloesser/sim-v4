@@ -6,6 +6,7 @@ import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
 import { getClosestEntity } from './closest.js'
+import { isConnectValid } from './connect.js'
 import {
   RouteId,
   useConnectEntityId,
@@ -15,7 +16,12 @@ import {
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
-import { Cursor, EntityType, World } from './world.js'
+import {
+  Cursor,
+  Entity,
+  EntityType,
+  World,
+} from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
@@ -345,9 +351,13 @@ function initConnectCursor({
       setWorld((draft) => {
         draft.cursor.entityId = entityId
       })
-      setConnectValid(
-        entityId !== null && entityId !== connectEntityId,
-      )
+      let target: Entity | null = null
+      if (entityId) {
+        target = entities[entityId] ?? null
+        invariant(target)
+      }
+      invariant(source)
+      setConnectValid(isConnectValid(source, target))
     }
   }
 
