@@ -143,13 +143,16 @@ function RenderPrimaryButton({
 
   const [pointerDown, setPointerDown] = useState(false)
   const interval = useRef<number>()
+  const holdCount = useRef<number>(0)
 
   useEffect(() => {
+    holdCount.current = 0
     self.clearInterval(interval.current)
     if (pointerDown) {
       interval.current = self.setInterval(() => {
         invariant(onHold)
         onHold()
+        holdCount.current += 1
       }, 250)
     }
   }, [pointerDown, onHold])
@@ -175,6 +178,11 @@ function RenderPrimaryButton({
       onPointerUp={
         onHold
           ? () => {
+              if (holdCount.current === 0) {
+                // if we haven't triggered via hold yet,
+                // consider this a tap
+                onHold()
+              }
               setPointerDown(false)
             }
           : onTap
