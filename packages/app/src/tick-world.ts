@@ -17,7 +17,7 @@ export function tickWorld(setWorld: Updater<World>): void {
           break
         case EntityType.enum.Miner:
           invariant(state?.type === EntityType.enum.Miner)
-          tickMiner(world, entity, state)
+          tickMiner(world, shape, state)
           break
       }
     }
