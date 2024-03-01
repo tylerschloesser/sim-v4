@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -151,7 +152,7 @@ function RenderPrimaryButton({
         onHold()
       }, 250)
     }
-  }, [pointerDown])
+  }, [pointerDown, onHold])
 
   return (
     <button
@@ -291,65 +292,55 @@ function RenderSmelterControls({
   invariant(entity?.type === EntityType.enum.Smelter)
   invariant(entityInventory?.id === entity.inventoryId)
 
+  const outputType = ItemType.enum.IronPlate
+  const hasOutput =
+    (entityInventory.items[outputType] ?? 0) > 0
+  const coalCount =
+    entityInventory.items[ItemType.enum.Coal] ?? 0
+  const hasCoal =
+    (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
+  const hasIronOre =
+    (cursorInventory.items[ItemType.enum.IronOre] ?? 0) > 0
+
+  const addCoal = useCallback(() => {
+    if (!hasCoal) return
+    moveItemFromCursorToSmelter(
+      setWorld,
+      ItemType.enum.Coal,
+    )
+  }, [hasCoal])
+
+  const addIronOre = useCallback(() => {
+    if (!hasIronOre) return
+    moveItemFromCursorToSmelter(
+      setWorld,
+      ItemType.enum.IronOre,
+    )
+  }, [hasIronOre])
+
   return (
     <>
-      {(() => {
-        const itemType = ItemType.enum.IronPlate
-        const hasOutput =
-          (entityInventory.items[itemType] ?? 0) > 0
-
-        return (
-          <RenderSecondaryButton
-            disabled={!hasOutput}
-            onTap={() => {
-              if (!hasOutput) return
-              takeAllFromSmelter(setWorld)
-            }}
-          >
-            Take All
-          </RenderSecondaryButton>
-        )
-      })()}
-      {(() => {
-        const coalCount =
-          entityInventory.items[ItemType.enum.Coal] ?? 0
-        const hasCoal =
-          (cursorInventory.items[ItemType.enum.Coal] ?? 0) >
-          0
-
-        if (coalCount < 5 && hasCoal) {
-          return (
-            <RenderPrimaryButton
-              onTap={() => {
-                if (!hasCoal) return
-                moveItemFromCursorToSmelter(
-                  setWorld,
-                  ItemType.enum.Coal,
-                )
-              }}
-            >
-              Add Coal
-            </RenderPrimaryButton>
-          )
-        }
-        const hasIron =
-          (cursorInventory.items[ItemType.enum.IronOre] ??
-            0) > 0
-        return (
-          <RenderPrimaryButton
-            disabled={!hasIron}
-            onHold={() => {
-              if (!hasIron) return
-              moveItemFromCursorToSmelter(
-                setWorld,
-                ItemType.enum.IronOre,
-              )
-            }}
-          >
-            Add Iron Ore
-          </RenderPrimaryButton>
-        )
-      })()}
+      <RenderSecondaryButton
+        disabled={!hasOutput}
+        onTap={() => {
+          if (!hasOutput) return
+          takeAllFromSmelter(setWorld)
+        }}
+      >
+        Take All
+      </RenderSecondaryButton>
+      {coalCount < 5 && hasCoal ? (
+        <RenderPrimaryButton onTap={addCoal}>
+          Add Coal
+        </RenderPrimaryButton>
+      ) : (
+        <RenderPrimaryButton
+          disabled={!hasIronOre}
+          onHold={addIronOre}
+        >
+          Add Iron Ore
+        </RenderPrimaryButton>
+      )}
     </>
   )
 }
