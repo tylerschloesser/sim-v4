@@ -6,77 +6,33 @@ import { RouteId, useRouteId } from './route.js'
 import {
   Cursor,
   Entity,
-  EntityState,
   EntityType,
-  Inventory,
   ItemType,
   MinerEntity,
-  MinerEntityState,
   PatchEntity,
   SmelterEntity,
-  SmelterEntityState,
 } from './world.js'
 
-interface RenderPatchInfoProps {
-  entity: PatchEntity
-  entityInventory: Inventory
-  cursorInventory: Inventory
+interface RenderOutputProps {
+  cursor: Cursor
+  entity: Entity
 }
-
-function RenderPatchInfo({
+function RenderOutput({
+  cursor,
   entity,
-  entityInventory,
-  cursorInventory,
-}: RenderPatchInfoProps) {
-  const { itemType } = entity
+}: RenderOutputProps) {
+  if (Object.keys(entity.state.output).length === 0) {
+    return <div>Output: None</div>
+  }
   return (
     <>
-      <div>Patch</div>
-      <div>
-        {itemType}: {entityInventory.items[itemType] ?? 0}{' '}
-        [Inventory: {cursorInventory.items[itemType] ?? 0}]
-      </div>
-      <div>
-        Miners: {Object.keys(entity.minerIds).length}
-      </div>
-    </>
-  )
-}
-
-interface RenderSmelterInfoProps {
-  entity: SmelterEntity
-  state: SmelterEntityState
-  entityInventory: Inventory
-  cursorInventory: Inventory
-}
-
-function RenderSmelterInfo({
-  entity,
-  state,
-  entityInventory,
-  cursorInventory,
-}: RenderSmelterInfoProps) {
-  return (
-    <>
-      <div>{entity.type}</div>
-      <div>Recipe: {state.recipeId ?? 'None'}</div>
-      <div>
-        Fuel Ticks Remaining: {state.fuelTicksRemaining}
-      </div>
-      <div>
-        Smelt Ticks Remaining: {state.smeltTicksRemaining}
-      </div>
-      {Object.entries(entityInventory.items).map(
+      <div>Output:</div>
+      {Object.entries(entity.state.output).map(
         ([key, value]) => {
           const itemType = ItemType.parse(key)
           return (
             <div key={key}>
-              {itemType}: {value}{' '}
-              {cursorInventory.items[itemType] && (
-                <span>
-                  {`[Inventory: ${cursorInventory.items[itemType]!}]`}
-                </span>
-              )}
+              {`${itemType}: ${value} [Inventory: ${cursor.inventory[itemType] ?? 0}]`}
             </div>
           )
         },
@@ -85,19 +41,86 @@ function RenderSmelterInfo({
   )
 }
 
+interface RenderInputProps {
+  cursor: Cursor
+  entity: Entity
+}
+function RenderInput({ cursor, entity }: RenderInputProps) {
+  if (Object.keys(entity.state.input).length === 0) {
+    return <div>Input: None</div>
+  }
+  return (
+    <>
+      <div>Input:</div>
+      {Object.entries(entity.state.input).map(
+        ([key, value]) => {
+          const itemType = ItemType.parse(key)
+          return (
+            <div key={key}>
+              {`${itemType}: ${value} [Inventory: ${cursor.inventory[itemType] ?? 0}]`}
+            </div>
+          )
+        },
+      )}
+    </>
+  )
+}
+
+interface RenderPatchInfoProps {
+  cursor: Cursor
+  entity: PatchEntity
+}
+
+function RenderPatchInfo({
+  cursor,
+  entity,
+}: RenderPatchInfoProps) {
+  return (
+    <>
+      <div>Patch</div>
+      <RenderOutput cursor={cursor} entity={entity} />
+      <div>
+        Miners: {Object.keys(entity.shape.minerIds).length}
+      </div>
+    </>
+  )
+}
+
+interface RenderSmelterInfoProps {
+  cursor: Cursor
+  entity: SmelterEntity
+}
+
+function RenderSmelterInfo({
+  cursor,
+  entity,
+}: RenderSmelterInfoProps) {
+  const { state } = entity
+  return (
+    <>
+      <div>{entity.type}</div>
+      <div>
+        Fuel Ticks Remaining: {state.fuelTicksRemaining}
+      </div>
+      <div>
+        Smelt Ticks Remaining: {state.smeltTicksRemaining}
+      </div>
+      <RenderInput cursor={cursor} entity={entity} />
+      <RenderOutput cursor={cursor} entity={entity} />
+    </>
+  )
+}
+
 interface RenderMinerInfoProps {
+  cursor: Cursor
   entity: MinerEntity
-  state: MinerEntityState
-  entityInventory: Inventory
-  cursorInventory: Inventory
 }
 
 function RenderMinerInfo({
+  cursor,
   entity,
-  state,
-  entityInventory,
-  cursorInventory,
 }: RenderMinerInfoProps) {
+  const { state } = entity
   return (
     <>
       <div>{entity.type}</div>
@@ -107,41 +130,29 @@ function RenderMinerInfo({
       <div>
         Mine Ticks Remaining: {state.mineTicksRemaining}
       </div>
-      {Object.entries(entityInventory.items).map(
-        ([key, value]) => {
-          const itemType = ItemType.parse(key)
-          return (
-            <div key={key}>
-              {itemType}: {value}{' '}
-              {cursorInventory.items[itemType] && (
-                <span>
-                  {`[Inventory: ${cursorInventory.items[itemType]!}]`}
-                </span>
-              )}
-            </div>
-          )
-        },
-      )}
+      <RenderInput cursor={cursor} entity={entity} />
+      <RenderOutput cursor={cursor} entity={entity} />
     </>
   )
 }
 
 interface RenderDefaultInfoProps {
-  cursorInventory: Inventory
+  cursor: Cursor
 }
 
 function RenderDefaultInfo({
-  cursorInventory,
+  cursor,
 }: RenderDefaultInfoProps) {
-  const availableRecipes =
-    getAvailableEntityRecipes(cursorInventory)
+  const availableRecipes = getAvailableEntityRecipes(
+    cursor.inventory,
+  )
   return (
     <>
       <div>
         Inventory:{' '}
-        {Object.keys(cursorInventory).length === 0 &&
+        {Object.keys(cursor.inventory).length === 0 &&
           'None'}
-        {Object.entries(cursorInventory.items).map(
+        {Object.entries(cursor.inventory).map(
           ([key, value]) => {
             const itemType = ItemType.parse(key)
             return (
@@ -169,10 +180,8 @@ export interface RenderInfoProps {
 }
 
 export const RenderInfo = React.memo(function RenderInfo({
-  cursorInventory,
-  entity,
-  entityInventory,
-  entityState,
+  cursor,
+  cursorEntity,
 }: RenderInfoProps) {
   const routeId = useRouteId()
   if (routeId === RouteId.enum.BuildMiner) {
@@ -182,50 +191,32 @@ export const RenderInfo = React.memo(function RenderInfo({
   return (
     <div className={styles.info}>
       {(() => {
-        if (!entity) {
-          return (
-            <RenderDefaultInfo
-              cursorInventory={cursorInventory}
-            />
-          )
+        if (!cursorEntity) {
+          return <RenderDefaultInfo cursor={cursor} />
         }
 
-        switch (entity.type) {
+        switch (cursorEntity.type) {
           case EntityType.enum.Patch: {
-            invariant(entityInventory)
             return (
               <RenderPatchInfo
-                entity={entity}
-                cursorInventory={cursorInventory}
-                entityInventory={entityInventory}
+                cursor={cursor}
+                entity={cursorEntity}
               />
             )
           }
           case EntityType.enum.Smelter: {
-            invariant(entityInventory)
-            invariant(
-              entityState?.type === EntityType.enum.Smelter,
-            )
             return (
               <RenderSmelterInfo
-                entity={entity}
-                cursorInventory={cursorInventory}
-                entityInventory={entityInventory}
-                state={entityState}
+                cursor={cursor}
+                entity={cursorEntity}
               />
             )
           }
           case EntityType.enum.Miner: {
-            invariant(entityInventory)
-            invariant(
-              entityState?.type === EntityType.enum.Miner,
-            )
             return (
               <RenderMinerInfo
-                entity={entity}
-                cursorInventory={cursorInventory}
-                entityInventory={entityInventory}
-                state={entityState}
+                cursor={cursor}
+                entity={cursorEntity}
               />
             )
           }
