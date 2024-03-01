@@ -1,4 +1,9 @@
-import React, { useContext } from 'react'
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
@@ -123,19 +128,63 @@ export const RenderControls = React.memo(
 
 type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean
-  onTap(): void
+  onTap?(): void
+  onHold?(): void
 }>
 
 function RenderPrimaryButton({
   disabled = false,
   onTap,
+  onHold,
   children,
 }: ButtonProps) {
+  invariant(!onTap || !onHold)
+
+  const [pointerDown, setPointerDown] = useState(false)
+  const interval = useRef<number>()
+
+  useEffect(() => {
+    self.clearInterval(interval.current)
+    if (pointerDown) {
+      interval.current = self.setInterval(() => {
+        invariant(onHold)
+        onHold()
+      }, 250)
+    }
+  }, [pointerDown])
+
   return (
     <button
       className={styles['primary-button']}
       data-pointer="capture"
-      onPointerUp={onTap}
+      onPointerCancel={
+        onHold
+          ? () => {
+              setPointerDown(false)
+            }
+          : undefined
+      }
+      onPointerLeave={
+        onHold
+          ? () => {
+              setPointerDown(false)
+            }
+          : undefined
+      }
+      onPointerUp={
+        onHold
+          ? () => {
+              setPointerDown(false)
+            }
+          : onTap
+      }
+      onPointerDown={
+        onHold
+          ? () => {
+              setPointerDown(true)
+            }
+          : undefined
+      }
       disabled={disabled}
     >
       {children}
@@ -178,7 +227,7 @@ function RenderPatchControls({
   return (
     <>
       <RenderPrimaryButton
-        onTap={() => minePatch(setWorld)}
+        onHold={() => minePatch(setWorld)}
       >
         Mine
       </RenderPrimaryButton>
@@ -289,7 +338,7 @@ function RenderSmelterControls({
         return (
           <RenderPrimaryButton
             disabled={!hasIron}
-            onTap={() => {
+            onHold={() => {
               if (!hasIron) return
               moveItemFromCursorToSmelter(
                 setWorld,
