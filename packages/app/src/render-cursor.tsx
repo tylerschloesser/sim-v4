@@ -345,7 +345,9 @@ function initConnectCursor({
       setWorld((draft) => {
         draft.cursor.entityId = entityId
       })
-      setConnectValid(false)
+      setConnectValid(
+        entityId !== null && entityId !== connectEntityId,
+      )
     }
   }
 
