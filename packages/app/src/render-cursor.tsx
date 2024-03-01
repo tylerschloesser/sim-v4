@@ -228,24 +228,19 @@ function initConnectCursor({
 
 function initHomingCursor({
   camera$,
-  circle,
   entities,
   setWorld,
+  update,
 }: {
   camera$: BehaviorSubject<Camera>
-  circle: SVGCircleElement
   entities: World['entities']
   setWorld: Updater<World>
+  update(position: Vec2): void
 }): () => void {
   const position = vec2.clone(camera$.value.position)
   const velocity = vec2.init(0, 0)
 
-  function update() {
-    const { x, y } = position
-    circle.setAttribute('cx', `${x.toFixed(4)}`)
-    circle.setAttribute('cy', `${y.toFixed(4)}`)
-  }
-  update()
+  update(position)
 
   let last = self.performance.now()
   let handle: number | undefined = undefined
@@ -311,7 +306,7 @@ function initHomingCursor({
     if (vmag) {
       position.x += velocity.x * (elapsed / 1000)
       position.y += velocity.y * (elapsed / 1000)
-      update()
+      update(position)
     }
 
     handle = self.requestAnimationFrame(render)
@@ -335,10 +330,15 @@ function initDefaultCursor({
   entities: World['entities']
   setWorld: Updater<World>
 }): () => void {
+  function update(position: Vec2): void {
+    const { x, y } = position
+    circle.setAttribute('cx', `${x.toFixed(4)}`)
+    circle.setAttribute('cy', `${y.toFixed(4)}`)
+  }
   return initHomingCursor({
     camera$,
-    circle,
     entities,
     setWorld,
+    update,
   })
 }
