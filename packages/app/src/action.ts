@@ -14,6 +14,7 @@ import {
   EntityType,
   Inventory,
   ItemType,
+  MinerEntity,
   SmelterEntity,
   World,
 } from './world.js'
@@ -119,29 +120,14 @@ export function buildSmelter(
   position: Vec2,
 ): void {
   const recipe = entityRecipes[EntityType.enum.Smelter]
-  invariant(recipe)
+  invariant(recipe?.output === EntityType.enum.Smelter)
 
   setWorld((draft) => {
     const cursorInventory = getCursorInventory(
       draft.cursor,
       draft.inventories,
     )
-
-    for (const [key, value] of Object.entries(
-      recipe.input,
-    )) {
-      const itemType = ItemType.parse(key)
-      let count = cursorInventory.items[itemType]
-      invariant(typeof count === 'number' && count >= value)
-      count -= value
-      if (count === 0) {
-        delete cursorInventory.items[itemType]
-      } else {
-        cursorInventory.items[itemType] = count
-      }
-    }
-
-    invariant(recipe.output === EntityType.enum.Smelter)
+    inventorySub(cursorInventory, recipe.input)
 
     const entityId = `${draft.nextEntityId++}`
 
@@ -153,7 +139,7 @@ export function buildSmelter(
     draft.inventories[inventory.id] = inventory
 
     const entity: SmelterEntity = {
-      type: recipe.output,
+      type: EntityType.enum.Smelter,
       id: entityId,
       inventoryId: inventory.id,
       position,
@@ -161,6 +147,49 @@ export function buildSmelter(
       recipeId: null,
       smeltTicksRemaining: null,
       fuelTicksRemaining: null,
+    }
+
+    invariant(!draft.entities[entity.id])
+    draft.entities[entity.id] = entity
+  })
+}
+
+export function buildMiner(
+  setWorld: Updater<World>,
+  position: Vec2,
+  patchId: string,
+): void {
+  const recipe = entityRecipes[EntityType.enum.Miner]
+  invariant(recipe?.output === EntityType.enum.Miner)
+
+  setWorld((draft) => {
+    const cursorInventory = getCursorInventory(
+      draft.cursor,
+      draft.inventories,
+    )
+    inventorySub(cursorInventory, recipe.input)
+
+    const entityId = `${draft.nextEntityId++}`
+
+    const inventory: Inventory = {
+      id: `${draft.nextInventoryId++}`,
+      items: {},
+    }
+    invariant(!draft.inventories[inventory.id])
+    draft.inventories[inventory.id] = inventory
+
+    const patch = draft.entities[patchId]
+    invariant(patch?.type === EntityType.enum.Patch)
+    invariant(!patch.minerIds[entityId])
+    patch.minerIds[entityId] = true
+
+    const entity: MinerEntity = {
+      type: EntityType.enum.Miner,
+      id: entityId,
+      inventoryId: inventory.id,
+      position,
+      radius: 0.75,
+      patchId,
     }
 
     invariant(!draft.entities[entity.id])

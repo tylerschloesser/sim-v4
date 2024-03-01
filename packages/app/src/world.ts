@@ -47,8 +47,8 @@ export const PatchEntity = z.strictObject({
   position: Vec2,
   inventoryId: z.string(),
   radius: z.literal(0.75),
-
   itemType: ItemType,
+  minerIds: z.record(z.string(), z.literal(true)),
 })
 export type PatchEntity = z.infer<typeof PatchEntity>
 
@@ -58,6 +58,7 @@ export const MinerEntity = z.strictObject({
   position: Vec2,
   inventoryId: z.string(),
   radius: z.literal(0.75),
+  patchId: z.string(),
 })
 export type MinerEntity = z.infer<typeof MinerEntity>
 
@@ -121,6 +122,7 @@ function addPatch({
     radius,
     inventoryId: inventory.id,
     itemType,
+    minerIds: {},
   }
   world.inventories[inventory.id] = inventory
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
+  buildMiner,
   buildSmelter,
   minePatch,
   moveItemFromCursorToSmelter,
@@ -15,7 +16,7 @@ import {
   getAvailableEntityRecipes,
 } from './recipe.js'
 import styles from './render-controls.module.scss'
-import { RouteId, useRouteId } from './route.js'
+import { RouteId, usePatchId, useRouteId } from './route.js'
 import { vec2 } from './vec2.js'
 import {
   Entity,
@@ -44,8 +45,11 @@ export const RenderControls = React.memo(
     buildValid,
   }: RenderControlsProps) {
     const navigate = useNavigate()
+    const { camera$ } = useContext(AppContext)
 
     const routeId = useRouteId()
+    const patchId = usePatchId()
+
     if (routeId === RouteId.enum.BuildMiner) {
       return (
         <>
@@ -53,6 +57,12 @@ export const RenderControls = React.memo(
             disabled={buildValid !== true}
             onPointerUp={() => {
               if (buildValid !== true) return
+              invariant(patchId)
+              buildMiner(
+                setWorld,
+                vec2.clone(camera$.value.position),
+                patchId,
+              )
             }}
           >
             Build
