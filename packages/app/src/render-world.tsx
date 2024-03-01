@@ -3,10 +3,11 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { RenderCursor } from './render-cursor.js'
+import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { Cursor, World } from './world.js'
+import { Cursor, EntityType, World } from './world.js'
 
 export interface RenderWorldProps {
   cursor: Cursor
@@ -52,6 +53,20 @@ export const RenderWorld = React.memo(function RenderWorld({
 
   return (
     <g data-group="world" ref={root}>
+      {Object.values(entities).map((entity) => {
+        if (entity.type !== EntityType.enum.Miner) {
+          return null
+        }
+        const patch = entities[entity.patchId]
+        invariant(patch?.type === EntityType.enum.Patch)
+        return (
+          <RenderEntityConnection
+            key={entity.id}
+            a={entity}
+            b={patch}
+          />
+        )
+      })}
       <RenderCursor
         cursor={cursor}
         entities={entities}
