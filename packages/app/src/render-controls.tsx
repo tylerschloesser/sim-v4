@@ -52,7 +52,6 @@ export const RenderControls = React.memo(
             disabled={buildValid !== true}
             onPointerUp={() => {
               if (buildValid !== true) return
-              navigate('..')
             }}
           >
             Build
