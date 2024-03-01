@@ -74,6 +74,7 @@ export const RenderCursor = React.memo(
             connectEntityId,
             entities,
             setConnectValid,
+            setWorld,
           })
         }
         case RouteId.enum.Root: {
@@ -189,43 +190,6 @@ function initBuildCursor({
   }
 }
 
-function initConnectCursor({
-  camera$,
-  circle,
-  line,
-  connectEntityId,
-  entities,
-  setConnectValid,
-}: {
-  camera$: BehaviorSubject<Camera>
-  circle: SVGCircleElement
-  line: SVGLineElement
-  connectEntityId: string
-  entities: World['entities']
-  setConnectValid(valid: boolean | null): void
-}): () => void {
-  const source = entities[connectEntityId]
-  invariant(source)
-
-  line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
-  line.setAttribute('y2', `${source.position.y.toFixed(4)}`)
-
-  const sub = camera$.subscribe((camera) => {
-    const { x, y } = camera.position
-    circle.setAttribute('cx', `${x.toFixed(4)}`)
-    circle.setAttribute('cy', `${y.toFixed(4)}`)
-
-    line.setAttribute('x1', `${x.toFixed(4)}`)
-    line.setAttribute('y1', `${y.toFixed(4)}`)
-
-    setConnectValid(false)
-  })
-
-  return () => {
-    sub.unsubscribe()
-  }
-}
-
 function initHomingCursor({
   camera$,
   entities,
@@ -322,12 +286,12 @@ function initDefaultCursor({
   entities: World['entities']
   setWorld: Updater<World>
 }): () => void {
-  let attachedEntityId: string | null = null
   function update(position: Vec2): void {
     const { x, y } = position
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
   }
+  let attachedEntityId: string | null = null
   function setAttachedEntityId(entityId: string | null) {
     if (attachedEntityId !== entityId) {
       attachedEntityId = entityId
@@ -336,6 +300,55 @@ function initDefaultCursor({
       })
     }
   }
+  return initHomingCursor({
+    camera$,
+    entities,
+    update,
+    setAttachedEntityId,
+  })
+}
+
+function initConnectCursor({
+  camera$,
+  circle,
+  line,
+  connectEntityId,
+  entities,
+  setConnectValid,
+  setWorld,
+}: {
+  camera$: BehaviorSubject<Camera>
+  circle: SVGCircleElement
+  line: SVGLineElement
+  connectEntityId: string
+  entities: World['entities']
+  setConnectValid(valid: boolean | null): void
+  setWorld: Updater<World>
+}): () => void {
+  const source = entities[connectEntityId]
+  invariant(source)
+  line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
+  line.setAttribute('y2', `${source.position.y.toFixed(4)}`)
+
+  function update(position: Vec2): void {
+    const { x, y } = position
+    circle.setAttribute('cx', `${x.toFixed(4)}`)
+    circle.setAttribute('cy', `${y.toFixed(4)}`)
+    line.setAttribute('x1', `${x.toFixed(4)}`)
+    line.setAttribute('y1', `${y.toFixed(4)}`)
+  }
+
+  let attachedEntityId: string | null = null
+  function setAttachedEntityId(entityId: string | null) {
+    if (attachedEntityId !== entityId) {
+      attachedEntityId = entityId
+      setWorld((draft) => {
+        draft.cursor.entityId = entityId
+      })
+      setConnectValid(false)
+    }
+  }
+
   return initHomingCursor({
     camera$,
     entities,
