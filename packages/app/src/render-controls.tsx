@@ -31,8 +31,8 @@ import {
 export interface RenderControlsProps {
   cursorInventory: Inventory
   setWorld: Updater<World>
-  entity?: Entity
-  entityInventory?: Inventory
+  entity: Entity | null
+  entityInventory: Inventory | null
   buildValid: boolean | null
 }
 

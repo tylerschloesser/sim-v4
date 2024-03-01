@@ -18,28 +18,41 @@ export const EntityType = z.enum([
 ])
 export type EntityType = z.infer<typeof EntityType>
 
-export const SmelterEntity = z.strictObject({
+export const SmelterEntityState = z.strictObject({
   type: z.literal(EntityType.enum.Smelter),
   id: z.string(),
-  position: Vec2,
-  inventoryId: z.string(),
-  radius: z.literal(0.75),
-
   recipeId: z.string().nullable(),
-
   smeltTicksRemaining: z
     .number()
     .int()
     .positive()
     .nullable(),
-
   fuelTicksRemaining: z
     .number()
     .int()
     .positive()
     .nullable(),
 })
+export type SmelterEntityState = z.infer<
+  typeof SmelterEntityState
+>
+
+export const SmelterEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Smelter),
+  id: z.string(),
+  position: Vec2,
+  inventoryId: z.string(),
+  radius: z.literal(0.75),
+})
 export type SmelterEntity = z.infer<typeof SmelterEntity>
+
+export const PatchEntityState = z.strictObject({
+  type: z.literal(EntityType.enum.Patch),
+  id: z.string(),
+})
+export type PatchEntityState = z.infer<
+  typeof PatchEntityState
+>
 
 export const PatchEntity = z.strictObject({
   type: z.literal(EntityType.enum.Patch),
@@ -52,6 +65,14 @@ export const PatchEntity = z.strictObject({
 })
 export type PatchEntity = z.infer<typeof PatchEntity>
 
+export const MinerEntityState = z.strictObject({
+  type: z.literal(EntityType.enum.Miner),
+  id: z.string(),
+})
+export type MinerEntityState = z.infer<
+  typeof MinerEntityState
+>
+
 export const MinerEntity = z.strictObject({
   type: z.literal(EntityType.enum.Miner),
   id: z.string(),
@@ -61,6 +82,13 @@ export const MinerEntity = z.strictObject({
   patchId: z.string(),
 })
 export type MinerEntity = z.infer<typeof MinerEntity>
+
+export const EntityState = z.discriminatedUnion('type', [
+  SmelterEntityState,
+  PatchEntityState,
+  MinerEntityState,
+])
+export type EntityState = z.infer<typeof EntityState>
 
 export const Entity = z.discriminatedUnion('type', [
   SmelterEntity,
@@ -88,6 +116,7 @@ export const World = z.strictObject({
   cursor: Cursor,
   entities: z.record(z.string(), Entity),
   inventories: z.record(z.string(), Inventory),
+  states: z.record(z.string(), EntityState),
 
   nextEntityId: z.number().int().nonnegative(),
   nextInventoryId: z.number().int().nonnegative(),
@@ -115,6 +144,10 @@ function addPatch({
       [itemType]: count,
     },
   }
+  const state: PatchEntityState = {
+    id,
+    type: EntityType.enum.Patch,
+  }
   world.entities[id] = {
     type: EntityType.enum.Patch,
     id,
@@ -125,6 +158,7 @@ function addPatch({
     minerIds: {},
   }
   world.inventories[inventory.id] = inventory
+  world.states[state.id] = state
 }
 
 function initWorld(seed: string = ''): World {
@@ -145,6 +179,7 @@ function initWorld(seed: string = ''): World {
       radius: 1,
     },
     entities: {},
+    states: {},
     nextEntityId: 0,
     nextInventoryId,
     inventories: {

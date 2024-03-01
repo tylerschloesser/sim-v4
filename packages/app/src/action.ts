@@ -15,7 +15,9 @@ import {
   Inventory,
   ItemType,
   MinerEntity,
+  MinerEntityState,
   SmelterEntity,
+  SmelterEntityState,
   World,
 } from './world.js'
 
@@ -35,13 +37,16 @@ export function takeAllFromSmelter(
     )
     invariant(entity.type === EntityType.enum.Smelter)
 
+    const state = world.states[entity.id]
+    invariant(state?.type === EntityType.enum.Smelter)
+
     const entityInventory = getEntityInventory(
       entity,
       world.inventories,
     )
 
-    invariant(entity.recipeId)
-    const recipe = smelterRecipes[entity.recipeId]
+    invariant(state.recipeId)
+    const recipe = smelterRecipes[state.recipeId]
     invariant(recipe)
     const itemType = recipe.output
 
@@ -51,8 +56,8 @@ export function takeAllFromSmelter(
     inventorySub(entityInventory, items)
     inventoryAdd(cursorInventory, items)
 
-    if (entity.smeltTicksRemaining === null) {
-      entity.recipeId = null
+    if (state.smeltTicksRemaining === null) {
+      state.recipeId = null
     }
   })
 }
@@ -144,13 +149,20 @@ export function buildSmelter(
       inventoryId: inventory.id,
       position,
       radius: 0.75,
-      recipeId: null,
-      smeltTicksRemaining: null,
-      fuelTicksRemaining: null,
     }
 
     invariant(!draft.entities[entity.id])
     draft.entities[entity.id] = entity
+
+    const state: SmelterEntityState = {
+      type: EntityType.enum.Smelter,
+      id: entityId,
+      recipeId: null,
+      smeltTicksRemaining: null,
+      fuelTicksRemaining: null,
+    }
+    invariant(!draft.states[state.id])
+    draft.states[state.id] = state
   })
 }
 
@@ -194,5 +206,12 @@ export function buildMiner(
 
     invariant(!draft.entities[entity.id])
     draft.entities[entity.id] = entity
+
+    const state: MinerEntityState = {
+      type: EntityType.enum.Miner,
+      id: entityId,
+    }
+    invariant(!draft.states[state.id])
+    draft.states[state.id] = state
   })
 }

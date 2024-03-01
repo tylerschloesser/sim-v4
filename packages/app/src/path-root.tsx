@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import { Outlet } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
 import { getEntity } from './entity.js'
 import {
@@ -9,7 +10,7 @@ import {
 import { RenderControls } from './render-controls.js'
 import { RenderInfo } from './render-info.js'
 import { RenderViewport } from './render-viewport.js'
-import { Entity, Inventory } from './world.js'
+import { Entity, EntityState, Inventory } from './world.js'
 
 export function PathRoot() {
   const { world, setWorld, buildValid } =
@@ -20,7 +21,7 @@ export function PathRoot() {
     world.inventories,
   )
 
-  let entity: Entity | undefined = undefined
+  let entity: Entity | null = null
   if (world.cursor.entityId) {
     entity = getEntity(
       world.entities,
@@ -28,21 +29,25 @@ export function PathRoot() {
     )
   }
 
-  let entityInventory: Inventory | undefined = undefined
+  let entityInventory: Inventory | null = null
+  let entityState: EntityState | null = null
   if (entity) {
     entityInventory = getEntityInventory(
       entity,
       world.inventories,
     )
+    entityState = world.states[entity.id] ?? null
+    invariant(entityState?.type === entity.type)
   }
 
   return (
     <>
       <RenderViewport />
       <RenderInfo
-        cursor={world.cursor}
-        entities={world.entities}
-        inventories={world.inventories}
+        cursorInventory={cursorInventory}
+        entity={entity}
+        entityInventory={entityInventory}
+        entityState={entityState}
       />
       <RenderControls
         cursorInventory={cursorInventory}

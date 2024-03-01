@@ -1,28 +1,18 @@
 import React from 'react'
 import invariant from 'tiny-invariant'
-import { getCursorEntity } from './cursor.js'
-import {
-  getCursorInventory,
-  getEntityInventory,
-} from './inventory.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RouteId, useRouteId } from './route.js'
 import {
-  Cursor,
+  Entity,
+  EntityState,
   EntityType,
   Inventory,
   ItemType,
   PatchEntity,
   SmelterEntity,
-  World,
+  SmelterEntityState,
 } from './world.js'
-
-export interface RenderInfoProps {
-  cursor: Cursor
-  entities: World['entities']
-  inventories: World['inventories']
-}
 
 interface RenderPatchInfoProps {
   entity: PatchEntity
@@ -49,24 +39,26 @@ function RenderPatchInfo({
 
 interface RenderSmelterInfoProps {
   entity: SmelterEntity
+  state: SmelterEntityState
   entityInventory: Inventory
   cursorInventory: Inventory
 }
 
 function RenderSmelterInfo({
   entity,
+  state,
   entityInventory,
   cursorInventory,
 }: RenderSmelterInfoProps) {
   return (
     <>
       <div>{entity.type}</div>
-      <div>Recipe: {entity.recipeId ?? 'None'}</div>
+      <div>Recipe: {state.recipeId ?? 'None'}</div>
       <div>
-        Fuel Ticks Remaining: {entity.fuelTicksRemaining}
+        Fuel Ticks Remaining: {state.fuelTicksRemaining}
       </div>
       <div>
-        Smelt Ticks Remaining: {entity.smeltTicksRemaining}
+        Smelt Ticks Remaining: {state.smeltTicksRemaining}
       </div>
       {Object.entries(entityInventory.items).map(
         ([key, value]) => {
@@ -124,17 +116,19 @@ function RenderDefaultInfo({
   )
 }
 
-export const RenderInfo = React.memo(function RenderInfo({
-  cursor,
-  entities,
-  inventories,
-}: RenderInfoProps) {
-  const entity = getCursorEntity(cursor, entities)
-  const cursorInventory = getCursorInventory(
-    cursor,
-    inventories,
-  )
+export interface RenderInfoProps {
+  cursorInventory: Inventory
+  entity: Entity | null
+  entityInventory: Inventory | null
+  entityState: EntityState | null
+}
 
+export const RenderInfo = React.memo(function RenderInfo({
+  cursorInventory,
+  entity,
+  entityInventory,
+  entityState,
+}: RenderInfoProps) {
   const routeId = useRouteId()
   if (routeId === RouteId.enum.BuildMiner) {
     return null
@@ -153,26 +147,26 @@ export const RenderInfo = React.memo(function RenderInfo({
 
         switch (entity.type) {
           case EntityType.enum.Patch: {
+            invariant(entityInventory)
             return (
               <RenderPatchInfo
                 entity={entity}
                 cursorInventory={cursorInventory}
-                entityInventory={getEntityInventory(
-                  entity,
-                  inventories,
-                )}
+                entityInventory={entityInventory}
               />
             )
           }
           case EntityType.enum.Smelter: {
+            invariant(entityInventory)
+            invariant(
+              entityState?.type === EntityType.enum.Smelter,
+            )
             return (
               <RenderSmelterInfo
                 entity={entity}
                 cursorInventory={cursorInventory}
-                entityInventory={getEntityInventory(
-                  entity,
-                  inventories,
-                )}
+                entityInventory={entityInventory}
+                state={entityState}
               />
             )
           }

@@ -6,11 +6,17 @@ import {
   inventorySub,
 } from './inventory.js'
 import { smelterRecipes } from './recipe.js'
-import { ItemType, SmelterEntity, World } from './world.js'
+import {
+  ItemType,
+  SmelterEntity,
+  SmelterEntityState,
+  World,
+} from './world.js'
 
 export function tickSmelter(
   world: World,
   entity: SmelterEntity,
+  state: SmelterEntityState,
 ): void {
   const inventory = getEntityInventory(
     entity,
@@ -18,82 +24,82 @@ export function tickSmelter(
   )
 
   if (
-    entity.fuelTicksRemaining !== null &&
-    entity.smeltTicksRemaining !== null
+    state.fuelTicksRemaining !== null &&
+    state.smeltTicksRemaining !== null
   ) {
-    invariant(entity.fuelTicksRemaining > 0)
-    invariant(entity.smeltTicksRemaining > 0)
+    invariant(state.fuelTicksRemaining > 0)
+    invariant(state.smeltTicksRemaining > 0)
 
-    invariant(entity.recipeId)
-    const recipe = smelterRecipes[entity.recipeId]
+    invariant(state.recipeId)
+    const recipe = smelterRecipes[state.recipeId]
     invariant(recipe)
 
-    entity.fuelTicksRemaining -= 1
-    entity.smeltTicksRemaining -= 1
+    state.fuelTicksRemaining -= 1
+    state.smeltTicksRemaining -= 1
 
-    if (entity.fuelTicksRemaining === 0) {
-      entity.fuelTicksRemaining = null
+    if (state.fuelTicksRemaining === 0) {
+      state.fuelTicksRemaining = null
     }
 
-    if (entity.smeltTicksRemaining === 0) {
+    if (state.smeltTicksRemaining === 0) {
       inventoryAdd(inventory, {
         [recipe.output]: 1,
       })
-      entity.smeltTicksRemaining = null
+      state.smeltTicksRemaining = null
     }
   }
 
   const fuel = { [ItemType.enum.Coal]: 1 }
 
   if (
-    entity.fuelTicksRemaining === null &&
-    entity.smeltTicksRemaining !== null
+    state.fuelTicksRemaining === null &&
+    state.smeltTicksRemaining !== null
   ) {
     if (inventoryHas(inventory, fuel)) {
       inventorySub(inventory, fuel)
-      entity.fuelTicksRemaining = 50
+      state.fuelTicksRemaining = 50
     }
   }
 
   if (
-    entity.smeltTicksRemaining === null &&
-    (entity.fuelTicksRemaining ||
+    state.smeltTicksRemaining === null &&
+    (state.fuelTicksRemaining ||
       inventoryHas(inventory, fuel))
   ) {
-    if (!entity.recipeId) {
+    if (!state.recipeId) {
       for (const recipe of Object.values(smelterRecipes)) {
         if (inventoryHas(inventory, recipe.input)) {
-          entity.recipeId = recipe.id
+          state.recipeId = recipe.id
           break
         }
       }
     }
 
-    if (entity.recipeId) {
-      const recipe = smelterRecipes[entity.recipeId]
+    if (state.recipeId) {
+      const recipe = smelterRecipes[state.recipeId]
       invariant(recipe)
 
       if (inventoryHas(inventory, recipe.input)) {
-        if (entity.fuelTicksRemaining === null) {
+        if (state.fuelTicksRemaining === null) {
           inventorySub(inventory, fuel)
-          entity.fuelTicksRemaining = 50
+          state.fuelTicksRemaining = 50
         }
 
         inventorySub(inventory, recipe.input)
-        entity.smeltTicksRemaining = 10
+        state.smeltTicksRemaining = 10
       }
     }
   }
 
   if (
-    entity.recipeId &&
-    entity.smeltTicksRemaining === null
+    state.recipeId &&
+    state.smeltTicksRemaining === null
   ) {
-    const recipe = smelterRecipes[entity.recipeId]
+    const recipe = smelterRecipes[state.recipeId]
     invariant(recipe)
 
     if (!inventory.items[recipe.output]) {
-      entity.recipeId = null
+      state.recipeId = null
     }
   }
 }
