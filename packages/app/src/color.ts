@@ -29,7 +29,7 @@ export function getEntityColor(entity: Entity): Color {
     case EntityType.enum.Smelter:
       return { fill: 'pink' }
     case EntityType.enum.Miner:
-      return { fill: 'pink' }
+      return { fill: 'orange' }
     default:
       invariant(false)
   }

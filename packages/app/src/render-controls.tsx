@@ -433,7 +433,7 @@ function RenderMinerControls({
 }: RenderMinerControlsProps) {
   const outputType = (() => {
     const first = Object.keys(entity.state.output)
-    return first ? ItemType.parse(first) : null
+    return first.length ? ItemType.parse(first.at(0)) : null
   })()
 
   const hasOutput = outputType !== null
