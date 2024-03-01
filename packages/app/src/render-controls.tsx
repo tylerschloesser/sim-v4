@@ -58,7 +58,7 @@ export const RenderControls = React.memo(
         <>
           <RenderPrimaryButton
             disabled={buildValid !== true}
-            onPointerUp={() => {
+            onTap={() => {
               if (buildValid !== true) return
               invariant(patchId)
               buildMiner(
@@ -71,7 +71,7 @@ export const RenderControls = React.memo(
             Build
           </RenderPrimaryButton>
           <RenderSecondaryButton
-            onPointerUp={() => {
+            onTap={() => {
               navigate('..')
             }}
           >
@@ -123,19 +123,19 @@ export const RenderControls = React.memo(
 
 type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean
-  onPointerUp(): void
+  onTap(): void
 }>
 
 function RenderPrimaryButton({
   disabled = false,
-  onPointerUp,
+  onTap,
   children,
 }: ButtonProps) {
   return (
     <button
       className={styles['primary-button']}
       data-pointer="capture"
-      onPointerUp={onPointerUp}
+      onPointerUp={onTap}
       disabled={disabled}
     >
       {children}
@@ -145,14 +145,14 @@ function RenderPrimaryButton({
 
 function RenderSecondaryButton({
   disabled = false,
-  onPointerUp,
+  onTap,
   children,
 }: ButtonProps) {
   return (
     <button
       className={styles['secondary-button']}
       data-pointer="capture"
-      onPointerUp={onPointerUp}
+      onPointerUp={onTap}
       disabled={disabled}
     >
       {children}
@@ -178,14 +178,14 @@ function RenderPatchControls({
   return (
     <>
       <RenderPrimaryButton
-        onPointerUp={() => minePatch(setWorld)}
+        onTap={() => minePatch(setWorld)}
       >
         Mine
       </RenderPrimaryButton>
 
       {inventoryHas(cursorInventory, minerRecipe.input) && (
         <RenderSecondaryButton
-          onPointerUp={() => {
+          onTap={() => {
             navigate(`build-miner?patchId=${entity.id}`)
           }}
         >
@@ -207,29 +207,22 @@ function RenderDefaultControls({
 }: RenderDefaultControlsProps) {
   const { camera$ } = useContext(AppContext)
 
-  let onPointerUp: (() => void) | undefined = undefined
   const availableRecipes =
     getAvailableEntityRecipes(cursorInventory)
 
   const recipe = availableRecipes.at(0)
+  const disabled = !recipe
 
-  if (recipe) {
-    onPointerUp = () => {
-      const camera = camera$.value
-      buildSmelter(setWorld, vec2.clone(camera.position))
-    }
+  const onTap = () => {
+    if (!recipe) return
+    const camera = camera$.value
+    buildSmelter(setWorld, vec2.clone(camera.position))
   }
 
-  const disabled = onPointerUp === undefined
-
   return (
-    <button
-      className={styles['primary-button']}
-      disabled={disabled}
-      onPointerUp={onPointerUp}
-    >
+    <RenderPrimaryButton disabled={disabled} onTap={onTap}>
       Build {recipe?.id}
-    </button>
+    </RenderPrimaryButton>
   )
 }
 
@@ -259,7 +252,7 @@ function RenderSmelterControls({
         return (
           <RenderSecondaryButton
             disabled={!hasOutput}
-            onPointerUp={() => {
+            onTap={() => {
               if (!hasOutput) return
               takeAllFromSmelter(setWorld)
             }}
@@ -278,7 +271,7 @@ function RenderSmelterControls({
         if (coalCount < 5 && hasCoal) {
           return (
             <RenderPrimaryButton
-              onPointerUp={() => {
+              onTap={() => {
                 if (!hasCoal) return
                 moveItemFromCursorToSmelter(
                   setWorld,
@@ -296,7 +289,7 @@ function RenderSmelterControls({
         return (
           <RenderPrimaryButton
             disabled={!hasIron}
-            onPointerUp={() => {
+            onTap={() => {
               if (!hasIron) return
               moveItemFromCursorToSmelter(
                 setWorld,
@@ -338,7 +331,7 @@ function RenderMinerControls({
         return (
           <RenderSecondaryButton
             disabled={!hasOutput}
-            onPointerUp={() => {
+            onTap={() => {
               if (!hasOutput) return
               takeAllFromMiner(setWorld)
             }}
@@ -355,7 +348,7 @@ function RenderMinerControls({
         return (
           <RenderPrimaryButton
             disabled={!hasCoal}
-            onPointerUp={() => {
+            onTap={() => {
               if (!hasCoal) return
               moveItemFromCursorToMiner(
                 setWorld,
