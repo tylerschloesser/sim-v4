@@ -18,6 +18,12 @@ export const EntityType = z.enum([
 ])
 export type EntityType = z.infer<typeof EntityType>
 
+const EntityBase = z.strictObject({
+  id: z.string(),
+  position: Vec2,
+  radius: z.literal(0.75),
+})
+
 export const SmelterEntityState = z.strictObject({
   type: z.literal(EntityType.enum.Smelter),
   id: z.string(),
@@ -37,12 +43,12 @@ export type SmelterEntityState = z.infer<
   typeof SmelterEntityState
 >
 
-export const SmelterEntity = z.strictObject({
+export const SmelterEntity = EntityBase.extend({
   type: z.literal(EntityType.enum.Smelter),
-  id: z.string(),
-  position: Vec2,
   inventoryId: z.string(),
-  radius: z.literal(0.75),
+
+  outputs: z.record(z.string(), z.literal(true)),
+  inputs: z.record(z.string(), z.literal(true)),
 })
 export type SmelterEntity = z.infer<typeof SmelterEntity>
 
@@ -54,7 +60,7 @@ export type PatchEntityState = z.infer<
   typeof PatchEntityState
 >
 
-export const PatchEntity = z.strictObject({
+export const PatchEntity = EntityBase.extend({
   type: z.literal(EntityType.enum.Patch),
   id: z.string(),
   position: Vec2,
@@ -83,12 +89,11 @@ export type MinerEntityState = z.infer<
   typeof MinerEntityState
 >
 
-export const MinerEntity = z.strictObject({
+export const MinerEntity = EntityBase.extend({
   type: z.literal(EntityType.enum.Miner),
   id: z.string(),
   position: Vec2,
   inventoryId: z.string(),
-  radius: z.literal(0.75),
   patchId: z.string().nullable(),
   itemType: ItemType,
 })
@@ -126,6 +131,7 @@ export const World = z.strictObject({
 
   cursor: Cursor,
   entities: z.record(z.string(), Entity),
+  // TODO move inventories to states?
   inventories: z.record(z.string(), Inventory),
   states: z.record(z.string(), EntityState),
 
@@ -179,7 +185,10 @@ function initWorld(seed: string = ''): World {
 
   const inventory: Inventory = {
     id: `${nextInventoryId++}`,
-    items: {},
+    items: {
+      [ItemType.enum.Stone]: 40,
+      [ItemType.enum.IronPlate]: 20,
+    },
   }
 
   const world: World = {
