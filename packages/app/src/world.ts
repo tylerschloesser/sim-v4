@@ -11,6 +11,9 @@ export const ItemType = z.enum([
 ])
 export type ItemType = z.infer<typeof ItemType>
 
+export const Inventory = z.record(ItemType, z.number())
+export type Inventory = z.infer<typeof Inventory>
+
 export const EntityType = z.enum([
   'Smelter',
   'Patch',
@@ -18,86 +21,79 @@ export const EntityType = z.enum([
 ])
 export type EntityType = z.infer<typeof EntityType>
 
-const EntityBase = z.strictObject({
+const EntityShapeBase = z.strictObject({
   id: z.string(),
   position: Vec2,
   radius: z.literal(0.75),
 })
 
-export const SmelterEntityState = z.strictObject({
-  type: z.literal(EntityType.enum.Smelter),
+const EntityStateBase = z.strictObject({
   id: z.string(),
-  recipeId: z.string().nullable(),
-  smeltTicksRemaining: z
-    .number()
-    .int()
-    .positive()
-    .nullable(),
-  fuelTicksRemaining: z
-    .number()
-    .int()
-    .positive()
-    .nullable(),
+  input: Inventory,
+  output: Inventory,
+})
+
+//
+// Smelter
+//
+export const SmelterEntityShape = EntityShapeBase.extend({
+  type: z.literal(EntityType.enum.Smelter),
+})
+export type SmelterEntityShape = z.infer<
+  typeof SmelterEntityShape
+>
+// prettier-ignore
+export const SmelterEntityState = EntityStateBase.extend({
+  type: z.literal(EntityType.enum.Smelter),
+  smeltTicksRemaining: z.number().int().positive().nullable(),
+  fuelTicksRemaining: z.number().int().positive().nullable(),
 })
 export type SmelterEntityState = z.infer<
   typeof SmelterEntityState
 >
 
-export const SmelterEntity = EntityBase.extend({
-  type: z.literal(EntityType.enum.Smelter),
-  inventoryId: z.string(),
-
-  outputs: z.record(z.string(), z.literal(true)),
-  inputs: z.record(z.string(), z.literal(true)),
-})
-export type SmelterEntity = z.infer<typeof SmelterEntity>
-
-export const PatchEntityState = z.strictObject({
+//
+// Patch
+//
+export const PatchEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Patch),
-  id: z.string(),
+  minerIds: z.record(z.string(), z.literal(true)),
+})
+export type PatchEntityShape = z.infer<
+  typeof PatchEntityShape
+>
+export const PatchEntityState = EntityStateBase.extend({
+  type: z.literal(EntityType.enum.Patch),
 })
 export type PatchEntityState = z.infer<
   typeof PatchEntityState
 >
 
-export const PatchEntity = EntityBase.extend({
-  type: z.literal(EntityType.enum.Patch),
-  id: z.string(),
-  position: Vec2,
-  inventoryId: z.string(),
-  radius: z.literal(0.75),
-  itemType: ItemType,
-  minerIds: z.record(z.string(), z.literal(true)),
-})
-export type PatchEntity = z.infer<typeof PatchEntity>
-
-export const MinerEntityState = z.strictObject({
+//
+// Miner
+//
+export const MinerEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Miner),
-  id: z.string(),
-  mineTicksRemaining: z
-    .number()
-    .int()
-    .positive()
-    .nullable(),
-  fuelTicksRemaining: z
-    .number()
-    .int()
-    .positive()
-    .nullable(),
+})
+export type MinerEntityShape = z.infer<
+  typeof MinerEntityShape
+>
+// prettier-ignore
+export const MinerEntityState = EntityStateBase.extend({
+  type: z.literal(EntityType.enum.Miner),
+  mineTicksRemaining: z.number().int().positive().nullable(),
+  fuelTicksRemaining: z.number().int().positive().nullable(),
 })
 export type MinerEntityState = z.infer<
   typeof MinerEntityState
 >
 
-export const MinerEntity = EntityBase.extend({
-  type: z.literal(EntityType.enum.Miner),
-  id: z.string(),
-  position: Vec2,
-  inventoryId: z.string(),
-  patchId: z.string().nullable(),
-  itemType: ItemType,
-})
-export type MinerEntity = z.infer<typeof MinerEntity>
+export const EntityShape = z.discriminatedUnion('type', [
+  SmelterEntityShape,
+  PatchEntityShape,
+  MinerEntityShape,
+])
+export type EntityShape = z.infer<typeof EntityShape>
 
 export const EntityState = z.discriminatedUnion('type', [
   SmelterEntityState,
@@ -106,39 +102,31 @@ export const EntityState = z.discriminatedUnion('type', [
 ])
 export type EntityState = z.infer<typeof EntityState>
 
-export const Entity = z.discriminatedUnion('type', [
-  SmelterEntity,
-  PatchEntity,
-  MinerEntity,
-])
-export type Entity = z.infer<typeof Entity>
-
 export const Cursor = z.strictObject({
   entityId: z.string().nullable(),
-  inventoryId: z.string(),
+  inventory: Inventory,
   radius: z.literal(1),
 })
 export type Cursor = z.infer<typeof Cursor>
-
-export const Inventory = z.strictObject({
-  id: z.string(),
-  items: z.record(ItemType, z.number()),
-})
-export type Inventory = z.infer<typeof Inventory>
 
 export const World = z.strictObject({
   tick: z.number().int().nonnegative(),
 
   cursor: Cursor,
-  entities: z.record(z.string(), Entity),
-  // TODO move inventories to states?
-  inventories: z.record(z.string(), Inventory),
+
+  shapes: z.record(z.string(), EntityShape),
   states: z.record(z.string(), EntityState),
 
   nextEntityId: z.number().int().nonnegative(),
-  nextInventoryId: z.number().int().nonnegative(),
 })
 export type World = z.infer<typeof World>
+
+function getNextEntityId(world: World): string {
+  const next = `${world.nextEntityId++}`
+  invariant(!world.shapes[next])
+  invariant(!world.states[next])
+  return next
+}
 
 function addPatch({
   world,
@@ -153,58 +141,49 @@ function addPatch({
   itemType: ItemType
   count: number
 }): void {
-  const id = `${world.nextEntityId++}`
-  invariant(!world.entities[id])
-  const inventory: Inventory = {
-    id: `${world.nextInventoryId++}`,
-    items: {
+  const id = getNextEntityId(world)
+
+  const type = EntityType.enum.Patch
+
+  const shape: PatchEntityShape = {
+    id,
+    type,
+    minerIds: {},
+    position,
+    radius,
+  }
+
+  const state: PatchEntityState = {
+    id,
+    type,
+    input: {},
+    output: {
       [itemType]: count,
     },
   }
-  const state: PatchEntityState = {
-    id,
-    type: EntityType.enum.Patch,
-  }
-  world.entities[id] = {
-    type: EntityType.enum.Patch,
-    id,
-    position,
-    radius,
-    inventoryId: inventory.id,
-    itemType,
-    minerIds: {},
-  }
-  world.inventories[inventory.id] = inventory
-  world.states[state.id] = state
+
+  world.shapes[id] = shape
+  world.states[id] = state
 }
 
 function initWorld(seed: string = ''): World {
   const rng = new Prando(seed)
 
-  let nextInventoryId = 0
-
-  const inventory: Inventory = {
-    id: `${nextInventoryId++}`,
-    items: {
+  const cursor: Cursor = {
+    entityId: null,
+    inventory: {
       [ItemType.enum.Stone]: 40,
       [ItemType.enum.IronPlate]: 20,
     },
+    radius: 1,
   }
 
   const world: World = {
     tick: 0,
-    cursor: {
-      entityId: null,
-      inventoryId: inventory.id,
-      radius: 1,
-    },
-    entities: {},
+    cursor,
+    shapes: {},
     states: {},
     nextEntityId: 0,
-    nextInventoryId,
-    inventories: {
-      [inventory.id]: inventory,
-    },
   }
 
   function generatePatch(
