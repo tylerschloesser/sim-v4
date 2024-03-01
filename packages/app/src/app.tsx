@@ -143,7 +143,7 @@ function ResetButton() {
       className={styles['reset-button']}
       onPointerUp={() => {
         if (window.confirm('Reset?')) {
-          localStorage.clear()
+          localStorage.setItem('reset', 'true')
           self.location.reload()
         }
       }}

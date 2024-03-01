@@ -57,7 +57,7 @@ export function tickMiner(
 
       if (!inventoryHas(patchInventory, item)) {
         delete world.entities[patch.id]
-        delete world.inventories[patch.id]
+        delete world.inventories[patch.inventoryId]
         for (const minerId of Object.keys(patch.minerIds)) {
           const miner = world.entities[minerId]
           invariant(miner?.type === EntityType.enum.Miner)
