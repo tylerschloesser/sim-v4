@@ -1,30 +1,17 @@
-import { words } from 'lodash-es'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { getCursorEntity } from './cursor.js'
 import { deleteEmptyPatch } from './delete.js'
-import {
-  getCursorInventory,
-  getEntityInventory,
-  inventoryAdd,
-  inventoryMove,
-  inventorySub,
-} from './inventory.js'
+import { inventoryMove, inventorySub } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { Vec2 } from './vec2.js'
 import {
-  Entity,
-  EntityShape,
-  EntityState,
+  EntityId,
   EntityType,
   Inventory,
   ItemType,
-  MinerEntity,
-  MinerEntityState,
-  SmelterEntity,
-  SmelterEntityState,
   World,
   getEntity,
+  getNextEntityId,
 } from './world.js'
 
 export function moveFromEntityOutputToCursor(
@@ -96,6 +83,7 @@ export function buildEntity(
   setWorld: Updater<World>,
   entityType: EntityType,
   position: Vec2,
+  connections: Record<EntityId, true>,
 ): void {
   const recipe = entityRecipes[entityType]
   invariant(recipe)
@@ -103,111 +91,88 @@ export function buildEntity(
   setWorld((world) => {
     inventorySub(world.cursor.inventory, recipe.input)
 
-    const entityId = `${world.nextEntityId++}`
-
-  let shape: EntityShape
-    let state: EntityState
+    const id = getNextEntityId(world)
 
     switch (entityType) {
       case EntityType.enum.Miner: {
-        entity = {
-
+        world.shapes[id] = {
+          type: EntityType.enum.Miner,
+          id,
+          connections,
+          position,
+          radius: 0.75,
         }
+        world.states[id] = {
+          type: EntityType.enum.Miner,
+          id,
+          fuelTicksRemaining: null,
+          mineTicksRemaining: null,
+          input: {},
+          output: {},
+        }
+        break
+      }
+      case EntityType.enum.Smelter: {
+        world.shapes[id] = {
+          type: EntityType.enum.Smelter,
+          id,
+          connections,
+          position,
+          radius: 0.75,
+        }
+        world.states[id] = {
+          type: EntityType.enum.Smelter,
+          id,
+          fuelTicksRemaining: null,
+          smeltTicksRemaining: null,
+          input: {},
+          output: {},
+        }
+        break
+      }
+      default: {
+        invariant(false)
       }
     }
-
-    const entity: SmelterEntity = {
-      type: EntityType.enum.Smelter,
-      id: entityId,
-      position,
-      radius: 0.75,
-    }
-
-    invariant(!world.entities[entity.id])
-    world.entities[entity.id] = entity
-
-    const state: SmelterEntityState = {
-      type: EntityType.enum.Smelter,
-      id: entityId,
-      recipeId: null,
-      smeltTicksRemaining: null,
-      fuelTicksRemaining: null,
-    }
-    invariant(!world.states[state.id])
-    world.states[state.id] = state
   })
 }
 
-export function buildMiner(
+export function addConnection(
   setWorld: Updater<World>,
-  position: Vec2,
-  patchId: string,
+  sourceId: EntityId,
+  targetId: EntityId,
 ): void {
-  const recipe = entityRecipes[EntityType.enum.Miner]
-  invariant(recipe?.output === EntityType.enum.Miner)
+  setWorld((world) => {
+    const source = getEntity(world, sourceId)
+    const target = getEntity(world, targetId)
 
-  setWorld((draft) => {
-    const cursorInventory = getCursorInventory(
-      draft.cursor,
-      draft.inventories,
-    )
-    inventorySub(cursorInventory, recipe.input)
+    invariant(!source.shape.connections[targetId])
+    invariant(!target.shape.connections[sourceId])
 
-    const entityId = `${draft.nextEntityId++}`
-
-    const inventory: Inventory = {
-      id: `${draft.nextInventoryId++}`,
-      items: {},
+    switch (source.type) {
+      case EntityType.enum.Miner: {
+        switch (target.type) {
+          case EntityType.enum.Patch: {
+            const hasPatchConnection = Object.keys(
+              source.shape.connections,
+            ).find((peerId) => {
+              const peer = getEntity(world, peerId)
+              return peer.type === EntityType.enum.Patch
+            })
+            invariant(!hasPatchConnection)
+            break
+          }
+          default: {
+            // TODO
+            invariant(false)
+          }
+        }
+        break
+      }
+      default: {
+        // TODO
+        invariant(false)
+      }
     }
-    invariant(!draft.inventories[inventory.id])
-    draft.inventories[inventory.id] = inventory
-
-    const patch = draft.entities[patchId]
-    invariant(patch?.type === EntityType.enum.Patch)
-    invariant(!patch.minerIds[entityId])
-    patch.minerIds[entityId] = true
-
-    const entity: MinerEntity = {
-      type: EntityType.enum.Miner,
-      id: entityId,
-      inventoryId: inventory.id,
-      position,
-      radius: 0.75,
-      patchId,
-      itemType: patch.itemType,
-    }
-
-    invariant(!draft.entities[entity.id])
-    draft.entities[entity.id] = entity
-
-    const state: MinerEntityState = {
-      type: EntityType.enum.Miner,
-      id: entityId,
-      fuelTicksRemaining: null,
-      mineTicksRemaining: null,
-    }
-    invariant(!draft.states[state.id])
-    draft.states[state.id] = state
-  })
-}
-
-export function connectMinerToPatch(
-  setWorld: Updater<World>,
-  minerId: string,
-): void {
-  setWorld((draft) => {
-    const miner = draft.entities[minerId]
-    invariant(miner?.type === EntityType.enum.Miner)
-    invariant(miner.patchId === null)
-
-    // get patch from cursor
-    const patchId = draft.cursor.entityId
-    invariant(patchId)
-    const patch = draft.entities[patchId]
-    invariant(patch?.type === EntityType.enum.Patch)
-    invariant(!patch.minerIds[minerId])
-
-    miner.patchId = patchId
-    patch.minerIds[minerId] = true
   })
 }

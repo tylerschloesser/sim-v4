@@ -152,7 +152,7 @@ export const World = z.strictObject({
 })
 export type World = z.infer<typeof World>
 
-function getNextEntityId(world: World): EntityId {
+export function getNextEntityId(world: World): EntityId {
   const next = `${world.nextEntityId++}`
   invariant(!world.shapes[next])
   invariant(!world.states[next])
