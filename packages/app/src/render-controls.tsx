@@ -239,6 +239,7 @@ function RenderSecondaryButton({
   )
 }
 
+// eslint-disable-next-line
 function RenderTertiaryButton({
   disabled = false,
   onTap,
