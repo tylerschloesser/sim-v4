@@ -6,7 +6,6 @@ import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
 import { getClosestEntity } from './closest.js'
-import styles from './render-cursor.module.scss'
 import { RouteId, useRouteId } from './route.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
@@ -34,19 +33,14 @@ export const RenderCursor = React.memo(
     const routeId = useRouteId()
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
-    const lines = useRef<
-      Record<string, SVGLineElement | null>
-    >({})
 
     useEffect(() => {
       invariant(circle.current)
-      invariant(lines.current)
       if (routeId === RouteId.enum.BuildMiner) {
         return initBuildCursor({
           camera$,
           circle: circle.current,
           entities,
-          lines: lines.current,
           setWorld,
           setBuildValid,
         })
@@ -55,7 +49,6 @@ export const RenderCursor = React.memo(
         camera$,
         circle: circle.current,
         entities,
-        lines: lines.current,
         setWorld,
       })
     }, [entities, routeId])
@@ -83,15 +76,6 @@ export const RenderCursor = React.memo(
 
     return (
       <g data-group="cursor" ref={root}>
-        {Object.values(entities).map(({ id, position }) => (
-          <line
-            ref={(line) => (lines.current[id] = line)}
-            className={styles.line}
-            key={id}
-            x2={position.x}
-            y2={position.y}
-          />
-        ))}
         <circle
           r={cursor.radius}
           fill={fill}
@@ -105,14 +89,11 @@ export const RenderCursor = React.memo(
 function initBuildCursor({
   camera$,
   circle,
-  // lines,
   entities,
-  // setWorld,
   setBuildValid,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
-  lines: Record<string, SVGLineElement | null>
   entities: World['entities']
   setWorld: Updater<World>
   setBuildValid(valid: boolean | null): void
@@ -138,38 +119,22 @@ function initBuildCursor({
 function initDefaultCursor({
   camera$,
   circle,
-  lines,
   entities,
   setWorld,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
-  lines: Record<string, SVGLineElement | null>
   entities: World['entities']
   setWorld: Updater<World>
 }): () => void {
   const position = vec2.clone(camera$.value.position)
   const velocity = vec2.init(0, 0)
 
-  function update(closestEntityId?: string) {
+  function update() {
     const { x, y } = position
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
-    for (const entityId of Object.keys(entities)) {
-      const line = lines[entityId]
-      invariant(line)
-      line.setAttribute('x1', `${x.toFixed(4)}`)
-      line.setAttribute('y1', `${y.toFixed(4)}`)
-      if (entityId === closestEntityId) {
-        line.style.setProperty('--stroke', 'yellow')
-      } else {
-        line.style.removeProperty('--stroke')
-      }
-    }
   }
-  update(
-    getClosestEntity(camera$.value, entities)?.entity.id,
-  )
 
   let last = self.performance.now()
   let handle: number | undefined = undefined
@@ -235,7 +200,7 @@ function initDefaultCursor({
     if (vmag) {
       position.x += velocity.x * (elapsed / 1000)
       position.y += velocity.y * (elapsed / 1000)
-      update(closest?.entity.id)
+      update()
     }
 
     handle = self.requestAnimationFrame(render)
