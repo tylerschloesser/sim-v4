@@ -57,6 +57,7 @@ export type SmelterEntityState = z.infer<
 //
 export const PatchEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Patch),
+  // TODO refactor connections
   minerIds: z.record(z.string(), z.literal(true)),
 })
 export type PatchEntityShape = z.infer<
@@ -74,6 +75,8 @@ export type PatchEntityState = z.infer<
 //
 export const MinerEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Miner),
+  // TODO refactor connections
+  patchId: z.string().nullable(),
 })
 export type MinerEntityShape = z.infer<
   typeof MinerEntityShape

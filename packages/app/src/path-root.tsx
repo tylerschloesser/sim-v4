@@ -4,7 +4,6 @@ import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
 import { getEntity } from './entity.js'
 import {
-  getCursorInventory,
   getEntityInventory,
   inventoryHas,
 } from './inventory.js'
@@ -18,7 +17,6 @@ import {
   useRouteId,
 } from './route.js'
 import {
-  Entity,
   EntityState,
   EntityType,
   Inventory,
@@ -32,14 +30,11 @@ export function PathRoot() {
   const minerRecipe = entityRecipes[EntityType.enum.Miner]
   invariant(minerRecipe)
 
-  const cursorInventory = getCursorInventory(
-    world.cursor,
-    world.inventories,
-  )
+  const { cursor } = world
 
   const hasMiner =
     routeId === RouteId.enum.BuildMiner
-      ? inventoryHas(cursorInventory, minerRecipe.input)
+      ? inventoryHas(cursor.inventory, minerRecipe.input)
       : null
 
   const connectEntityId = useConnectEntityId()
