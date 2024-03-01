@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { connect } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
@@ -34,9 +33,9 @@ import {
 } from './route.js'
 import { vec2 } from './vec2.js'
 import {
+  Cursor,
   Entity,
   EntityType,
-  Inventory,
   ItemType,
   MinerEntity,
   PatchEntity,
@@ -45,20 +44,18 @@ import {
 } from './world.js'
 
 export interface RenderControlsProps {
-  cursorInventory: Inventory
+  cursor: Cursor
+  cursorEntity: Entity | null
   setWorld: Updater<World>
-  entity: Entity | null
-  entityInventory: Inventory | null
   buildValid: boolean | null
   connectValid: boolean | null
 }
 
 export const RenderControls = React.memo(
   function RenderControls({
-    cursorInventory,
+    cursor,
+    cursorEntity,
     setWorld,
-    entity,
-    entityInventory,
     buildValid,
     connectValid,
   }: RenderControlsProps) {
@@ -121,43 +118,43 @@ export const RenderControls = React.memo(
       )
     }
 
-    switch (entity?.type) {
-      case EntityType.enum.Patch:
-        return (
-          <RenderPatchControls
-            entity={entity}
-            cursorInventory={cursorInventory}
-            setWorld={setWorld}
-          />
-        )
-      case EntityType.enum.Smelter:
-        invariant(entityInventory)
-        return (
-          <RenderSmelterControls
-            cursorInventory={cursorInventory}
-            setWorld={setWorld}
-            entity={entity}
-            entityInventory={entityInventory}
-          />
-        )
-      case EntityType.enum.Miner:
-        invariant(entityInventory)
-        return (
-          <RenderMinerControls
-            cursorInventory={cursorInventory}
-            setWorld={setWorld}
-            entity={entity}
-            entityInventory={entityInventory}
-          />
-        )
-      default:
-        return (
-          <RenderDefaultControls
-            cursorInventory={cursorInventory}
-            setWorld={setWorld}
-          />
-        )
+    if (cursorEntity) {
+      switch (cursorEntity?.type) {
+        case EntityType.enum.Patch:
+          return (
+            <RenderPatchControls
+              cursor={cursor}
+              entity={cursorEntity}
+              setWorld={setWorld}
+            />
+          )
+        case EntityType.enum.Smelter:
+          return (
+            <RenderSmelterControls
+              cursor={cursor}
+              entity={cursorEntity}
+              setWorld={setWorld}
+            />
+          )
+        case EntityType.enum.Miner:
+          return (
+            <RenderMinerControls
+              cursor={cursor}
+              entity={cursorEntity}
+              setWorld={setWorld}
+            />
+          )
+        default:
+          invariant(false)
+      }
     }
+
+    return (
+      <RenderDefaultControls
+        cursor={cursor}
+        setWorld={setWorld}
+      />
+    )
   },
 )
 
@@ -271,14 +268,14 @@ function RenderTertiaryButton({
 }
 
 interface RenderPatchControlsProps {
+  cursor: Cursor
   entity: PatchEntity
-  cursorInventory: Inventory
   setWorld: Updater<World>
 }
 
 function RenderPatchControls({
+  cursor,
   entity,
-  cursorInventory,
   setWorld,
 }: RenderPatchControlsProps) {
   const navigate = useNavigate()
@@ -295,7 +292,10 @@ function RenderPatchControls({
         Mine
       </RenderPrimaryButton>
 
-      {inventoryHas(cursorInventory, minerRecipe.input) && (
+      {inventoryHas(
+        cursor.inventory,
+        minerRecipe.input,
+      ) && (
         <RenderSecondaryButton
           onTap={() => {
             navigate(`build-miner?patchId=${entity.id}`)
@@ -309,18 +309,19 @@ function RenderPatchControls({
 }
 
 interface RenderDefaultControlsProps {
-  cursorInventory: Inventory
+  cursor: Cursor
   setWorld: Updater<World>
 }
 
 function RenderDefaultControls({
-  cursorInventory,
+  cursor,
   setWorld,
 }: RenderDefaultControlsProps) {
   const { camera$ } = useContext(AppContext)
 
-  const availableRecipes =
-    getAvailableEntityRecipes(cursorInventory)
+  const availableRecipes = getAvailableEntityRecipes(
+    cursor.inventory,
+  )
 
   const recipe = availableRecipes.at(0)
   const disabled = !recipe
@@ -339,30 +340,25 @@ function RenderDefaultControls({
 }
 
 interface RenderSmelterControlsProps {
-  cursorInventory: Inventory
-  setWorld: Updater<World>
+  cursor: Cursor
   entity: SmelterEntity
-  entityInventory: Inventory
+  setWorld: Updater<World>
 }
 
 function RenderSmelterControls({
-  cursorInventory,
-  setWorld,
+  cursor,
   entity,
-  entityInventory,
+  setWorld,
 }: RenderSmelterControlsProps) {
-  invariant(entity?.type === EntityType.enum.Smelter)
-  invariant(entityInventory?.id === entity.inventoryId)
-
   const outputType = ItemType.enum.IronPlate
   const hasOutput =
-    (entityInventory.items[outputType] ?? 0) > 0
+    (entity.state.output[outputType] ?? 0) > 0
   const coalCount =
-    entityInventory.items[ItemType.enum.Coal] ?? 0
+    entity.state.input[ItemType.enum.Coal] ?? 0
   const hasCoal =
-    (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
+    (cursor.inventory[ItemType.enum.Coal] ?? 0) > 0
   const hasIronOre =
-    (cursorInventory.items[ItemType.enum.IronOre] ?? 0) > 0
+    (cursor.inventory[ItemType.enum.IronOre] ?? 0) > 0
 
   const addCoal = useCallback(() => {
     if (!hasCoal) return
@@ -408,26 +404,24 @@ function RenderSmelterControls({
 }
 
 interface RenderMinerControlsProps {
-  cursorInventory: Inventory
-  setWorld: Updater<World>
+  cursor: Cursor
   entity: MinerEntity
-  entityInventory: Inventory
+  setWorld: Updater<World>
 }
 
 function RenderMinerControls({
-  cursorInventory,
-  setWorld,
+  cursor,
   entity,
-  entityInventory,
+  setWorld,
 }: RenderMinerControlsProps) {
-  invariant(entity?.type === EntityType.enum.Miner)
-  invariant(entityInventory?.id === entity.inventoryId)
+  const outputType = (() => {
+    const first = Object.keys(entity.state.output)
+    return first ? ItemType.parse(first) : null
+  })()
 
-  const { itemType: outputType } = entity
-  const hasOutput =
-    (entityInventory.items[outputType] ?? 0) > 0
+  const hasOutput = outputType !== null
   const hasCoal =
-    (cursorInventory.items[ItemType.enum.Coal] ?? 0) > 0
+    (cursor.inventory[ItemType.enum.Coal] ?? 0) > 0
 
   const addCoal = useCallback(() => {
     if (!hasCoal) return
@@ -447,7 +441,7 @@ function RenderMinerControls({
       >
         Take All
       </RenderSecondaryButton>
-      {entity.patchId ? (
+      {entity.shape.patchId ? (
         <RenderPrimaryButton
           disabled={!hasCoal}
           onHold={addCoal}

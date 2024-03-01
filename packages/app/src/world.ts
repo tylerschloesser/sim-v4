@@ -53,6 +53,7 @@ export type SmelterEntityState = z.infer<
 >
 export const SmelterEntity = z.strictObject({
   type: z.literal(EntityType.enum.Smelter),
+  id: z.string(),
   shape: SmelterEntityShape,
   state: SmelterEntityState,
 })
@@ -77,6 +78,7 @@ export type PatchEntityState = z.infer<
 >
 export const PatchEntity = z.strictObject({
   type: z.literal(EntityType.enum.Patch),
+  id: z.string(),
   shape: PatchEntityShape,
   state: PatchEntityState,
 })
@@ -104,6 +106,7 @@ export type MinerEntityState = z.infer<
 >
 export const MinerEntity = z.strictObject({
   type: z.literal(EntityType.enum.Miner),
+  id: z.string(),
   shape: MinerEntityShape,
   state: MinerEntityState,
 })
@@ -290,17 +293,17 @@ function cacheEntity(
     case EntityType.enum.Miner:
       invariant(shape.type === type)
       invariant(state.type === type)
-      entity = { type, shape, state }
+      entity = { type, id, shape, state }
       break
     case EntityType.enum.Patch:
       invariant(shape.type === type)
       invariant(state.type === type)
-      entity = { type, shape, state }
+      entity = { type, id, shape, state }
       break
     case EntityType.enum.Smelter:
       invariant(shape.type === type)
       invariant(state.type === type)
-      entity = { type, shape, state }
+      entity = { type, id, shape, state }
       break
     default:
       invariant(false)
