@@ -16,6 +16,7 @@ export interface RenderCursorProps {
   cursor: Cursor
   entities: World['entities']
   setWorld: Updater<World>
+  setBuildValid(valid: boolean | null): void
 }
 
 export const RenderCursor = React.memo(
@@ -23,6 +24,7 @@ export const RenderCursor = React.memo(
     cursor,
     entities,
     setWorld,
+    setBuildValid,
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
 
@@ -47,6 +49,7 @@ export const RenderCursor = React.memo(
           entities,
           lines: lines.current,
           setWorld,
+          setBuildValid,
         })
       }
       return initDefaultCursor({
@@ -98,18 +101,22 @@ function initBuildCursor({
   // lines,
   // entities,
   // setWorld,
+  setBuildValid,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   lines: Record<string, SVGLineElement | null>
   entities: World['entities']
   setWorld: Updater<World>
+  setBuildValid(valid: boolean | null): void
 }): () => void {
   const sub = camera$.subscribe((camera) => {
     const { x, y } = camera.position
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
   })
+
+  setBuildValid(false)
 
   return () => {
     sub.unsubscribe()
