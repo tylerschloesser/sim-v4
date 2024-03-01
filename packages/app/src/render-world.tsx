@@ -2,10 +2,7 @@ import React, { useContext, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
-import {
-  getConnectedPatchShape,
-  hasConnectedPatch,
-} from './miner.js'
+import { getConnectedPatchShape } from './miner.js'
 import { RenderCursor } from './render-cursor.js'
 import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
@@ -84,16 +81,19 @@ export const RenderWorld = React.memo(function RenderWorld({
       })}
       <RenderCursor
         cursor={cursor}
-        entities={entities}
+        shapes={shapes}
         setWorld={setWorld}
         buildValid={buildValid}
         setBuildValid={setBuildValid}
         connectValid={connectValid}
         setConnectValid={setConnectValid}
       />
-      {Object.values(entities).map((entity) => {
+      {Object.values(shapes).map((shape) => {
         return (
-          <RenderEntity key={entity.id} entity={entity} />
+          <RenderEntity
+            key={shape.id}
+            entityId={shape.id}
+          />
         )
       })}
     </g>

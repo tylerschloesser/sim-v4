@@ -1,5 +1,6 @@
 import React from 'react'
 import invariant from 'tiny-invariant'
+import { getConnectedMinerShapes } from './patch.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RouteId, useRouteId } from './route.js'
@@ -11,6 +12,7 @@ import {
   MinerEntity,
   PatchEntity,
   SmelterEntity,
+  World,
 } from './world.js'
 
 interface RenderOutputProps {
@@ -69,19 +71,23 @@ function RenderInput({ cursor, entity }: RenderInputProps) {
 interface RenderPatchInfoProps {
   cursor: Cursor
   entity: PatchEntity
+  shapes: World['shapes']
 }
 
 function RenderPatchInfo({
   cursor,
   entity,
+  shapes,
 }: RenderPatchInfoProps) {
+  const connectedMiners = getConnectedMinerShapes(
+    entity,
+    shapes,
+  )
   return (
     <>
       <div>Patch</div>
       <RenderOutput cursor={cursor} entity={entity} />
-      <div>
-        Miners: {Object.keys(entity.shape.minerIds).length}
-      </div>
+      <div>Miners: {connectedMiners.length}</div>
     </>
   )
 }
@@ -168,7 +174,7 @@ function RenderDefaultInfo({
         {availableRecipes.length === 0 && 'None'}
       </div>
       {availableRecipes.map((recipe) => (
-        <div key={recipe.id}>{recipe.id}</div>
+        <div key={recipe.output}>{recipe.output}</div>
       ))}
     </>
   )
@@ -177,11 +183,13 @@ function RenderDefaultInfo({
 export interface RenderInfoProps {
   cursor: Cursor
   cursorEntity: Entity | null
+  shapes: World['shapes']
 }
 
 export const RenderInfo = React.memo(function RenderInfo({
   cursor,
   cursorEntity,
+  shapes,
 }: RenderInfoProps) {
   const routeId = useRouteId()
   if (routeId === RouteId.enum.BuildMiner) {
@@ -201,6 +209,7 @@ export const RenderInfo = React.memo(function RenderInfo({
               <RenderPatchInfo
                 cursor={cursor}
                 entity={cursorEntity}
+                shapes={shapes}
               />
             )
           }

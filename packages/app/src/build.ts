@@ -4,12 +4,12 @@ import { World } from './world.js'
 export function isBuildValid(
   position: Vec2,
   radius: 0.75,
-  entities: World['entities'],
+  shapes: World['shapes'],
 ): boolean {
-  for (const entity of Object.values(entities)) {
-    const v = vec2.clone(entity.position)
+  for (const shape of Object.values(shapes)) {
+    const v = vec2.clone(shape.position)
     vec2.sub(v, position)
-    if (vec2.len(v) < radius + entity.radius) {
+    if (vec2.len(v) < radius + shape.radius) {
       return false
     }
   }

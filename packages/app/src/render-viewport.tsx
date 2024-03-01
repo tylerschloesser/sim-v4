@@ -21,7 +21,7 @@ export function RenderViewport() {
       <RenderGrid viewport={viewport} />
       <RenderWorld
         cursor={world.cursor}
-        entities={world.entities}
+        shapes={world.shapes}
         setWorld={setWorld}
         buildValid={buildValid}
         setBuildValid={setBuildValid}

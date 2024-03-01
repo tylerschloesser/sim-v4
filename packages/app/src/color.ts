@@ -1,6 +1,7 @@
 import { memoize } from 'lodash-es'
 import Prando from 'prando'
 import invariant from 'tiny-invariant'
+import { getPatchItemType } from './patch.js'
 import {
   Entity,
   EntityType,
@@ -28,7 +29,7 @@ export function getEntityColor(entity: Entity): Color {
     case EntityType.enum.Smelter:
       return { fill: 'pink' }
     case EntityType.enum.Miner:
-      return { fill: 'orange' }
+      return { fill: 'pink' }
     default:
       invariant(false)
   }
@@ -38,7 +39,8 @@ function getPatchColor(entity: PatchEntity) {
   let fill: string
   let stroke: string | undefined
 
-  switch (entity.itemType) {
+  const itemType = getPatchItemType(entity)
+  switch (itemType) {
     case ItemType.enum.Coal:
       fill = 'black'
       stroke = 'gray'
@@ -52,10 +54,7 @@ function getPatchColor(entity: PatchEntity) {
       stroke = 'gray'
       break
     default:
-      invariant(
-        false,
-        `TODO define color for ${entity.itemType}`,
-      )
+      invariant(false, `TODO define color for ${itemType}`)
   }
   return { fill, stroke }
 }
