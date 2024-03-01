@@ -60,6 +60,7 @@ function RenderSmelterInfo({
 }: RenderSmelterInfoProps) {
   return (
     <>
+      <div>{entity.type}</div>
       <div>Recipe: {entity.recipeId ?? 'None'}</div>
       <div>
         Fuel Ticks Remaining: {entity.fuelTicksRemaining}

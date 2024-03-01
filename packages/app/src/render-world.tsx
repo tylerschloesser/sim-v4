@@ -36,10 +36,6 @@ export const RenderWorld = React.memo(function RenderWorld({
 
     // shift the world up a bit to allow more room on the bottom
     // for finger gestures
-    // TODO this probably messes up the grid, but since
-    // the world/entities aren't actually aligned to a grid
-    // it's not noticable
-    //
     const ty = -cy * scale - vy * 0.1
 
     const transform = [

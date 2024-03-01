@@ -33,7 +33,7 @@ export const RenderGrid = React.memo(function RenderGrid({
 
     const { x: cx, y: cy } = camera.position
     const tx = mod(-cx * scale, scale * 2)
-    const ty = mod(-cy * scale, scale * 2)
+    const ty = mod(-cy * scale - vy * 0.1, scale * 2)
 
     const transform = [
       `translate(${tx.toFixed(4)} ${ty.toFixed(4)})`,
