@@ -226,7 +226,7 @@ function initConnectCursor({
   }
 }
 
-function initDefaultCursor({
+function initHomingCursor({
   camera$,
   circle,
   entities,
@@ -322,4 +322,23 @@ function initDefaultCursor({
       self.cancelAnimationFrame(handle)
     }
   }
+}
+
+function initDefaultCursor({
+  camera$,
+  circle,
+  entities,
+  setWorld,
+}: {
+  camera$: BehaviorSubject<Camera>
+  circle: SVGCircleElement
+  entities: World['entities']
+  setWorld: Updater<World>
+}): () => void {
+  return initHomingCursor({
+    camera$,
+    circle,
+    entities,
+    setWorld,
+  })
 }

@@ -91,6 +91,13 @@ export const RenderControls = React.memo(
       return (
         <>
           <RenderPrimaryButton>Connect</RenderPrimaryButton>
+          <RenderSecondaryButton
+            onTap={() => {
+              navigate('..')
+            }}
+          >
+            Cancel
+          </RenderSecondaryButton>
         </>
       )
     }
