@@ -167,6 +167,10 @@ export function addConnection(
               return peer.type === EntityType.enum.Patch
             })
             invariant(!hasPatchConnection)
+
+            source.shape.connections[target.id] = true
+            target.shape.connections[source.id] = true
+
             break
           }
           default: {
