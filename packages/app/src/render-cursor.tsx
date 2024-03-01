@@ -86,7 +86,7 @@ export const RenderCursor = React.memo(
           <line
             stroke={fill}
             ref={line}
-            strokeWidth=".1px"
+            strokeWidth="var(--stroke-width)"
           />
         )}
         <circle
