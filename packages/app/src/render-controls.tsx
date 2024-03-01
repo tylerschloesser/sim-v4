@@ -31,6 +31,7 @@ export interface RenderControlsProps {
   setWorld: Updater<World>
   entity?: Entity
   entityInventory?: Inventory
+  buildValid: boolean | null
 }
 
 export const RenderControls = React.memo(
@@ -39,21 +40,31 @@ export const RenderControls = React.memo(
     setWorld,
     entity,
     entityInventory,
+    buildValid,
   }: RenderControlsProps) {
     const navigate = useNavigate()
 
     const routeId = useRouteId()
     if (routeId === RouteId.enum.BuildMiner) {
       return (
-        <button
-          className={styles['primary-button']}
-          data-pointer="capture"
-          onPointerUp={() => {
-            navigate('..')
-          }}
-        >
-          Back
-        </button>
+        <>
+          <RenderPrimaryButton
+            disabled={buildValid !== true}
+            onPointerUp={() => {
+              if (buildValid !== true) return
+              navigate('..')
+            }}
+          >
+            Build
+          </RenderPrimaryButton>
+          <RenderSecondaryButton
+            onPointerUp={() => {
+              navigate('..')
+            }}
+          >
+            Back
+          </RenderSecondaryButton>
+        </>
       )
     }
 

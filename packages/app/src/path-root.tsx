@@ -12,7 +12,8 @@ import { RenderViewport } from './render-viewport.js'
 import { Entity, Inventory } from './world.js'
 
 export function PathRoot() {
-  const { world, setWorld } = useContext(AppContext)
+  const { world, setWorld, buildValid } =
+    useContext(AppContext)
 
   const cursorInventory = getCursorInventory(
     world.cursor,
@@ -48,6 +49,7 @@ export function PathRoot() {
         setWorld={setWorld}
         entity={entity}
         entityInventory={entityInventory}
+        buildValid={buildValid}
       />
       <Outlet />
     </>

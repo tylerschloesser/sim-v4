@@ -70,6 +70,10 @@ export function App() {
     null,
   )
 
+  const [buildValid, setBuildValid] = useState<
+    boolean | null
+  >(null)
+
   useTickWorld(setWorld)
 
   useEffect(() => {
@@ -116,7 +120,14 @@ export function App() {
     <div className={styles.app} ref={app}>
       {viewport && (
         <AppContext.Provider
-          value={{ camera$, viewport, world, setWorld }}
+          value={{
+            camera$,
+            viewport,
+            world,
+            setWorld,
+            buildValid,
+            setBuildValid,
+          }}
         >
           <RouterProvider router={router} />
         </AppContext.Provider>
