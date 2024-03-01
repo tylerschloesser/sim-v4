@@ -55,6 +55,11 @@ const router = createBrowserRouter([
         element: null,
         id: RouteId.enum.BuildMiner,
       },
+      {
+        path: 'connect',
+        element: null,
+        id: RouteId.enum.Connect,
+      },
     ],
   },
 ])

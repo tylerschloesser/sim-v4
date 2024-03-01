@@ -399,6 +399,8 @@ function RenderMinerControls({
     moveItemFromCursorToMiner(setWorld, ItemType.enum.Coal)
   }, [hasCoal])
 
+  const navigate = useNavigate()
+
   return (
     <>
       <RenderSecondaryButton
@@ -410,12 +412,22 @@ function RenderMinerControls({
       >
         Take All
       </RenderSecondaryButton>
-      <RenderPrimaryButton
-        disabled={!hasCoal}
-        onTap={addCoal}
-      >
-        Add Coal
-      </RenderPrimaryButton>
+      {entity.patchId ? (
+        <RenderPrimaryButton
+          disabled={!hasCoal}
+          onHold={addCoal}
+        >
+          Add Coal
+        </RenderPrimaryButton>
+      ) : (
+        <RenderPrimaryButton
+          onTap={() => {
+            navigate(`connect?entityId=${entity.id}`)
+          }}
+        >
+          Connect
+        </RenderPrimaryButton>
+      )}
     </>
   )
 }
