@@ -41,7 +41,6 @@ export const RenderCursor = React.memo(
           camera$,
           circle: circle.current,
           entities,
-          setWorld,
           setBuildValid,
         })
       }
@@ -95,7 +94,6 @@ function initBuildCursor({
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   entities: World['entities']
-  setWorld: Updater<World>
   setBuildValid(valid: boolean | null): void
 }): () => void {
   const sub = camera$.subscribe((camera) => {
