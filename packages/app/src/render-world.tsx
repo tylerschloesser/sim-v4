@@ -54,7 +54,10 @@ export const RenderWorld = React.memo(function RenderWorld({
   return (
     <g data-group="world" ref={root}>
       {Object.values(entities).map((entity) => {
-        if (entity.type !== EntityType.enum.Miner) {
+        if (
+          entity.type !== EntityType.enum.Miner ||
+          !entity.patchId
+        ) {
           return null
         }
         const patch = entities[entity.patchId]

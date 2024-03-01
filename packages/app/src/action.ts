@@ -62,6 +62,36 @@ export function takeAllFromSmelter(
   })
 }
 
+export function takeAllFromMiner(
+  setWorld: Updater<World>,
+): void {
+  setWorld((world) => {
+    const cursorInventory = getCursorInventory(
+      world.cursor,
+      world.inventories,
+    )
+
+    invariant(world.cursor.entityId)
+    const entity = getEntity(
+      world.entities,
+      world.cursor.entityId,
+    )
+    invariant(entity.type === EntityType.enum.Miner)
+
+    const entityInventory = getEntityInventory(
+      entity,
+      world.inventories,
+    )
+
+    const { itemType } = entity
+    const count = entityInventory.items[itemType]
+    invariant(typeof count === 'number' && count > 0)
+    const items = { [itemType]: count }
+    inventorySub(entityInventory, items)
+    inventoryAdd(cursorInventory, items)
+  })
+}
+
 export function minePatch(setWorld: Updater<World>): void {
   setWorld((draft) => {
     invariant(draft.cursor.entityId)
@@ -110,6 +140,30 @@ export function moveItemFromCursorToSmelter(
       draft.entities,
     )
     invariant(entity?.type === EntityType.enum.Smelter)
+    const entityInventory = getEntityInventory(
+      entity,
+      draft.inventories,
+    )
+    const items = { [itemType]: 1 }
+    inventorySub(cursorInventory, items)
+    inventoryAdd(entityInventory, items)
+  })
+}
+
+export function moveItemFromCursorToMiner(
+  setWorld: Updater<World>,
+  itemType: ItemType,
+): void {
+  setWorld((draft) => {
+    const cursorInventory = getCursorInventory(
+      draft.cursor,
+      draft.inventories,
+    )
+    const entity = getCursorEntity(
+      draft.cursor,
+      draft.entities,
+    )
+    invariant(entity?.type === EntityType.enum.Miner)
     const entityInventory = getEntityInventory(
       entity,
       draft.inventories,
@@ -202,6 +256,7 @@ export function buildMiner(
       position,
       radius: 0.75,
       patchId,
+      itemType: patch.itemType,
     }
 
     invariant(!draft.entities[entity.id])

@@ -6,7 +6,9 @@ import {
   buildMiner,
   buildSmelter,
   minePatch,
+  moveItemFromCursorToMiner,
   moveItemFromCursorToSmelter,
+  takeAllFromMiner,
   takeAllFromSmelter,
 } from './action.js'
 import { AppContext } from './app-context.js'
@@ -23,6 +25,7 @@ import {
   EntityType,
   Inventory,
   ItemType,
+  MinerEntity,
   PatchEntity,
   SmelterEntity,
   World,
@@ -91,6 +94,16 @@ export const RenderControls = React.memo(
         invariant(entityInventory)
         return (
           <RenderSmelterControls
+            cursorInventory={cursorInventory}
+            setWorld={setWorld}
+            entity={entity}
+            entityInventory={entityInventory}
+          />
+        )
+      case EntityType.enum.Miner:
+        invariant(entityInventory)
+        return (
+          <RenderMinerControls
             cursorInventory={cursorInventory}
             setWorld={setWorld}
             entity={entity}
@@ -292,6 +305,65 @@ function RenderSmelterControls({
             }}
           >
             Add Iron Ore
+          </RenderPrimaryButton>
+        )
+      })()}
+    </>
+  )
+}
+
+interface RenderMinerControlsProps {
+  cursorInventory: Inventory
+  setWorld: Updater<World>
+  entity: MinerEntity
+  entityInventory: Inventory
+}
+
+function RenderMinerControls({
+  cursorInventory,
+  setWorld,
+  entity,
+  entityInventory,
+}: RenderMinerControlsProps) {
+  invariant(entity?.type === EntityType.enum.Miner)
+  invariant(entityInventory?.id === entity.inventoryId)
+
+  return (
+    <>
+      {(() => {
+        const { itemType } = entity
+        const hasOutput =
+          (entityInventory.items[itemType] ?? 0) > 0
+
+        return (
+          <RenderSecondaryButton
+            disabled={!hasOutput}
+            onPointerUp={() => {
+              if (!hasOutput) return
+              takeAllFromMiner(setWorld)
+            }}
+          >
+            Take All
+          </RenderSecondaryButton>
+        )
+      })()}
+      {(() => {
+        const hasCoal =
+          (cursorInventory.items[ItemType.enum.Coal] ?? 0) >
+          0
+
+        return (
+          <RenderPrimaryButton
+            disabled={!hasCoal}
+            onPointerUp={() => {
+              if (!hasCoal) return
+              moveItemFromCursorToMiner(
+                setWorld,
+                ItemType.enum.Coal,
+              )
+            }}
+          >
+            Add Coal
           </RenderPrimaryButton>
         )
       })()}

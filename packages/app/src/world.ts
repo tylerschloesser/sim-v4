@@ -89,7 +89,8 @@ export const MinerEntity = z.strictObject({
   position: Vec2,
   inventoryId: z.string(),
   radius: z.literal(0.75),
-  patchId: z.string(),
+  patchId: z.string().nullable(),
+  itemType: ItemType,
 })
 export type MinerEntity = z.infer<typeof MinerEntity>
 
