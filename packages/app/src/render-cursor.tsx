@@ -5,7 +5,7 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
-import { getClosestEntity } from './closest.js'
+import { getClosestShape } from './closest.js'
 import { isConnectValid } from './connect.js'
 import {
   RouteId,
@@ -18,14 +18,14 @@ import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
 import {
   Cursor,
-  Entity,
+  EntityShape,
   EntityType,
   World,
 } from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
-  entities: World['entities']
+  shapes: World['shapes']
   setWorld: Updater<World>
 
   buildValid: boolean | null
@@ -38,7 +38,7 @@ export interface RenderCursorProps {
 export const RenderCursor = React.memo(
   function RenderCursor({
     cursor,
-    entities,
+    shapes,
     setWorld,
     buildValid,
     setBuildValid,
@@ -66,7 +66,7 @@ export const RenderCursor = React.memo(
             circle: circle.current,
             line: line.current,
             patchId,
-            entities,
+            shapes,
             setBuildValid,
           })
         }
@@ -78,7 +78,7 @@ export const RenderCursor = React.memo(
             circle: circle.current,
             line: line.current,
             connectEntityId,
-            entities,
+            shapes,
             setConnectValid,
             setWorld,
           })
@@ -87,7 +87,7 @@ export const RenderCursor = React.memo(
           return initDefaultCursor({
             camera$,
             circle: circle.current,
-            entities,
+            shapes,
             setWorld,
           })
         }
@@ -95,7 +95,7 @@ export const RenderCursor = React.memo(
           invariant(false)
         }
       }
-    }, [entities, routeId])
+    }, [shapes, routeId])
 
     useCameraEffect((camera, viewport) => {
       const { x: vx, y: vy } = viewport.size
@@ -160,17 +160,17 @@ function initBuildCursor({
   circle,
   line,
   patchId,
-  entities,
+  shapes,
   setBuildValid,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   line: SVGLineElement
   patchId: string
-  entities: World['entities']
+  shapes: World['shapes']
   setBuildValid(valid: boolean | null): void
 }): () => void {
-  const patch = entities[patchId]
+  const patch = shapes[patchId]
   invariant(patch?.type === EntityType.enum.Patch)
   line.setAttribute('x2', `${patch.position.x.toFixed(4)}`)
   line.setAttribute('y2', `${patch.position.y.toFixed(4)}`)
@@ -186,7 +186,7 @@ function initBuildCursor({
     const buildValid = isBuildValid(
       camera.position,
       0.75,
-      entities,
+      shapes,
     )
     setBuildValid(buildValid)
   })
@@ -198,12 +198,12 @@ function initBuildCursor({
 
 function initHomingCursor({
   camera$,
-  entities,
+  shapes,
   update,
   setAttachedEntityId,
 }: {
   camera$: BehaviorSubject<Camera>
-  entities: World['entities']
+  shapes: World['shapes']
   update(position: Vec2): void
   setAttachedEntityId(entityId: string | null): void
 }): () => void {
@@ -219,20 +219,17 @@ function initHomingCursor({
     const elapsed = now - last
     last = now
 
-    const closest = getClosestEntity(
-      camera$.value,
-      entities,
-    )
+    const closest = getClosestShape(camera$.value, shapes)
 
     let dir: Vec2
     if (closest && closest.d < 3) {
-      setAttachedEntityId(closest.entity.id)
+      setAttachedEntityId(closest.shape.id)
 
       const pull = vec2.clone(camera$.value.position)
-      vec2.sub(pull, closest.entity.position)
+      vec2.sub(pull, closest.shape.position)
       vec2.mul(pull, (vec2.len(pull) / (2 * 3)) ** 2.5)
 
-      dir = vec2.clone(closest.entity.position)
+      dir = vec2.clone(closest.shape.position)
       vec2.add(dir, pull)
 
       vec2.sub(dir, position)
@@ -284,12 +281,12 @@ function initHomingCursor({
 function initDefaultCursor({
   camera$,
   circle,
-  entities,
+  shapes,
   setWorld,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
-  entities: World['entities']
+  shapes: World['shapes']
   setWorld: Updater<World>
 }): () => void {
   function update(position: Vec2): void {
@@ -308,7 +305,7 @@ function initDefaultCursor({
   }
   return initHomingCursor({
     camera$,
-    entities,
+    shapes,
     update,
     setAttachedEntityId,
   })
@@ -319,7 +316,7 @@ function initConnectCursor({
   circle,
   line,
   connectEntityId,
-  entities,
+  shapes,
   setConnectValid,
   setWorld,
 }: {
@@ -327,11 +324,11 @@ function initConnectCursor({
   circle: SVGCircleElement
   line: SVGLineElement
   connectEntityId: string
-  entities: World['entities']
+  shapes: World['shapes']
   setConnectValid(valid: boolean | null): void
   setWorld: Updater<World>
 }): () => void {
-  const source = entities[connectEntityId]
+  const source = shapes[connectEntityId]
   invariant(source)
   line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
   line.setAttribute('y2', `${source.position.y.toFixed(4)}`)
@@ -351,19 +348,21 @@ function initConnectCursor({
       setWorld((draft) => {
         draft.cursor.entityId = entityId
       })
-      let target: Entity | null = null
+      let target: EntityShape | null = null
       if (entityId) {
-        target = entities[entityId] ?? null
+        target = shapes[entityId] ?? null
         invariant(target)
       }
       invariant(source)
-      setConnectValid(isConnectValid(source, target))
+      setConnectValid(
+        isConnectValid(source, target, shapes),
+      )
     }
   }
 
   return initHomingCursor({
     camera$,
-    entities,
+    shapes,
     update,
     setAttachedEntityId,
   })

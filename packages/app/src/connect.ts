@@ -1,9 +1,11 @@
 import invariant from 'tiny-invariant'
-import { Entity, EntityType } from './world.js'
+import { hasConnectedPatch } from './miner.js'
+import { EntityShape, EntityType, World } from './world.js'
 
 export function isConnectValid(
-  source: Entity,
-  target: Entity | null,
+  source: EntityShape,
+  target: EntityShape | null,
+  shapes: World['shapes'],
 ): boolean {
   if (target === null) {
     return false
@@ -11,7 +13,7 @@ export function isConnectValid(
 
   invariant(source.type === EntityType.enum.Miner)
 
-  if (source.patchId !== null) {
+  if (hasConnectedPatch(source, shapes)) {
     // this should only happen immediately after connecting,
     // but before we navigate back
     return false
@@ -21,6 +23,6 @@ export function isConnectValid(
     return false
   }
 
-  invariant(!target.minerIds[source.id])
+  invariant(!target.connections[source.id])
   return true
 }

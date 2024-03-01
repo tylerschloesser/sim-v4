@@ -1,9 +1,9 @@
 import React from 'react'
-import { Entity } from './world.js'
+import { EntityShape } from './world.js'
 
 export interface RenderEntityConnectionProps {
-  a: Entity
-  b: Entity
+  a: EntityShape
+  b: EntityShape
 }
 
 export const RenderEntityConnection = React.memo(

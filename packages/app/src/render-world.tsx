@@ -2,6 +2,10 @@ import React, { useContext, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
+import {
+  getConnectedPatchShape,
+  hasConnectedPatch,
+} from './miner.js'
 import { RenderCursor } from './render-cursor.js'
 import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
@@ -11,7 +15,7 @@ import { Cursor, EntityType, World } from './world.js'
 
 export interface RenderWorldProps {
   cursor: Cursor
-  entities: World['entities']
+  shapes: World['shapes']
   setWorld: Updater<World>
 
   buildValid: boolean | null
@@ -23,7 +27,7 @@ export interface RenderWorldProps {
 
 export const RenderWorld = React.memo(function RenderWorld({
   cursor,
-  entities,
+  shapes,
   setWorld,
   buildValid,
   setBuildValid,
@@ -59,20 +63,22 @@ export const RenderWorld = React.memo(function RenderWorld({
 
   return (
     <g data-group="world" ref={root}>
-      {Object.values(entities).map((entity) => {
-        if (
-          entity.type !== EntityType.enum.Miner ||
-          !entity.patchId
-        ) {
+      {Object.values(shapes).map((shape) => {
+        if (shape.type !== EntityType.enum.Miner) {
           return null
         }
-        const patch = entities[entity.patchId]
-        invariant(patch?.type === EntityType.enum.Patch)
+        const patchShape = getConnectedPatchShape(
+          shape,
+          shapes,
+        )
+        if (patchShape === null) {
+          return null
+        }
         return (
           <RenderEntityConnection
-            key={entity.id}
-            a={entity}
-            b={patch}
+            key={shape.id}
+            a={shape}
+            b={patchShape}
           />
         )
       })}
