@@ -4,6 +4,7 @@ import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { RouteId, useRouteId } from './route.js'
 import {
+  Cursor,
   Entity,
   EntityState,
   EntityType,
@@ -163,10 +164,8 @@ function RenderDefaultInfo({
 }
 
 export interface RenderInfoProps {
-  cursorInventory: Inventory
-  entity: Entity | null
-  entityInventory: Inventory | null
-  entityState: EntityState | null
+  cursor: Cursor
+  cursorEntity: Entity | null
 }
 
 export const RenderInfo = React.memo(function RenderInfo({

@@ -51,6 +51,12 @@ export const SmelterEntityState = EntityStateBase.extend({
 export type SmelterEntityState = z.infer<
   typeof SmelterEntityState
 >
+export const SmelterEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Smelter),
+  shape: SmelterEntityShape,
+  state: SmelterEntityState,
+})
+export type SmelterEntity = z.infer<typeof SmelterEntity>
 
 //
 // Patch
@@ -69,6 +75,12 @@ export const PatchEntityState = EntityStateBase.extend({
 export type PatchEntityState = z.infer<
   typeof PatchEntityState
 >
+export const PatchEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Patch),
+  shape: PatchEntityShape,
+  state: PatchEntityState,
+})
+export type PatchEntity = z.infer<typeof PatchEntity>
 
 //
 // Miner
@@ -90,6 +102,12 @@ export const MinerEntityState = EntityStateBase.extend({
 export type MinerEntityState = z.infer<
   typeof MinerEntityState
 >
+export const MinerEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Miner),
+  shape: MinerEntityShape,
+  state: MinerEntityState,
+})
+export type MinerEntity = z.infer<typeof MinerEntity>
 
 export const EntityShape = z.discriminatedUnion('type', [
   SmelterEntityShape,
@@ -104,6 +122,13 @@ export const EntityState = z.discriminatedUnion('type', [
   MinerEntityState,
 ])
 export type EntityState = z.infer<typeof EntityState>
+
+export const Entity = z.discriminatedUnion('type', [
+  SmelterEntity,
+  PatchEntity,
+  MinerEntity,
+])
+export type Entity = z.infer<typeof Entity>
 
 export const Cursor = z.strictObject({
   entityId: z.string().nullable(),
@@ -239,4 +264,59 @@ export function loadWorld(): World {
 export function saveWorld(world: World) {
   World.parse(world)
   localStorage.setItem('world', JSON.stringify(world))
+}
+
+const entityCache = new Map<string, Entity>()
+function cacheEntity(
+  shape: EntityShape,
+  state: EntityState,
+): Entity {
+  const id = shape.id
+  invariant(state.id === id)
+
+  const type = shape.type
+  invariant(state.type === shape.type)
+
+  const cached = entityCache.get(id)
+  if (cached) {
+    invariant(cached.type === type)
+    if (cached.state === state && cached.shape === shape) {
+      return cached
+    }
+  }
+
+  let entity: Entity
+  switch (type) {
+    case EntityType.enum.Miner:
+      invariant(shape.type === type)
+      invariant(state.type === type)
+      entity = { type, shape, state }
+      break
+    case EntityType.enum.Patch:
+      invariant(shape.type === type)
+      invariant(state.type === type)
+      entity = { type, shape, state }
+      break
+    case EntityType.enum.Smelter:
+      invariant(shape.type === type)
+      invariant(state.type === type)
+      entity = { type, shape, state }
+      break
+    default:
+      invariant(false)
+  }
+
+  entityCache.set(id, entity)
+  return entity
+}
+
+export function getEntity(
+  world: World,
+  entityId: string,
+): Entity {
+  const shape = world.shapes[entityId]
+  invariant(shape)
+  const state = world.states[entityId]
+  invariant(state)
+  return cacheEntity(shape, state)
 }
