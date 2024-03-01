@@ -1,31 +1,26 @@
 import invariant from 'tiny-invariant'
-import { inventoryHas } from './inventory.js'
-import { EntityType, World } from './world.js'
+import { World } from './world.js'
 
 export function deleteEmptyPatch(
   world: World,
   patchId: string,
 ) {
-  const patch = world.entities[patchId]
-  invariant(patch?.type === EntityType.enum.Patch)
+  const shape = world.shapes[patchId]
+  invariant(shape)
 
-  const inventory = world.inventories[patch.inventoryId]
-  invariant(inventory)
+  const state = world.states[patchId]
+  invariant(state)
 
-  const { itemType } = patch
+  delete world.shapes[shape.id]
+  delete world.states[state.id]
 
-  invariant(!inventoryHas(inventory, { [itemType]: 1 }))
-
-  delete world.entities[patch.id]
-  delete world.inventories[patch.inventoryId]
-
-  for (const minerId of Object.keys(patch.minerIds)) {
-    const miner = world.entities[minerId]
-    invariant(miner?.type === EntityType.enum.Miner)
-    miner.patchId = null
+  for (const peerId of Object.keys(shape.connections)) {
+    const peerShape = world.shapes[peerId]
+    invariant(peerShape?.connections[patchId])
+    delete peerShape.connections[patchId]
   }
 
-  if (world.cursor.entityId === patch.id) {
+  if (world.cursor.entityId === patchId) {
     world.cursor.entityId = null
   }
 }

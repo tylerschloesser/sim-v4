@@ -1,41 +1,46 @@
 import invariant from 'tiny-invariant'
 import { deleteEmptyPatch } from './delete.js'
 import {
-  inventoryAdd,
   inventoryHas,
+  inventoryMove,
   inventorySub,
 } from './inventory.js'
 import {
   EntityType,
   ItemType,
-  MinerEntity,
+  MinerEntityShape,
   MinerEntityState,
   World,
+  getEntity,
 } from './world.js'
 
 export function tickMiner(
   world: World,
-  entity: MinerEntity,
+  shape: MinerEntityShape,
   state: MinerEntityState,
 ): void {
-  if (!entity.patchId) {
+  const patch = (() => {
+    for (const peerId of Object.keys(shape.connections)) {
+      const peer = getEntity(world, peerId)
+      if (peer.type === EntityType.enum.Patch) {
+        return peer
+      }
+    }
+    return null
+  })()
+
+  if (!patch) {
     state.mineTicksRemaining = null
     return
   }
 
-  const entityInventory =
-    world.inventories[entity.inventoryId]
-  invariant(entityInventory)
+  const itemType = (() => {
+    const keys = Object.keys(patch.state.output)
+    invariant(keys.length === 1)
+    return ItemType.parse(keys.at(0))
+  })()
 
-  const patch = world.entities[entity.patchId]
-  invariant(patch?.type === EntityType.enum.Patch)
-
-  const item = { [patch.itemType]: 1 }
-
-  const patchInventory =
-    world.inventories[patch.inventoryId]
-  invariant(patchInventory)
-  invariant(inventoryHas(patchInventory, item))
+  const item = { [itemType]: 1 }
 
   if (
     state.fuelTicksRemaining !== null &&
@@ -52,11 +57,16 @@ export function tickMiner(
     }
 
     if (state.mineTicksRemaining === 0) {
-      inventoryAdd(entityInventory, item)
-      inventorySub(patchInventory, item)
+      inventoryMove(patch.state.output, state.output, item)
       state.mineTicksRemaining = null
 
-      if (!inventoryHas(patchInventory, item)) {
+      const isPatchEmpty = (() => {
+        const keys = Object.keys(patch.state.output)
+        invariant(keys.length <= 1)
+        return keys.length === 0
+      })()
+
+      if (isPatchEmpty) {
         deleteEmptyPatch(world, patch.id)
         return
       }
@@ -64,27 +74,20 @@ export function tickMiner(
   }
 
   const fuel = { [ItemType.enum.Coal]: 1 }
+  const hasFuel =
+    state.fuelTicksRemaining ||
+    inventoryHas(state.input, fuel)
 
-  if (
-    state.fuelTicksRemaining === null &&
-    state.mineTicksRemaining !== null
-  ) {
-    if (inventoryHas(entityInventory, fuel)) {
-      inventorySub(entityInventory, fuel)
-      state.fuelTicksRemaining = 50
-    }
+  if (state.mineTicksRemaining === null && hasFuel) {
+    state.mineTicksRemaining = 10
   }
 
   if (
-    state.mineTicksRemaining === null &&
-    (state.fuelTicksRemaining ||
-      inventoryHas(entityInventory, fuel))
+    state.mineTicksRemaining !== null &&
+    state.fuelTicksRemaining === null &&
+    hasFuel
   ) {
-    if (state.fuelTicksRemaining === null) {
-      inventorySub(entityInventory, fuel)
-      state.fuelTicksRemaining = 50
-    }
-
-    state.mineTicksRemaining = 10
+    inventorySub(state.input, fuel)
+    state.fuelTicksRemaining = 50
   }
 }

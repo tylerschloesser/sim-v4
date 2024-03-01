@@ -8,12 +8,12 @@ export function tickWorld(setWorld: Updater<World>): void {
   setWorld((world) => {
     world.tick += 1
 
-    for (const entity of Object.values(world.entities)) {
-      const state = world.states[entity.id]
-      switch (entity.type) {
+    for (const shape of Object.values(world.shapes)) {
+      const state = world.states[shape.id]
+      switch (shape.type) {
         case EntityType.enum.Smelter:
           invariant(state?.type === EntityType.enum.Smelter)
-          tickSmelter(world, entity, state)
+          tickSmelter(world, shape, state)
           break
         case EntityType.enum.Miner:
           invariant(state?.type === EntityType.enum.Miner)

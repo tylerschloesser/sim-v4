@@ -5,13 +5,18 @@ import {
   inventorySub,
 } from './inventory.js'
 import { smelterRecipes } from './recipe.js'
-import { ItemType, SmelterEntity, World } from './world.js'
+import {
+  ItemType,
+  SmelterEntityShape,
+  SmelterEntityState,
+  World,
+} from './world.js'
 
 export function tickSmelter(
   _world: World,
-  entity: SmelterEntity,
+  _shape: SmelterEntityShape,
+  state: SmelterEntityState,
 ): void {
-  const { state } = entity
   if (
     state.fuelTicksRemaining !== null &&
     state.smeltTicksRemaining !== null
