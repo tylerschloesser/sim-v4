@@ -1,4 +1,5 @@
 import invariant from 'tiny-invariant'
+import { deleteEmptyPatch } from './delete.js'
 import {
   inventoryAdd,
   inventoryHas,
@@ -56,16 +57,7 @@ export function tickMiner(
       state.mineTicksRemaining = null
 
       if (!inventoryHas(patchInventory, item)) {
-        delete world.entities[patch.id]
-        delete world.inventories[patch.inventoryId]
-        for (const minerId of Object.keys(patch.minerIds)) {
-          const miner = world.entities[minerId]
-          invariant(miner?.type === EntityType.enum.Miner)
-          miner.patchId = null
-        }
-        if (world.cursor.entityId === patch.id) {
-          world.cursor.entityId = null
-        }
+        deleteEmptyPatch(world, patch.id)
         return
       }
     }

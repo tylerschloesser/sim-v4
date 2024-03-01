@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { getCursorEntity } from './cursor.js'
+import { deleteEmptyPatch } from './delete.js'
 import { getEntity } from './entity.js'
 import {
   getCursorInventory,
@@ -114,18 +115,10 @@ export function minePatch(setWorld: Updater<World>): void {
       typeof patchCount === 'number' && patchCount >= 1,
     )
     patchCount -= 1
+    patchInventory.items[itemType] = patchCount
 
     if (patchCount === 0) {
-      delete draft.entities[entity.id]
-      delete draft.inventories[entity.inventoryId]
-      for (const minerId of Object.keys(entity.minerIds)) {
-        const miner = draft.entities[minerId]
-        invariant(miner?.type === EntityType.enum.Miner)
-        miner.patchId = null
-      }
-      draft.cursor.entityId = null
-    } else {
-      patchInventory.items[itemType] = patchCount
+      deleteEmptyPatch(draft, entity.id)
     }
 
     const cursorCount = cursorInventory.items[itemType]
