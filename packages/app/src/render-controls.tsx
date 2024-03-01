@@ -43,6 +43,7 @@ export interface RenderControlsProps {
   entity: Entity | null
   entityInventory: Inventory | null
   buildValid: boolean | null
+  connectValid: boolean | null
 }
 
 export const RenderControls = React.memo(
@@ -52,6 +53,7 @@ export const RenderControls = React.memo(
     entity,
     entityInventory,
     buildValid,
+    connectValid,
   }: RenderControlsProps) {
     const navigate = useNavigate()
     const { camera$ } = useContext(AppContext)
@@ -90,7 +92,11 @@ export const RenderControls = React.memo(
     if (routeId === RouteId.enum.Connect) {
       return (
         <>
-          <RenderPrimaryButton>Connect</RenderPrimaryButton>
+          <RenderPrimaryButton
+            disabled={connectValid !== true}
+          >
+            Connect
+          </RenderPrimaryButton>
           <RenderSecondaryButton
             onTap={() => {
               navigate('..')

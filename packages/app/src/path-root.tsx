@@ -21,7 +21,7 @@ import {
 } from './world.js'
 
 export function PathRoot() {
-  const { world, setWorld, buildValid } =
+  const { world, setWorld, buildValid, connectValid } =
     useContext(AppContext)
   const routeId = useRouteId()
 
@@ -83,6 +83,7 @@ export function PathRoot() {
         entity={entity}
         entityInventory={entityInventory}
         buildValid={buildValid}
+        connectValid={connectValid}
       />
       <Outlet />
     </>
