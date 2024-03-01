@@ -218,6 +218,23 @@ function RenderSecondaryButton({
   )
 }
 
+function RenderTertiaryButton({
+  disabled = false,
+  onTap,
+  children,
+}: ButtonProps) {
+  return (
+    <button
+      className={styles['tertiary-button']}
+      data-pointer="capture"
+      onPointerUp={onTap}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  )
+}
+
 interface RenderPatchControlsProps {
   entity: PatchEntity
   cursorInventory: Inventory

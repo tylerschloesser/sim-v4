@@ -39,3 +39,11 @@
 
   @include button;
 }
+
+.tertiary-button {
+  --size: 8vmax;
+  bottom: calc(env(safe-area-inset-bottom) + 16vmax / 2);
+  left: calc(50% - 16vmax / 2 - var(--size));
+
+  @include button;
+}
