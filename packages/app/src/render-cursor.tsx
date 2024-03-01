@@ -21,8 +21,12 @@ export interface RenderCursorProps {
   cursor: Cursor
   entities: World['entities']
   setWorld: Updater<World>
+
   buildValid: boolean | null
   setBuildValid(valid: boolean | null): void
+
+  connectValid: boolean | null
+  setConnectValid(valid: boolean | null): void
 }
 
 export const RenderCursor = React.memo(
@@ -32,6 +36,8 @@ export const RenderCursor = React.memo(
     setWorld,
     buildValid,
     setBuildValid,
+    connectValid,
+    setConnectValid,
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
 
@@ -67,9 +73,7 @@ export const RenderCursor = React.memo(
             line: line.current,
             connectEntityId,
             entities,
-            setConnectValid(valid: boolean) {
-              console.log('TODO', valid)
-            },
+            setConnectValid,
           })
         }
         case RouteId.enum.Root: {
@@ -99,12 +103,30 @@ export const RenderCursor = React.memo(
       )
     })
 
-    let fill = 'hsla(240, 50%, 50%, 1)'
-    if (routeId === RouteId.enum.BuildMiner) {
-      fill =
-        buildValid === true
-          ? 'hsla(120, 50%, 50%, .5)'
-          : 'hsla(0, 50%, 50%, .5)'
+    let fill: string
+
+    switch (routeId) {
+      case RouteId.enum.BuildMiner: {
+        fill =
+          buildValid === true
+            ? 'hsla(120, 50%, 50%, .5)'
+            : 'hsla(0, 50%, 50%, .5)'
+        break
+      }
+      case RouteId.enum.Connect: {
+        fill =
+          connectValid === true
+            ? 'hsla(120, 50%, 50%, .5)'
+            : 'hsla(0, 50%, 50%, .5)'
+        break
+      }
+      case RouteId.enum.Root: {
+        fill = 'hsla(240, 50%, 50%, 1)'
+        break
+      }
+      default: {
+        invariant(false)
+      }
     }
 
     return (

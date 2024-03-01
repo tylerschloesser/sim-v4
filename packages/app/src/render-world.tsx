@@ -76,6 +76,10 @@ export const RenderWorld = React.memo(function RenderWorld({
         setWorld={setWorld}
         buildValid={buildValid}
         setBuildValid={setBuildValid}
+        connectValid={false}
+        setConnectValid={() => {
+          console.log('TODO')
+        }}
       />
       {Object.values(entities).map((entity) => {
         return (
