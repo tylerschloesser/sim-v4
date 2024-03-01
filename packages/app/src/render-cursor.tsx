@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
+import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
 import { getClosestEntity } from './closest.js'
 import styles from './render-cursor.module.scss'
@@ -16,6 +17,7 @@ export interface RenderCursorProps {
   cursor: Cursor
   entities: World['entities']
   setWorld: Updater<World>
+  buildValid: boolean | null
   setBuildValid(valid: boolean | null): void
 }
 
@@ -24,6 +26,7 @@ export const RenderCursor = React.memo(
     cursor,
     entities,
     setWorld,
+    buildValid,
     setBuildValid,
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
@@ -70,6 +73,14 @@ export const RenderCursor = React.memo(
       )
     })
 
+    let fill = 'hsla(240, 50%, 50%, 1)'
+    if (routeId === RouteId.enum.BuildMiner) {
+      fill =
+        buildValid === true
+          ? 'hsla(120, 50%, 50%, .5)'
+          : 'hsla(0, 50%, 50%, .5)'
+    }
+
     return (
       <g data-group="cursor" ref={root}>
         {Object.values(entities).map(({ id, position }) => (
@@ -83,7 +94,7 @@ export const RenderCursor = React.memo(
         ))}
         <circle
           r={cursor.radius}
-          fill={'red'}
+          fill={fill}
           ref={circle}
         />
       </g>
@@ -95,7 +106,7 @@ function initBuildCursor({
   camera$,
   circle,
   // lines,
-  // entities,
+  entities,
   // setWorld,
   setBuildValid,
 }: {
@@ -110,9 +121,14 @@ function initBuildCursor({
     const { x, y } = camera.position
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
-  })
 
-  setBuildValid(false)
+    const buildValid = isBuildValid(
+      camera.position,
+      0.75,
+      entities,
+    )
+    setBuildValid(buildValid)
+  })
 
   return () => {
     sub.unsubscribe()

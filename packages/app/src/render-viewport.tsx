@@ -5,8 +5,13 @@ import styles from './render-viewport.module.scss'
 import { RenderWorld } from './render-world.js'
 
 export function RenderViewport() {
-  const { viewport, world, setWorld, setBuildValid } =
-    useContext(AppContext)
+  const {
+    viewport,
+    world,
+    setWorld,
+    buildValid,
+    setBuildValid,
+  } = useContext(AppContext)
   const { x: vx, y: vy } = viewport.size
   const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
   return (
@@ -16,6 +21,7 @@ export function RenderViewport() {
         cursor={world.cursor}
         entities={world.entities}
         setWorld={setWorld}
+        buildValid={buildValid}
         setBuildValid={setBuildValid}
       />
     </svg>

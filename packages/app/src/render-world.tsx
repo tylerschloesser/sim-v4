@@ -12,6 +12,7 @@ export interface RenderWorldProps {
   cursor: Cursor
   entities: World['entities']
   setWorld: Updater<World>
+  buildValid: boolean | null
   setBuildValid(valid: boolean | null): void
 }
 
@@ -19,6 +20,7 @@ export const RenderWorld = React.memo(function RenderWorld({
   cursor,
   entities,
   setWorld,
+  buildValid,
   setBuildValid,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
@@ -54,6 +56,7 @@ export const RenderWorld = React.memo(function RenderWorld({
         cursor={cursor}
         entities={entities}
         setWorld={setWorld}
+        buildValid={buildValid}
         setBuildValid={setBuildValid}
       />
       {Object.values(entities).map((entity) => {
