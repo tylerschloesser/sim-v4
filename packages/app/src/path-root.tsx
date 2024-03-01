@@ -57,7 +57,7 @@ export function PathRoot() {
     }
   }, [routeId, connectEntityShape])
 
-  let cursorEntity = cursor.entityId
+  const cursorEntity = cursor.entityId
     ? getEntity(world, cursor.entityId)
     : null
 
@@ -65,10 +65,8 @@ export function PathRoot() {
     <>
       <RenderViewport />
       <RenderInfo
-        cursorInventory={cursorInventory}
-        entity={entity}
-        entityInventory={entityInventory}
-        entityState={entityState}
+        cursor={cursor}
+        cursorEntity={cursorEntity}
       />
       <RenderControls
         cursorInventory={cursorInventory}
