@@ -22,6 +22,7 @@ import {
   EntityType,
   Inventory,
   ItemType,
+  PatchEntity,
   SmelterEntity,
   World,
 } from './world.js'
@@ -71,6 +72,7 @@ export const RenderControls = React.memo(
       case EntityType.enum.Patch:
         return (
           <RenderPatchControls
+            entity={entity}
             cursorInventory={cursorInventory}
             setWorld={setWorld}
           />
@@ -136,11 +138,13 @@ function RenderSecondaryButton({
 }
 
 interface RenderPatchControlsProps {
+  entity: PatchEntity
   cursorInventory: Inventory
   setWorld: Updater<World>
 }
 
 function RenderPatchControls({
+  entity,
   cursorInventory,
   setWorld,
 }: RenderPatchControlsProps) {
@@ -159,7 +163,7 @@ function RenderPatchControls({
       {inventoryHas(cursorInventory, minerRecipe.input) && (
         <RenderSecondaryButton
           onPointerUp={() => {
-            navigate('build-miner')
+            navigate(`build-miner?patchId=${entity.id}`)
           }}
         >
           Build Miner

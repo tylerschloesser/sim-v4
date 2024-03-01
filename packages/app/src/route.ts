@@ -1,4 +1,7 @@
-import { useMatches } from 'react-router-dom'
+import {
+  useMatches,
+  useSearchParams,
+} from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
 
@@ -10,4 +13,9 @@ export function useRouteId() {
   invariant(matches.length === 2)
   const routeId = RouteId.parse(matches.at(1)?.id)
   return routeId
+}
+
+export function usePatchId(): string | null {
+  const [params] = useSearchParams()
+  return params.get('patchId')
 }
