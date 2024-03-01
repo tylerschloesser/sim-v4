@@ -210,6 +210,8 @@ export function buildMiner(
     const state: MinerEntityState = {
       type: EntityType.enum.Miner,
       id: entityId,
+      fuelTicksRemaining: null,
+      mineTicksRemaining: null,
     }
     invariant(!draft.states[state.id])
     draft.states[state.id] = state

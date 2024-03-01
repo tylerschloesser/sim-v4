@@ -68,6 +68,16 @@ export type PatchEntity = z.infer<typeof PatchEntity>
 export const MinerEntityState = z.strictObject({
   type: z.literal(EntityType.enum.Miner),
   id: z.string(),
+  mineTicksRemaining: z
+    .number()
+    .int()
+    .positive()
+    .nullable(),
+  fuelTicksRemaining: z
+    .number()
+    .int()
+    .positive()
+    .nullable(),
 })
 export type MinerEntityState = z.infer<
   typeof MinerEntityState
