@@ -6,7 +6,12 @@ import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
 import { getClosestEntity } from './closest.js'
-import { RouteId, usePatchId, useRouteId } from './route.js'
+import {
+  RouteId,
+  useConnectEntityId,
+  usePatchId,
+  useRouteId,
+} from './route.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
@@ -31,6 +36,7 @@ export const RenderCursor = React.memo(
     const { camera$ } = useContext(AppContext)
 
     const patchId = usePatchId()
+    const connectEntityId = useConnectEntityId()
     const routeId = useRouteId()
 
     const root = useRef<SVGGElement>(null)
@@ -39,24 +45,45 @@ export const RenderCursor = React.memo(
 
     useEffect(() => {
       invariant(circle.current)
-      if (routeId === RouteId.enum.BuildMiner) {
-        invariant(line.current)
-        invariant(patchId)
-        return initBuildCursor({
-          camera$,
-          circle: circle.current,
-          line: line.current,
-          patchId,
-          entities,
-          setBuildValid,
-        })
+      switch (routeId) {
+        case RouteId.enum.BuildMiner: {
+          invariant(line.current)
+          invariant(patchId)
+          return initBuildCursor({
+            camera$,
+            circle: circle.current,
+            line: line.current,
+            patchId,
+            entities,
+            setBuildValid,
+          })
+        }
+        case RouteId.enum.Connect: {
+          invariant(line.current)
+          invariant(connectEntityId)
+          return initConnectCursor({
+            camera$,
+            circle: circle.current,
+            line: line.current,
+            connectEntityId,
+            entities,
+            setConnectValid(valid: boolean) {
+              console.log('TODO', valid)
+            },
+          })
+        }
+        case RouteId.enum.Root: {
+          return initDefaultCursor({
+            camera$,
+            circle: circle.current,
+            entities,
+            setWorld,
+          })
+        }
+        default: {
+          invariant(false)
+        }
       }
-      return initDefaultCursor({
-        camera$,
-        circle: circle.current,
-        entities,
-        setWorld,
-      })
     }, [entities, routeId])
 
     useCameraEffect((camera, viewport) => {
@@ -82,7 +109,7 @@ export const RenderCursor = React.memo(
 
     return (
       <g data-group="cursor" ref={root}>
-        {patchId && (
+        {(patchId || connectEntityId) && (
           <line
             stroke={fill}
             ref={line}
@@ -133,6 +160,43 @@ function initBuildCursor({
       entities,
     )
     setBuildValid(buildValid)
+  })
+
+  return () => {
+    sub.unsubscribe()
+  }
+}
+
+function initConnectCursor({
+  camera$,
+  circle,
+  line,
+  connectEntityId,
+  entities,
+  setConnectValid,
+}: {
+  camera$: BehaviorSubject<Camera>
+  circle: SVGCircleElement
+  line: SVGLineElement
+  connectEntityId: string
+  entities: World['entities']
+  setConnectValid(valid: boolean | null): void
+}): () => void {
+  const source = entities[connectEntityId]
+  invariant(source)
+
+  line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
+  line.setAttribute('y2', `${source.position.y.toFixed(4)}`)
+
+  const sub = camera$.subscribe((camera) => {
+    const { x, y } = camera.position
+    circle.setAttribute('cx', `${x.toFixed(4)}`)
+    circle.setAttribute('cy', `${y.toFixed(4)}`)
+
+    line.setAttribute('x1', `${x.toFixed(4)}`)
+    line.setAttribute('y1', `${y.toFixed(4)}`)
+
+    setConnectValid(false)
   })
 
   return () => {

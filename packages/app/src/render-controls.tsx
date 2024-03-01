@@ -87,6 +87,14 @@ export const RenderControls = React.memo(
       )
     }
 
+    if (routeId === RouteId.enum.Connect) {
+      return (
+        <>
+          <RenderPrimaryButton>Connect</RenderPrimaryButton>
+        </>
+      )
+    }
+
     switch (entity?.type) {
       case EntityType.enum.Patch:
         return (
