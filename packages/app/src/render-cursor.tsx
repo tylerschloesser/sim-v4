@@ -229,13 +229,13 @@ function initConnectCursor({
 function initHomingCursor({
   camera$,
   entities,
-  setWorld,
   update,
+  setAttachedEntityId,
 }: {
   camera$: BehaviorSubject<Camera>
   entities: World['entities']
-  setWorld: Updater<World>
   update(position: Vec2): void
+  setAttachedEntityId(entityId: string | null): void
 }): () => void {
   const position = vec2.clone(camera$.value.position)
   const velocity = vec2.init(0, 0)
@@ -256,11 +256,7 @@ function initHomingCursor({
 
     let dir: Vec2
     if (closest && closest.d < 3) {
-      setWorld((draft) => {
-        if (draft.cursor.entityId !== closest.entity.id) {
-          draft.cursor.entityId = closest.entity.id
-        }
-      })
+      setAttachedEntityId(closest.entity.id)
 
       const pull = vec2.clone(camera$.value.position)
       vec2.sub(pull, closest.entity.position)
@@ -271,11 +267,7 @@ function initHomingCursor({
 
       vec2.sub(dir, position)
     } else {
-      setWorld((draft) => {
-        if (draft.cursor.entityId) {
-          draft.cursor.entityId = null
-        }
-      })
+      setAttachedEntityId(null)
 
       dir = vec2.clone(camera$.value.position)
       vec2.sub(dir, position)
@@ -330,15 +322,24 @@ function initDefaultCursor({
   entities: World['entities']
   setWorld: Updater<World>
 }): () => void {
+  let attachedEntityId: string | null = null
   function update(position: Vec2): void {
     const { x, y } = position
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
   }
+  function setAttachedEntityId(entityId: string | null) {
+    if (attachedEntityId !== entityId) {
+      attachedEntityId = entityId
+      setWorld((draft) => {
+        draft.cursor.entityId = entityId
+      })
+    }
+  }
   return initHomingCursor({
     camera$,
     entities,
-    setWorld,
     update,
+    setAttachedEntityId,
   })
 }
