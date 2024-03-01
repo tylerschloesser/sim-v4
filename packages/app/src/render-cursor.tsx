@@ -6,11 +6,11 @@ import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
 import { getClosestEntity } from './closest.js'
-import { RouteId, useRouteId } from './route.js'
+import { RouteId, usePatchId, useRouteId } from './route.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
-import { Cursor, World } from './world.js'
+import { Cursor, EntityType, World } from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
@@ -30,16 +30,23 @@ export const RenderCursor = React.memo(
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
 
+    const patchId = usePatchId()
     const routeId = useRouteId()
+
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
+    const line = useRef<SVGLineElement>(null)
 
     useEffect(() => {
       invariant(circle.current)
       if (routeId === RouteId.enum.BuildMiner) {
+        invariant(line.current)
+        invariant(patchId)
         return initBuildCursor({
           camera$,
           circle: circle.current,
+          line: line.current,
+          patchId,
           entities,
           setBuildValid,
         })
@@ -75,6 +82,13 @@ export const RenderCursor = React.memo(
 
     return (
       <g data-group="cursor" ref={root}>
+        {patchId && (
+          <line
+            stroke={fill}
+            ref={line}
+            strokeWidth=".1px"
+          />
+        )}
         <circle
           r={cursor.radius}
           fill={fill}
@@ -88,18 +102,30 @@ export const RenderCursor = React.memo(
 function initBuildCursor({
   camera$,
   circle,
+  line,
+  patchId,
   entities,
   setBuildValid,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
+  line: SVGLineElement
+  patchId: string
   entities: World['entities']
   setBuildValid(valid: boolean | null): void
 }): () => void {
+  const patch = entities[patchId]
+  invariant(patch?.type === EntityType.enum.Patch)
+  line.setAttribute('x2', `${patch.position.x.toFixed(4)}`)
+  line.setAttribute('y2', `${patch.position.y.toFixed(4)}`)
+
   const sub = camera$.subscribe((camera) => {
     const { x, y } = camera.position
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
+
+    line.setAttribute('x1', `${x.toFixed(4)}`)
+    line.setAttribute('y1', `${y.toFixed(4)}`)
 
     const buildValid = isBuildValid(
       camera.position,
