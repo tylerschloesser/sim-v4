@@ -55,17 +55,22 @@ export function getFuelSource(
   ) {
     return {
       type: FuelSourceType.Inventory,
-      inventory: state.input,
+      inventory: state.output,
     }
   }
 
   for (const peerId of Object.keys(shape.connections)) {
-    const peer = world.states[peerId]
-    invariant(peer)
-    if (inventoryHas(peer.output, fuel)) {
+    const peerShape = world.shapes[peerId]
+    invariant(peerShape)
+    if (peerShape.type === EntityType.enum.Patch) {
+      continue
+    }
+    const peerState = world.states[peerId]
+    invariant(peerState)
+    if (inventoryHas(peerState.output, fuel)) {
       return {
         type: FuelSourceType.Inventory,
-        inventory: peer.output,
+        inventory: peerState.output,
       }
     }
   }

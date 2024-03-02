@@ -9,6 +9,7 @@ import {
 import {
   UIMatch,
   useMatches,
+  useNavigate,
   useSearchParams,
 } from 'react-router-dom'
 import invariant from 'tiny-invariant'
@@ -16,6 +17,8 @@ import * as z from 'zod'
 import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { isConnectValid } from './connect.js'
+import { inventoryHas } from './inventory.js'
+import { entityRecipes } from './recipe.js'
 import { EntityId, EntityType } from './world.js'
 
 export const ViewType = z.enum([
@@ -126,6 +129,20 @@ export function useView(): View {
       }
     }
   }, [viewType, search, cursor, camera$, shapes, hack])
+
+  const navigate = useNavigate()
+  useEffect(() => {
+    switch (view.current?.type) {
+      case ViewType.enum.Build: {
+        const recipe =
+          entityRecipes[view.current.entityType]
+        invariant(recipe)
+        if (!inventoryHas(cursor.inventory, recipe.input)) {
+          navigate('..')
+        }
+      }
+    }
+  }, [view.current, cursor])
 
   useEffect(() => {
     const sub = camera$.subscribe((camera) => {
