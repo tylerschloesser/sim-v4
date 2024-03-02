@@ -1,4 +1,5 @@
 import invariant from 'tiny-invariant'
+import { FuelSourceType, getFuelSource } from './fuel.js'
 import {
   inventoryAdd,
   inventoryHas,
@@ -12,21 +13,6 @@ import {
   SmelterEntityState,
   World,
 } from './world.js'
-
-enum FuelSourceType {
-  TicksRemaining = 'TicksRemaining',
-  Inventory = 'Inventory',
-}
-interface TicksRemainingFuelSource {
-  type: FuelSourceType.TicksRemaining
-}
-interface InventoryFuelSource {
-  type: FuelSourceType.Inventory
-  inventory: Inventory
-}
-type FuelSource =
-  | TicksRemainingFuelSource
-  | InventoryFuelSource
 
 export function tickSmelter(
   world: World,
@@ -121,40 +107,6 @@ function getRecipeInputSource(
     invariant(peer)
     if (inventoryHas(peer.output, recipe.input)) {
       return peer.output
-    }
-  }
-
-  return null
-}
-
-function getFuelSource(
-  world: World,
-  shape: SmelterEntityShape,
-  state: SmelterEntityState,
-  fuel: Inventory,
-): FuelSource | null {
-  if (
-    state.fuelTicksRemaining &&
-    state.fuelTicksRemaining > 0
-  ) {
-    return { type: FuelSourceType.TicksRemaining }
-  }
-
-  if (inventoryHas(state.input, fuel)) {
-    return {
-      type: FuelSourceType.Inventory,
-      inventory: state.input,
-    }
-  }
-
-  for (const peerId of Object.keys(shape.connections)) {
-    const peer = world.states[peerId]
-    invariant(peer)
-    if (inventoryHas(peer.output, fuel)) {
-      return {
-        type: FuelSourceType.Inventory,
-        inventory: peer.output,
-      }
     }
   }
 
