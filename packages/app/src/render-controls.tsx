@@ -308,7 +308,15 @@ function RenderPatchControls({
       ) && (
         <RenderSecondaryButton
           onTap={() => {
-            navigate(`build-miner?patchId=${entity.id}`)
+            const search = new URLSearchParams()
+            search.set('entityType', EntityType.enum.Miner)
+            search.set(
+              'connections',
+              JSON.stringify({
+                [entity.id]: true,
+              }),
+            )
+            navigate(`build?${search.toString()}`)
           }}
         >
           Build Miner

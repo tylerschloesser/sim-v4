@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import invariant from 'tiny-invariant'
 import { getConnectedMinerShapes } from './patch.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
-import { RouteId, useRouteId } from './route.js'
+import { ViewContext } from './view-context.js'
+import { ViewType } from './view.js'
 import {
   Cursor,
   Entity,
@@ -191,8 +192,8 @@ export const RenderInfo = React.memo(function RenderInfo({
   cursorEntity,
   shapes,
 }: RenderInfoProps) {
-  const routeId = useRouteId()
-  if (routeId === RouteId.enum.BuildMiner) {
+  const { view } = useContext(ViewContext)
+  if (view.type === ViewType.enum.Build) {
     return null
   }
 

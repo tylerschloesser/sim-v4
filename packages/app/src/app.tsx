@@ -11,8 +11,8 @@ import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { PathRoot } from './path-root.js'
 import { handlePointer } from './pointer.js'
-import { RouteId } from './route.js'
 import { tickWorld } from './tick-world.js'
+import { ViewType } from './view.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
 import { World, loadWorld, saveWorld } from './world.js'
@@ -48,17 +48,23 @@ const router = createBrowserRouter([
       {
         index: true,
         element: null,
-        id: RouteId.enum.Root,
+        handle: {
+          viewType: ViewType.enum.Default,
+        },
       },
       {
-        path: 'build-miner',
+        path: 'build',
         element: null,
-        id: RouteId.enum.BuildMiner,
+        handle: {
+          viewType: ViewType.enum.Build,
+        },
       },
       {
         path: 'connect',
         element: null,
-        id: RouteId.enum.Connect,
+        handle: {
+          viewType: ViewType.enum.Connect,
+        },
       },
     ],
   },

@@ -5,16 +5,17 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
 import { getClosestShape } from './closest.js'
-import {
-  RouteId,
-  useConnectEntityId,
-  usePatchId,
-  useRouteId,
-} from './route.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
+import { ViewContext } from './view-context.js'
+import { ViewType } from './view.js'
 import { getScale } from './viewport.js'
-import { Cursor, EntityType, World } from './world.js'
+import {
+  Cursor,
+  EntityId,
+  EntityType,
+  World,
+} from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
@@ -29,10 +30,7 @@ export const RenderCursor = React.memo(
     setWorld,
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
-
-    const patchId = usePatchId()
-    const connectEntityId = useConnectEntityId()
-    const routeId = useRouteId()
+    const { view } = useContext(ViewContext)
 
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
@@ -40,10 +38,18 @@ export const RenderCursor = React.memo(
 
     useEffect(() => {
       invariant(circle.current)
-      switch (routeId) {
-        case RouteId.enum.BuildMiner: {
+      switch (view.type) {
+        case ViewType.enum.Build: {
           invariant(line.current)
-          invariant(patchId)
+
+          // TODO refactor
+          invariant(
+            view.entityType === EntityType.enum.Miner,
+          )
+          const keys = Object.keys(view.connections)
+          invariant(keys.length === 1)
+          const patchId = EntityId.parse(keys.at(0))
+
           return initBuildCursor({
             camera$,
             circle: circle.current,
@@ -52,19 +58,18 @@ export const RenderCursor = React.memo(
             shapes,
           })
         }
-        case RouteId.enum.Connect: {
+        case ViewType.enum.Connect: {
           invariant(line.current)
-          invariant(connectEntityId)
           return initConnectCursor({
             camera$,
             circle: circle.current,
             line: line.current,
-            connectEntityId,
+            sourceId: view.sourceId,
             shapes,
             setWorld,
           })
         }
-        case RouteId.enum.Root: {
+        case ViewType.enum.Default: {
           return initDefaultCursor({
             camera$,
             circle: circle.current,
@@ -76,7 +81,7 @@ export const RenderCursor = React.memo(
           invariant(false)
         }
       }
-    }, [shapes, routeId])
+    }, [shapes, view])
 
     useCameraEffect((camera, viewport) => {
       const { x: vx, y: vy } = viewport.size
@@ -93,22 +98,20 @@ export const RenderCursor = React.memo(
 
     let fill: string
 
-    switch (routeId) {
-      case RouteId.enum.BuildMiner: {
-        fill =
-          buildValid === true
-            ? 'hsla(120, 50%, 50%, .5)'
-            : 'hsla(0, 50%, 50%, .5)'
+    switch (view.type) {
+      case ViewType.enum.Build: {
+        fill = view.valid
+          ? 'hsla(120, 50%, 50%, .5)'
+          : 'hsla(0, 50%, 50%, .5)'
         break
       }
-      case RouteId.enum.Connect: {
-        fill =
-          connectValid === true
-            ? 'hsla(120, 50%, 50%, .5)'
-            : 'hsla(0, 50%, 50%, .5)'
+      case ViewType.enum.Connect: {
+        fill = view.valid
+          ? 'hsla(120, 50%, 50%, .5)'
+          : 'hsla(0, 50%, 50%, .5)'
         break
       }
-      case RouteId.enum.Root: {
+      case ViewType.enum.Default: {
         fill = 'hsla(240, 50%, 50%, 1)'
         break
       }
@@ -117,9 +120,13 @@ export const RenderCursor = React.memo(
       }
     }
 
+    const renderLine =
+      view.type === ViewType.enum.Build ||
+      view.type === ViewType.enum.Connect
+
     return (
       <g data-group="cursor" ref={root}>
-        {(patchId || connectEntityId) && (
+        {renderLine && (
           <line
             stroke={fill}
             ref={line}
@@ -287,18 +294,18 @@ function initConnectCursor({
   camera$,
   circle,
   line,
-  connectEntityId,
+  sourceId,
   shapes,
   setWorld,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   line: SVGLineElement
-  connectEntityId: string
+  sourceId: EntityId
   shapes: World['shapes']
   setWorld: Updater<World>
 }): () => void {
-  const source = shapes[connectEntityId]
+  const source = shapes[sourceId]
   invariant(source)
   line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
   line.setAttribute('y2', `${source.position.y.toFixed(4)}`)
