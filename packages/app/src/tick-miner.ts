@@ -97,12 +97,8 @@ export function tickMiner(
   }
 
   const fuel = { [ItemType.enum.Coal]: 1 }
-  const fuelSource = getFuelSource(
-    world,
-    shape,
-    state,
-    fuel,
-  )
+  // prettier-ignore
+  const fuelSource = getFuelSource(world, shape, state, fuel)
   if (state.mineTicksRemaining === null && fuelSource) {
     state.mineTicksRemaining = 10
   }
