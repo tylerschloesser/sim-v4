@@ -2,13 +2,12 @@ import React, { useContext, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
-import { getConnectedPatchShape } from './miner.js'
 import { RenderCursor } from './render-cursor.js'
 import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { Cursor, EntityType, World } from './world.js'
+import { Cursor, EntityShape, World } from './world.js'
 
 export interface RenderWorldProps {
   cursor: Cursor
@@ -50,25 +49,13 @@ export const RenderWorld = React.memo(function RenderWorld({
 
   return (
     <g data-group="world" ref={root}>
-      {Object.values(shapes).map((shape) => {
-        if (shape.type !== EntityType.enum.Miner) {
-          return null
-        }
-        const patchShape = getConnectedPatchShape(
-          shape,
-          shapes,
-        )
-        if (patchShape === null) {
-          return null
-        }
-        return (
-          <RenderEntityConnection
-            key={shape.id}
-            a={shape}
-            b={patchShape}
-          />
-        )
-      })}
+      {mapConnections(shapes, (id, source, target) => (
+        <RenderEntityConnection
+          key={id}
+          a={source}
+          b={target}
+        />
+      ))}
       <RenderCursor
         cursor={cursor}
         shapes={shapes}
@@ -85,3 +72,41 @@ export const RenderWorld = React.memo(function RenderWorld({
     </g>
   )
 })
+
+function getConnectionId(
+  sourceId: string,
+  targetId: string,
+): string {
+  const ids = [sourceId, targetId]
+  ids.sort()
+  return ids.join('.')
+}
+
+function mapConnections(
+  shapes: World['shapes'],
+  cb: (
+    id: string,
+    source: EntityShape,
+    target: EntityShape,
+  ) => JSX.Element,
+): JSX.Element[] {
+  const seen = new Set<string>()
+  const result = new Array<JSX.Element>()
+
+  for (const source of Object.values(shapes)) {
+    for (const targetId of Object.keys(
+      source.connections,
+    )) {
+      const id = getConnectionId(source.id, targetId)
+      if (seen.has(id)) {
+        continue
+      }
+      seen.add(id)
+      const target = shapes[targetId]
+      invariant(target)
+      result.push(cb(id, source, target))
+    }
+  }
+
+  return result
+}

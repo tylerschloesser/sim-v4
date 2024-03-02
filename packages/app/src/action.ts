@@ -171,7 +171,11 @@ export function addConnection(
 
             source.shape.connections[target.id] = true
             target.shape.connections[source.id] = true
-
+            break
+          }
+          case EntityType.enum.Smelter: {
+            source.shape.connections[target.id] = true
+            target.shape.connections[source.id] = true
             break
           }
           default: {
