@@ -59,6 +59,7 @@ export const RenderCursor = React.memo(
           const patchId = EntityId.parse(keys.at(0))
 
           return initBuildCursor({
+            position,
             camera$,
             circle: circle.current,
             line: line.current,
@@ -154,12 +155,14 @@ export const RenderCursor = React.memo(
 )
 
 function initBuildCursor({
+  position,
   camera$,
   circle,
   line,
   patchId,
   shapes,
 }: {
+  position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   line: SVGLineElement
@@ -172,7 +175,8 @@ function initBuildCursor({
   line.setAttribute('y2', `${patch.position.y.toFixed(4)}`)
 
   const sub = camera$.subscribe((camera) => {
-    const { x, y } = camera.position
+    position.current = vec2.clone(camera.position)
+    const { x, y } = position.current
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
 
@@ -286,14 +290,10 @@ function initDefaultCursor({
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
   }
-  let attachedEntityId: string | null = null
   function setAttachedEntityId(entityId: string | null) {
-    if (attachedEntityId !== entityId) {
-      attachedEntityId = entityId
-      setWorld((draft) => {
-        draft.cursor.entityId = entityId
-      })
-    }
+    setWorld((draft) => {
+      draft.cursor.entityId = entityId
+    })
   }
   return initHomingCursor({
     position,
@@ -334,14 +334,10 @@ function initConnectCursor({
     line.setAttribute('y1', `${y.toFixed(4)}`)
   }
 
-  let attachedEntityId: string | null = null
   function setAttachedEntityId(entityId: string | null) {
-    if (attachedEntityId !== entityId) {
-      attachedEntityId = entityId
-      setWorld((draft) => {
-        draft.cursor.entityId = entityId
-      })
-    }
+    setWorld((draft) => {
+      draft.cursor.entityId = entityId
+    })
   }
 
   return initHomingCursor({

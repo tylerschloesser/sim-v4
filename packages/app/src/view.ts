@@ -72,6 +72,12 @@ export function useView(): View {
   const viewType = useViewType()
   const [search] = useSearchParams()
 
+  const [hack, setHack] = useState(0)
+  const rerender = useCallback(
+    () => setHack((prev) => prev + 1),
+    [],
+  )
+
   const view = useRef<View>()
   view.current = useMemo(() => {
     switch (viewType) {
@@ -119,13 +125,7 @@ export function useView(): View {
         }
       }
     }
-  }, [viewType, search, cursor, camera$, shapes])
-
-  const setHack = useState(0)[1]
-  const rerender = useCallback(
-    () => setHack((prev) => prev + 1),
-    [],
-  )
+  }, [viewType, search, cursor, camera$, shapes, hack])
 
   useEffect(() => {
     const sub = camera$.subscribe((camera) => {
