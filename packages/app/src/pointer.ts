@@ -31,7 +31,11 @@ export function handlePointer(
       pointerCache.delete(ev.pointerId)
       break
     }
-    case 'pointerdown':
+    // in safari iOS, there's often a large time delay between
+    // the first pointerdown and the next pointermove event,
+    // resulting in a "jerky" initial movement
+    //
+    // case 'pointerdown':
     case 'pointermove': {
       const prev = pointerCache.get(ev.pointerId)
       pointerCache.set(ev.pointerId, ev)
