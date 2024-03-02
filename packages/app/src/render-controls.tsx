@@ -43,7 +43,6 @@ import {
 export interface RenderControlsProps {
   cursor: Cursor
   cursorEntity: Entity | null
-  shapes: World['shapes']
   setWorld: Updater<World>
   buildValid: boolean | null
   connectValid: boolean | null
@@ -53,7 +52,6 @@ export const RenderControls = React.memo(
   function RenderControls({
     cursor,
     cursorEntity,
-    shapes,
     setWorld,
     buildValid,
     connectValid,
@@ -148,7 +146,6 @@ export const RenderControls = React.memo(
             <RenderMinerControls
               cursor={cursor}
               entity={cursorEntity}
-              shapes={shapes}
               setWorld={setWorld}
             />
           )
@@ -422,14 +419,12 @@ function RenderSmelterControls({
 interface RenderMinerControlsProps {
   cursor: Cursor
   entity: MinerEntity
-  shapes: World['shapes']
   setWorld: Updater<World>
 }
 
 function RenderMinerControls({
   cursor,
   entity,
-  shapes,
   setWorld,
 }: RenderMinerControlsProps) {
   const outputType = (() => {
@@ -448,18 +443,16 @@ function RenderMinerControls({
     })
   }, [hasCoal])
 
-  const isConnectedToPatch = !!Object.keys(
-    entity.shape.connections,
-  ).find((peerId) => {
-    const peerShape = shapes[peerId]
-    invariant(peerShape)
-    return peerShape.type === EntityType.enum.Patch
-  })
-
   const navigate = useNavigate()
 
   return (
     <>
+      <RenderPrimaryButton
+        disabled={!hasCoal}
+        onHold={addCoal}
+      >
+        Add Coal
+      </RenderPrimaryButton>
       <RenderSecondaryButton
         disabled={!hasOutput}
         onTap={() => {
@@ -469,22 +462,13 @@ function RenderMinerControls({
       >
         Take All
       </RenderSecondaryButton>
-      {isConnectedToPatch ? (
-        <RenderPrimaryButton
-          disabled={!hasCoal}
-          onHold={addCoal}
-        >
-          Add Coal
-        </RenderPrimaryButton>
-      ) : (
-        <RenderPrimaryButton
-          onTap={() => {
-            navigate(`connect?entityId=${entity.id}`)
-          }}
-        >
-          Connect
-        </RenderPrimaryButton>
-      )}
+      <RenderTertiaryButton
+        onTap={() => {
+          navigate(`connect?entityId=${entity.id}`)
+        }}
+      >
+        Connect
+      </RenderTertiaryButton>
     </>
   )
 }

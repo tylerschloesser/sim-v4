@@ -75,7 +75,6 @@ export function PathRoot() {
       <RenderControls
         cursor={cursor}
         cursorEntity={cursorEntity}
-        shapes={world.shapes}
         setWorld={setWorld}
         buildValid={buildValid}
         connectValid={connectValid}
