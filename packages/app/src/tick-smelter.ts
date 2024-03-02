@@ -79,14 +79,14 @@ export function tickSmelter(
     for (const recipeId of recipeIds) {
       const recipe = smelterRecipes[recipeId]
       invariant(recipe)
-      const source = getRecipeInventory(
+      const inputSource = getRecipeInputSource(
         world,
         shape,
         state,
         recipe,
       )
-      if (source) {
-        inventorySub(source, recipe.input)
+      if (inputSource) {
+        inventorySub(inputSource, recipe.input)
         state.smeltTicksRemaining = 10
         state.recipeId = recipeId
         break
@@ -120,7 +120,7 @@ export function tickSmelter(
   }
 }
 
-function getRecipeInventory(
+function getRecipeInputSource(
   world: World,
   shape: SmelterEntityShape,
   state: SmelterEntityState,
