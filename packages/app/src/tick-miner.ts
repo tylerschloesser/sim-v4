@@ -1,34 +1,15 @@
 import invariant from 'tiny-invariant'
 import { deleteEmptyPatch } from './delete.js'
-import {
-  inventoryHas,
-  inventoryMove,
-  inventorySub,
-} from './inventory.js'
+import { FuelSourceType, getFuelSource } from './fuel.js'
+import { inventoryMove, inventorySub } from './inventory.js'
 import {
   EntityType,
-  Inventory,
   ItemType,
   MinerEntityShape,
   MinerEntityState,
   World,
   getEntity,
 } from './world.js'
-
-enum FuelSourceType {
-  TicksRemaining = 'TicksRemaining',
-  Inventory = 'Inventory',
-}
-interface TicksRemainingFuelSource {
-  type: FuelSourceType.TicksRemaining
-}
-interface InventoryFuelSource {
-  type: FuelSourceType.Inventory
-  inventory: Inventory
-}
-type FuelSource =
-  | TicksRemainingFuelSource
-  | InventoryFuelSource
 
 export function tickMiner(
   world: World,
@@ -108,46 +89,4 @@ export function tickMiner(
       }
     }
   }
-}
-
-function getFuelSource(
-  world: World,
-  shape: MinerEntityShape,
-  state: MinerEntityState,
-  fuel: Inventory,
-): FuelSource | null {
-  if (
-    state.fuelTicksRemaining &&
-    state.fuelTicksRemaining > 0
-  ) {
-    return { type: FuelSourceType.TicksRemaining }
-  }
-
-  if (inventoryHas(state.input, fuel)) {
-    return {
-      type: FuelSourceType.Inventory,
-      inventory: state.input,
-    }
-  }
-
-  // special case for miners, allow miners to consume coal they mine
-  if (inventoryHas(state.output, fuel)) {
-    return {
-      type: FuelSourceType.Inventory,
-      inventory: state.input,
-    }
-  }
-
-  for (const peerId of Object.keys(shape.connections)) {
-    const peer = world.states[peerId]
-    invariant(peer)
-    if (inventoryHas(peer.output, fuel)) {
-      return {
-        type: FuelSourceType.Inventory,
-        inventory: peer.output,
-      }
-    }
-  }
-
-  return null
 }

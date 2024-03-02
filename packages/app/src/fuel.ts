@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant'
 import { inventoryHas } from './inventory.js'
 import {
+  EntityType,
   Inventory,
   MinerEntityShape,
   MinerEntityState,
@@ -41,6 +42,17 @@ export function getFuelSource(
   }
 
   if (inventoryHas(state.input, fuel)) {
+    return {
+      type: FuelSourceType.Inventory,
+      inventory: state.input,
+    }
+  }
+
+  // special case for miners, allow miners to consume coal they mine
+  if (
+    state.type === EntityType.enum.Miner &&
+    inventoryHas(state.output, fuel)
+  ) {
     return {
       type: FuelSourceType.Inventory,
       inventory: state.input,
