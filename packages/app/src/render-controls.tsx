@@ -22,16 +22,13 @@ import {
   getAvailableEntityRecipes,
 } from './recipe.js'
 import styles from './render-controls.module.scss'
-import {
-  RouteId,
-  useConnectEntityId,
-  usePatchId,
-  useRouteId,
-} from './route.js'
 import { vec2 } from './vec2.js'
+import { ViewContext } from './view-context.js'
+import { ViewType } from './view.js'
 import {
   Cursor,
   Entity,
+  EntityId,
   EntityType,
   ItemType,
   MinerEntity,
@@ -44,8 +41,6 @@ export interface RenderControlsProps {
   cursor: Cursor
   cursorEntity: Entity | null
   setWorld: Updater<World>
-  buildValid: boolean | null
-  connectValid: boolean | null
 }
 
 export const RenderControls = React.memo(
@@ -53,23 +48,22 @@ export const RenderControls = React.memo(
     cursor,
     cursorEntity,
     setWorld,
-    buildValid,
-    connectValid,
   }: RenderControlsProps) {
     const navigate = useNavigate()
     const { camera$ } = useContext(AppContext)
+    const { view } = useContext(ViewContext)
 
-    const routeId = useRouteId()
-    const patchId = usePatchId()
-    const connectEntityId = useConnectEntityId()
+    if (view.type === ViewType.enum.Build) {
+      // TODO refactor
+      const keys = Object.keys(view.connections)
+      invariant(keys.length === 1)
+      const patchId = EntityId.parse(keys.at(0))
 
-    if (routeId === RouteId.enum.BuildMiner) {
       return (
         <>
           <RenderPrimaryButton
-            disabled={buildValid !== true}
+            disabled={!view.valid}
             onTap={() => {
-              if (buildValid !== true) return
               invariant(patchId)
               buildEntity(
                 setWorld,
@@ -94,18 +88,16 @@ export const RenderControls = React.memo(
       )
     }
 
-    if (routeId === RouteId.enum.Connect) {
+    if (view.type === ViewType.enum.Connect) {
       return (
         <>
           <RenderPrimaryButton
-            disabled={connectValid !== true}
+            disabled={!view.valid}
             onTap={() => {
-              if (connectValid !== true) return
-              invariant(connectEntityId)
               invariant(cursor.entityId)
               addConnection(
                 setWorld,
-                connectEntityId,
+                view.sourceId,
                 cursor.entityId,
               )
             }}
@@ -193,6 +185,18 @@ function RenderPrimaryButton({
     }
   }, [pointerDown, onHold])
 
+  if (disabled) {
+    return (
+      <button
+        className={styles['primary-button']}
+        data-pointer="capture"
+        disabled={disabled}
+      >
+        {children}
+      </button>
+    )
+  }
+
   return (
     <button
       className={styles['primary-button']}
@@ -246,7 +250,7 @@ function RenderSecondaryButton({
     <button
       className={styles['secondary-button']}
       data-pointer="capture"
-      onPointerUp={onTap}
+      onPointerUp={disabled ? undefined : onTap}
       disabled={disabled}
     >
       {children}
@@ -264,7 +268,7 @@ function RenderTertiaryButton({
     <button
       className={styles['tertiary-button']}
       data-pointer="capture"
-      onPointerUp={onTap}
+      onPointerUp={disabled ? undefined : onTap}
       disabled={disabled}
     >
       {children}

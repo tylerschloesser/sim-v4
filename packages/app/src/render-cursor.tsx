@@ -3,10 +3,8 @@ import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
-import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
 import { getClosestShape } from './closest.js'
-import { isConnectValid } from './connect.js'
 import {
   RouteId,
   useConnectEntityId,
@@ -16,23 +14,12 @@ import {
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { getScale } from './viewport.js'
-import {
-  Cursor,
-  EntityShape,
-  EntityType,
-  World,
-} from './world.js'
+import { Cursor, EntityType, World } from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
   shapes: World['shapes']
   setWorld: Updater<World>
-
-  buildValid: boolean | null
-  setBuildValid(valid: boolean | null): void
-
-  connectValid: boolean | null
-  setConnectValid(valid: boolean | null): void
 }
 
 export const RenderCursor = React.memo(
@@ -40,10 +27,6 @@ export const RenderCursor = React.memo(
     cursor,
     shapes,
     setWorld,
-    buildValid,
-    setBuildValid,
-    connectValid,
-    setConnectValid,
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
 
@@ -67,7 +50,6 @@ export const RenderCursor = React.memo(
             line: line.current,
             patchId,
             shapes,
-            setBuildValid,
           })
         }
         case RouteId.enum.Connect: {
@@ -79,7 +61,6 @@ export const RenderCursor = React.memo(
             line: line.current,
             connectEntityId,
             shapes,
-            setConnectValid,
             setWorld,
           })
         }
@@ -161,14 +142,12 @@ function initBuildCursor({
   line,
   patchId,
   shapes,
-  setBuildValid,
 }: {
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   line: SVGLineElement
   patchId: string
   shapes: World['shapes']
-  setBuildValid(valid: boolean | null): void
 }): () => void {
   const patch = shapes[patchId]
   invariant(patch?.type === EntityType.enum.Patch)
@@ -182,13 +161,6 @@ function initBuildCursor({
 
     line.setAttribute('x1', `${x.toFixed(4)}`)
     line.setAttribute('y1', `${y.toFixed(4)}`)
-
-    const buildValid = isBuildValid(
-      camera.position,
-      0.75,
-      shapes,
-    )
-    setBuildValid(buildValid)
   })
 
   return () => {
@@ -317,7 +289,6 @@ function initConnectCursor({
   line,
   connectEntityId,
   shapes,
-  setConnectValid,
   setWorld,
 }: {
   camera$: BehaviorSubject<Camera>
@@ -325,7 +296,6 @@ function initConnectCursor({
   line: SVGLineElement
   connectEntityId: string
   shapes: World['shapes']
-  setConnectValid(valid: boolean | null): void
   setWorld: Updater<World>
 }): () => void {
   const source = shapes[connectEntityId]
@@ -348,15 +318,6 @@ function initConnectCursor({
       setWorld((draft) => {
         draft.cursor.entityId = entityId
       })
-      let target: EntityShape | null = null
-      if (entityId) {
-        target = shapes[entityId] ?? null
-        invariant(target)
-      }
-      invariant(source)
-      setConnectValid(
-        isConnectValid(source, target, shapes),
-      )
     }
   }
 

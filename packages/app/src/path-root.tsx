@@ -13,11 +13,12 @@ import {
   useConnectEntityId,
   useRouteId,
 } from './route.js'
+import { ViewContext } from './view-context.js'
+import { useView } from './view.js'
 import { EntityType, getEntity } from './world.js'
 
 export function PathRoot() {
-  const { world, setWorld, buildValid, connectValid } =
-    useContext(AppContext)
+  const { world, setWorld } = useContext(AppContext)
   const routeId = useRouteId()
 
   const minerRecipe = entityRecipes[EntityType.enum.Miner]
@@ -64,8 +65,10 @@ export function PathRoot() {
     ? getEntity(world, cursor.entityId)
     : null
 
+  const view = useView()
+
   return (
-    <>
+    <ViewContext.Provider value={{ view }}>
       <RenderViewport />
       <RenderInfo
         cursor={cursor}
@@ -76,10 +79,8 @@ export function PathRoot() {
         cursor={cursor}
         cursorEntity={cursorEntity}
         setWorld={setWorld}
-        buildValid={buildValid}
-        connectValid={connectValid}
       />
       <Outlet />
-    </>
+    </ViewContext.Provider>
   )
 }

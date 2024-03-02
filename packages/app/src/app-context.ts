@@ -10,12 +10,6 @@ export interface IAppContext {
   viewport: Viewport
   world: World
   setWorld: Updater<World>
-
-  buildValid: boolean | null
-  setBuildValid(valid: boolean | null): void
-
-  connectValid: boolean | null
-  setConnectValid(valid: boolean | null): void
 }
 
 export const AppContext = createContext<IAppContext>(null!)
