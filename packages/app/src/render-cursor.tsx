@@ -1,4 +1,9 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, {
+  MutableRefObject,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react'
 import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
@@ -31,6 +36,9 @@ export const RenderCursor = React.memo(
   }: RenderCursorProps) {
     const { camera$ } = useContext(AppContext)
     const { view } = useContext(ViewContext)
+    const position = useRef<Vec2>(
+      vec2.clone(camera$.value.position),
+    )
 
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
@@ -61,6 +69,7 @@ export const RenderCursor = React.memo(
         case ViewType.enum.Connect: {
           invariant(line.current)
           return initConnectCursor({
+            position,
             camera$,
             circle: circle.current,
             line: line.current,
@@ -71,6 +80,7 @@ export const RenderCursor = React.memo(
         }
         case ViewType.enum.Default: {
           return initDefaultCursor({
+            position,
             camera$,
             circle: circle.current,
             shapes,
@@ -176,20 +186,21 @@ function initBuildCursor({
 }
 
 function initHomingCursor({
+  position,
   camera$,
   shapes,
   update,
   setAttachedEntityId,
 }: {
+  position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
   shapes: World['shapes']
   update(position: Vec2): void
   setAttachedEntityId(entityId: string | null): void
 }): () => void {
-  const position = vec2.clone(camera$.value.position)
   const velocity = vec2.init(0, 0)
 
-  update(position)
+  update(position.current)
 
   let last = self.performance.now()
   let handle: number | undefined = undefined
@@ -211,12 +222,12 @@ function initHomingCursor({
       dir = vec2.clone(closest.shape.position)
       vec2.add(dir, pull)
 
-      vec2.sub(dir, position)
+      vec2.sub(dir, position.current)
     } else {
       setAttachedEntityId(null)
 
       dir = vec2.clone(camera$.value.position)
-      vec2.sub(dir, position)
+      vec2.sub(dir, position.current)
     }
 
     const d = vec2.len(dir)
@@ -242,9 +253,9 @@ function initHomingCursor({
     }
 
     if (vmag) {
-      position.x += velocity.x * (elapsed / 1000)
-      position.y += velocity.y * (elapsed / 1000)
-      update(position)
+      position.current.x += velocity.x * (elapsed / 1000)
+      position.current.y += velocity.y * (elapsed / 1000)
+      update(position.current)
     }
 
     handle = self.requestAnimationFrame(render)
@@ -258,11 +269,13 @@ function initHomingCursor({
 }
 
 function initDefaultCursor({
+  position,
   camera$,
   circle,
   shapes,
   setWorld,
 }: {
+  position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   shapes: World['shapes']
@@ -283,6 +296,7 @@ function initDefaultCursor({
     }
   }
   return initHomingCursor({
+    position,
     camera$,
     shapes,
     update,
@@ -291,6 +305,7 @@ function initDefaultCursor({
 }
 
 function initConnectCursor({
+  position,
   camera$,
   circle,
   line,
@@ -298,6 +313,7 @@ function initConnectCursor({
   shapes,
   setWorld,
 }: {
+  position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   line: SVGLineElement
@@ -329,6 +345,7 @@ function initConnectCursor({
   }
 
   return initHomingCursor({
+    position,
     camera$,
     shapes,
     update,
