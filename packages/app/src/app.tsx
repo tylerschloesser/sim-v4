@@ -75,13 +75,6 @@ export function App() {
     null,
   )
 
-  const [buildValid, setBuildValid] = useState<
-    boolean | null
-  >(null)
-  const [connectValid, setConnectValid] = useState<
-    boolean | null
-  >(null)
-
   useTickWorld(setWorld)
 
   useEffect(() => {
@@ -133,10 +126,6 @@ export function App() {
             viewport,
             world,
             setWorld,
-            buildValid,
-            setBuildValid,
-            connectValid,
-            setConnectValid,
           }}
         >
           <RouterProvider router={router} />
