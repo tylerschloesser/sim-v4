@@ -6,7 +6,6 @@ import {
 } from './inventory.js'
 import { SmelterRecipe, smelterRecipes } from './recipe.js'
 import {
-  EntityId,
   Inventory,
   ItemType,
   SmelterEntityShape,
@@ -17,7 +16,6 @@ import {
 enum FuelSourceType {
   TicksRemaining = 'TicksRemaining',
   Inventory = 'Inventory',
-  Connection = 'Connection',
 }
 interface TicksRemainingFuelSource {
   type: FuelSourceType.TicksRemaining
@@ -26,14 +24,9 @@ interface InventoryFuelSource {
   type: FuelSourceType.Inventory
   inventory: Inventory
 }
-interface ConnectionFuelSource {
-  type: FuelSourceType.Connection
-  entityId: EntityId
-}
 type FuelSource =
   | TicksRemainingFuelSource
   | InventoryFuelSource
-  | ConnectionFuelSource
 
 export function tickSmelter(
   world: World,
@@ -109,13 +102,6 @@ export function tickSmelter(
         state.fuelTicksRemaining = 50
         break
       }
-      case FuelSourceType.Connection: {
-        const peer = world.states[fuelSource.entityId]
-        invariant(peer)
-        inventorySub(peer.output, fuel)
-        state.fuelTicksRemaining = 50
-        break
-      }
     }
   }
 }
@@ -166,8 +152,8 @@ function getFuelSource(
     invariant(peer)
     if (inventoryHas(peer.output, fuel)) {
       return {
-        type: FuelSourceType.Connection,
-        entityId: peerId,
+        type: FuelSourceType.Inventory,
+        inventory: peer.output,
       }
     }
   }
