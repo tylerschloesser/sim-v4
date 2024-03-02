@@ -6,13 +6,36 @@ import {
   inventorySub,
 } from './inventory.js'
 import {
+  EntityId,
   EntityType,
+  Inventory,
   ItemType,
   MinerEntityShape,
   MinerEntityState,
   World,
   getEntity,
 } from './world.js'
+
+enum FuelSourceType {
+  TicksRemaining = 'TicksRemaining',
+  Inventory = 'Inventory',
+  Connection = 'Connection',
+}
+interface TicksRemainingFuelSource {
+  type: FuelSourceType.TicksRemaining
+}
+interface InventoryFuelSource {
+  type: FuelSourceType.Inventory
+  inventory: Inventory
+}
+interface ConnectionFuelSource {
+  type: FuelSourceType.Connection
+  entityId: EntityId
+}
+type FuelSource =
+  | TicksRemainingFuelSource
+  | InventoryFuelSource
+  | ConnectionFuelSource
 
 export function tickMiner(
   world: World,
@@ -74,26 +97,75 @@ export function tickMiner(
   }
 
   const fuel = { [ItemType.enum.Coal]: 1 }
-  const hasFuel =
-    state.fuelTicksRemaining ||
-    inventoryHas(state.input, fuel) ||
-    // special case for miners, allow miners to consume coal they mine
-    inventoryHas(state.output, fuel)
-
-  if (state.mineTicksRemaining === null && hasFuel) {
+  const fuelSource = getFuelSource(
+    world,
+    shape,
+    state,
+    fuel,
+  )
+  if (state.mineTicksRemaining === null && fuelSource) {
     state.mineTicksRemaining = 10
   }
 
-  if (
-    state.mineTicksRemaining !== null &&
-    state.fuelTicksRemaining === null &&
-    hasFuel
-  ) {
-    if (inventoryHas(state.input, fuel)) {
-      inventorySub(state.input, fuel)
-    } else {
-      inventorySub(state.output, fuel)
+  if (state.mineTicksRemaining !== null && fuelSource) {
+    switch (fuelSource.type) {
+      case FuelSourceType.TicksRemaining: {
+        break
+      }
+      case FuelSourceType.Inventory: {
+        inventorySub(fuelSource.inventory, fuel)
+        state.fuelTicksRemaining = 50
+        break
+      }
+      case FuelSourceType.Connection: {
+        const peer = world.states[fuelSource.entityId]
+        invariant(peer)
+        inventorySub(peer.output, fuel)
+        state.fuelTicksRemaining = 50
+        break
+      }
     }
-    state.fuelTicksRemaining = 50
   }
+}
+
+function getFuelSource(
+  world: World,
+  shape: MinerEntityShape,
+  state: MinerEntityState,
+  fuel: Inventory,
+): FuelSource | null {
+  if (
+    state.fuelTicksRemaining &&
+    state.fuelTicksRemaining > 0
+  ) {
+    return { type: FuelSourceType.TicksRemaining }
+  }
+
+  if (inventoryHas(state.input, fuel)) {
+    return {
+      type: FuelSourceType.Inventory,
+      inventory: state.input,
+    }
+  }
+
+  // special case for miners, allow miners to consume coal they mine
+  if (inventoryHas(state.output, fuel)) {
+    return {
+      type: FuelSourceType.Inventory,
+      inventory: state.input,
+    }
+  }
+
+  for (const peerId of Object.keys(shape.connections)) {
+    const peer = world.states[peerId]
+    invariant(peer)
+    if (inventoryHas(peer.output, fuel)) {
+      return {
+        type: FuelSourceType.Connection,
+        entityId: peerId,
+      }
+    }
+  }
+
+  return null
 }
