@@ -107,7 +107,7 @@ export function useView(): View {
         }
       }
       case ViewType.enum.Connect: {
-        const sourceId = EntityType.parse(
+        const sourceId = EntityId.parse(
           search.get('sourceId'),
         )
         const source = shapes[sourceId]

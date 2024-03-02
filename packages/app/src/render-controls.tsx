@@ -476,7 +476,7 @@ function RenderMinerControls({
       </RenderSecondaryButton>
       <RenderTertiaryButton
         onTap={() => {
-          navigate(`connect?entityId=${entity.id}`)
+          navigate(`connect?sourceId=${entity.id}`)
         }}
       >
         Connect
