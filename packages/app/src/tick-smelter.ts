@@ -25,9 +25,6 @@ export function tickSmelter(
     invariant(state.smeltTicksRemaining > 0)
     invariant(state.recipeId)
 
-    const recipe = smelterRecipes[state.recipeId]
-    invariant(recipe)
-
     state.fuelTicksRemaining -= 1
     state.smeltTicksRemaining -= 1
 
@@ -36,6 +33,8 @@ export function tickSmelter(
     }
 
     if (state.smeltTicksRemaining === 0) {
+      const recipe = smelterRecipes[state.recipeId]
+      invariant(recipe)
       inventoryAdd(state.output, recipe.output)
       state.smeltTicksRemaining = null
       state.recipeId = null
