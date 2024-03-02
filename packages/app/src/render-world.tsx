@@ -14,22 +14,12 @@ export interface RenderWorldProps {
   cursor: Cursor
   shapes: World['shapes']
   setWorld: Updater<World>
-
-  buildValid: boolean | null
-  setBuildValid(valid: boolean | null): void
-
-  connectValid: boolean | null
-  setConnectValid(valid: boolean | null): void
 }
 
 export const RenderWorld = React.memo(function RenderWorld({
   cursor,
   shapes,
   setWorld,
-  buildValid,
-  setBuildValid,
-  connectValid,
-  setConnectValid,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
   const { viewport } = useContext(AppContext)
@@ -83,10 +73,6 @@ export const RenderWorld = React.memo(function RenderWorld({
         cursor={cursor}
         shapes={shapes}
         setWorld={setWorld}
-        buildValid={buildValid}
-        setBuildValid={setBuildValid}
-        connectValid={connectValid}
-        setConnectValid={setConnectValid}
       />
       {Object.values(shapes).map((shape) => {
         return (
