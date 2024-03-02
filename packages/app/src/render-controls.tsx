@@ -291,8 +291,9 @@ function RenderPatchControls({
   invariant(minerRecipe)
 
   const mine = useCallback(() => {
-    minePatch(setWorld)
-  }, [])
+    invariant(cursor.entityId)
+    minePatch(setWorld, cursor.entityId)
+  }, [cursor.entityId])
 
   return (
     <>

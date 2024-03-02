@@ -33,33 +33,34 @@ export function moveFromEntityOutputToCursor(
   })
 }
 
-export function minePatch(setWorld: Updater<World>): void {
+export function minePatch(
+  setWorld: Updater<World>,
+  patchId: EntityId,
+): void {
   setWorld((world) => {
-    invariant(world.cursor.entityId)
-    const entity = getEntity(world, world.cursor.entityId)
-
-    invariant(entity.type === EntityType.enum.Patch)
+    const patch = getEntity(world, patchId)
+    invariant(patch.type === EntityType.enum.Patch)
 
     const itemType = (() => {
-      const keys = Object.keys(entity.state.output)
+      const keys = Object.keys(patch.state.output)
       invariant(keys.length === 1)
       return ItemType.parse(keys.at(0))
     })()
 
     inventoryMove(
-      entity.state.output,
+      patch.state.output,
       world.cursor.inventory,
       { [itemType]: 1 },
     )
 
     const isPatchEmpty = (() => {
-      const keys = Object.keys(entity.state.output)
+      const keys = Object.keys(patch.state.output)
       invariant(keys.length <= 1)
       return keys.length === 0
     })()
 
     if (isPatchEmpty) {
-      deleteEmptyPatch(world, entity.id)
+      deleteEmptyPatch(world, patch.id)
     }
   })
 }
