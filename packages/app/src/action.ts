@@ -178,6 +178,11 @@ export function addConnection(
             target.shape.connections[source.id] = true
             break
           }
+          case EntityType.enum.Miner: {
+            source.shape.connections[target.id] = true
+            target.shape.connections[source.id] = true
+            break
+          }
           default: {
             // TODO
             invariant(false)

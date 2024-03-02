@@ -11,6 +11,10 @@ export function isConnectValid(
     return false
   }
 
+  if (source.id === target.id) {
+    return false
+  }
+
   if (source.connections[target.id]) {
     invariant(target.connections[source.id])
     return false
@@ -26,6 +30,9 @@ export function isConnectValid(
           return true
         }
         case EntityType.enum.Smelter: {
+          return true
+        }
+        case EntityType.enum.Miner: {
           return true
         }
       }
