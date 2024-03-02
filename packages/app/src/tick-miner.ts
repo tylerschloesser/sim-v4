@@ -76,7 +76,9 @@ export function tickMiner(
   const fuel = { [ItemType.enum.Coal]: 1 }
   const hasFuel =
     state.fuelTicksRemaining ||
-    inventoryHas(state.input, fuel)
+    inventoryHas(state.input, fuel) ||
+    // special case for miners, allow miners to consume coal they mine
+    inventoryHas(state.output, fuel)
 
   if (state.mineTicksRemaining === null && hasFuel) {
     state.mineTicksRemaining = 10
@@ -87,7 +89,11 @@ export function tickMiner(
     state.fuelTicksRemaining === null &&
     hasFuel
   ) {
-    inventorySub(state.input, fuel)
+    if (inventoryHas(state.input, fuel)) {
+      inventorySub(state.input, fuel)
+    } else {
+      inventorySub(state.output, fuel)
+    }
     state.fuelTicksRemaining = 50
   }
 }
