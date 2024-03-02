@@ -11,18 +11,27 @@ export function isConnectValid(
     return false
   }
 
-  invariant(source.type === EntityType.enum.Miner)
-
-  if (hasConnectedPatch(source, shapes)) {
-    // this should only happen immediately after connecting,
-    // but before we navigate back
+  if (source.connections[target.id]) {
+    invariant(target.connections[source.id])
     return false
   }
 
-  if (target.type !== EntityType.enum.Patch) {
-    return false
+  switch (source.type) {
+    case EntityType.enum.Miner: {
+      switch (target.type) {
+        case EntityType.enum.Patch: {
+          if (hasConnectedPatch(source, shapes)) {
+            return false
+          }
+          return true
+        }
+        case EntityType.enum.Smelter: {
+          return true
+        }
+      }
+      break
+    }
   }
 
-  invariant(!target.connections[source.id])
-  return true
+  return false
 }
