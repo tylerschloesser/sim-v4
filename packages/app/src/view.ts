@@ -85,9 +85,7 @@ export function useView(): View {
           search.get('entityType'),
         )
         const connections = Connections.parse(
-          EntityType.parse(
-            JSON.parse(search.get('connections')!),
-          ),
+          JSON.parse(search.get('connections')!),
         )
         const radius = 0.75
         const valid = isBuildValid(
