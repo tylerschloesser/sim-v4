@@ -13,14 +13,9 @@ import { getClosestShape } from './closest.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
-import { ConnectAction, ViewType } from './view.js'
+import { ViewType } from './view.js'
 import { getScale } from './viewport.js'
-import {
-  Cursor,
-  EntityId,
-  EntityType,
-  World,
-} from './world.js'
+import { Cursor, EntityId, World } from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
@@ -42,38 +37,29 @@ export const RenderCursor = React.memo(
 
     const root = useRef<SVGGElement>(null)
     const circle = useRef<SVGCircleElement>(null)
-    const line = useRef<SVGLineElement>(null)
+    const lines = useRef<
+      Record<string, SVGLineElement | null>
+    >({})
 
     useEffect(() => {
       invariant(circle.current)
       switch (view.type) {
         case ViewType.enum.Build: {
-          invariant(line.current)
-
-          // TODO refactor
-          invariant(
-            view.entityType === EntityType.enum.Miner,
-          )
-          const keys = Object.keys(view.connections)
-          invariant(keys.length === 1)
-          const patchId = EntityId.parse(keys.at(0))
-
           return initBuildCursor({
             position,
             camera$,
             circle: circle.current,
-            line: line.current,
-            patchId,
+            lines: lines.current,
+            connections: view.connections,
             shapes,
           })
         }
         case ViewType.enum.Connect: {
-          invariant(line.current)
           return initConnectCursor({
             position,
             camera$,
             circle: circle.current,
-            line: line.current,
+            lines: lines.current,
             sourceId: view.sourceId,
             shapes,
             setWorld,
@@ -132,16 +118,23 @@ export const RenderCursor = React.memo(
       }
     }
 
-    const renderLine =
-      view.type === ViewType.enum.Build ||
-      view.type === ViewType.enum.Connect
-
     return (
       <g data-group="cursor" ref={root}>
-        {renderLine && (
+        {view.type === ViewType.enum.Build &&
+          Object.keys(view.connections).map((id) => (
+            <line
+              key={id}
+              stroke={fill}
+              ref={(el) => (lines.current[id] = el)}
+              strokeWidth="var(--stroke-width)"
+            />
+          ))}
+        {view.type === ViewType.enum.Connect && (
           <line
             stroke={fill}
-            ref={line}
+            ref={(el) =>
+              (lines.current[view.sourceId] = el)
+            }
             strokeWidth="var(--stroke-width)"
           />
         )}
@@ -159,21 +152,31 @@ function initBuildCursor({
   position,
   camera$,
   circle,
-  line,
-  patchId,
+  lines,
+  connections,
   shapes,
 }: {
   position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
-  line: SVGLineElement
-  patchId: string
+  lines: Record<string, SVGLineElement | null>
+  connections: Record<EntityId, true>
   shapes: World['shapes']
 }): () => void {
-  const patch = shapes[patchId]
-  invariant(patch?.type === EntityType.enum.Patch)
-  line.setAttribute('x2', `${patch.position.x.toFixed(4)}`)
-  line.setAttribute('y2', `${patch.position.y.toFixed(4)}`)
+  for (const entityId of Object.keys(connections)) {
+    const entity = shapes[entityId]
+    invariant(entity)
+    const line = lines[entityId]
+    invariant(line)
+    line.setAttribute(
+      'x2',
+      `${entity.position.x.toFixed(4)}`,
+    )
+    line.setAttribute(
+      'y2',
+      `${entity.position.y.toFixed(4)}`,
+    )
+  }
 
   const sub = camera$.subscribe((camera) => {
     position.current = vec2.clone(camera.position)
@@ -181,8 +184,12 @@ function initBuildCursor({
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
 
-    line.setAttribute('x1', `${x.toFixed(4)}`)
-    line.setAttribute('y1', `${y.toFixed(4)}`)
+    for (const entityId of Object.keys(connections)) {
+      const line = lines[entityId]
+      invariant(line)
+      line.setAttribute('x1', `${x.toFixed(4)}`)
+      line.setAttribute('y1', `${y.toFixed(4)}`)
+    }
   })
 
   return () => {
@@ -309,7 +316,7 @@ function initConnectCursor({
   position,
   camera$,
   circle,
-  line,
+  lines,
   sourceId,
   shapes,
   setWorld,
@@ -317,11 +324,14 @@ function initConnectCursor({
   position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
-  line: SVGLineElement
+  lines: Record<EntityId, SVGLineElement | null>
   sourceId: EntityId
   shapes: World['shapes']
   setWorld: Updater<World>
 }): () => void {
+  const line = lines[sourceId]
+  invariant(line)
+
   const source = shapes[sourceId]
   invariant(source)
   line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
@@ -331,6 +341,7 @@ function initConnectCursor({
     const { x, y } = position
     circle.setAttribute('cx', `${x.toFixed(4)}`)
     circle.setAttribute('cy', `${y.toFixed(4)}`)
+    invariant(line)
     line.setAttribute('x1', `${x.toFixed(4)}`)
     line.setAttribute('y1', `${y.toFixed(4)}`)
   }
