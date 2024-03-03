@@ -34,6 +34,7 @@ export const DefaultView = z.strictObject({
 export type DefaultView = z.infer<typeof DefaultView>
 
 const Connections = z.record(EntityId, z.literal(true))
+type Connections = z.infer<typeof Connections>
 
 export const BuildView = z.strictObject({
   type: z.literal(ViewType.enum.Build),
@@ -62,6 +63,14 @@ export const View = z.discriminatedUnion('type', [
   ConnectView,
 ])
 export type View = z.infer<typeof View>
+
+function parseConnections(
+  search: URLSearchParams,
+): Connections {
+  const json = search.get('connection')
+  if (!json) return Connections.parse({})
+  return Connections.parse(JSON.parse(json))
+}
 
 function useViewType(): ViewType {
   const matches = useMatches()
@@ -99,9 +108,7 @@ export function useView(): View {
         const entityType = EntityType.parse(
           search.get('entityType'),
         )
-        const connections = Connections.parse(
-          JSON.parse(search.get('connections')!),
-        )
+        const connections = parseConnections(search)
         const radius = 0.75
         const valid = isBuildValid(
           camera$.value.position,

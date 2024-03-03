@@ -29,7 +29,6 @@ import { ConnectAction, ViewType } from './view.js'
 import {
   Cursor,
   Entity,
-  EntityId,
   EntityType,
   ItemType,
   MinerEntity,
@@ -55,24 +54,16 @@ export const RenderControls = React.memo(
     const { view } = useContext(ViewContext)
 
     if (view.type === ViewType.enum.Build) {
-      // TODO refactor
-      const keys = Object.keys(view.connections)
-      invariant(keys.length === 1)
-      const patchId = EntityId.parse(keys.at(0))
-
       return (
         <>
           <RenderPrimaryButton
             disabled={!view.valid}
             onTap={() => {
-              invariant(patchId)
               buildEntity(
                 setWorld,
                 EntityType.enum.Miner,
                 vec2.clone(camera$.value.position),
-                {
-                  [patchId]: true,
-                },
+                view.connections,
               )
             }}
           >
@@ -162,12 +153,7 @@ export const RenderControls = React.memo(
       }
     }
 
-    return (
-      <RenderDefaultControls
-        cursor={cursor}
-        setWorld={setWorld}
-      />
-    )
+    return <RenderDefaultControls cursor={cursor} />
   },
 )
 
@@ -348,35 +334,29 @@ function RenderPatchControls({
 
 interface RenderDefaultControlsProps {
   cursor: Cursor
-  setWorld: Updater<World>
 }
 
 function RenderDefaultControls({
   cursor,
-  setWorld,
 }: RenderDefaultControlsProps) {
-  const { camera$ } = useContext(AppContext)
+  const navigate = useNavigate()
 
   const availableRecipes = getAvailableEntityRecipes(
     cursor.inventory,
   )
-
   const recipe = availableRecipes.at(0)
-  const disabled = !recipe
-
-  const onTap = () => {
-    if (!recipe) return
-    const camera = camera$.value
-    buildEntity(
-      setWorld,
-      EntityType.enum.Smelter,
-      vec2.clone(camera.position),
-      {},
-    )
-  }
 
   return (
-    <RenderPrimaryButton disabled={disabled} onTap={onTap}>
+    <RenderPrimaryButton
+      disabled={!recipe}
+      onTap={() => {
+        if (recipe) {
+          const search = new URLSearchParams()
+          search.set('entityType', recipe.output)
+          navigate(`build?${search.toString()}`)
+        }
+      }}
+    >
       Build {recipe?.output}
     </RenderPrimaryButton>
   )
