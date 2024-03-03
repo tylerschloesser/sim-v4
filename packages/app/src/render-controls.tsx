@@ -5,7 +5,10 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
@@ -52,8 +55,13 @@ export const RenderControls = React.memo(
     const navigate = useNavigate()
     const { camera$ } = useContext(AppContext)
     const { view } = useContext(ViewContext)
+    const setSearch = useSearchParams()[1]
 
     if (view.type === ViewType.enum.Build) {
+      const availableRecipes = getAvailableEntityRecipes(
+        cursor.inventory,
+      )
+
       return (
         <>
           <RenderPrimaryButton
@@ -76,6 +84,29 @@ export const RenderControls = React.memo(
           >
             Back
           </RenderSecondaryButton>
+          <RenderTertiaryButton
+            disabled={availableRecipes.length < 2}
+            onTap={() => {
+              let i = availableRecipes.findIndex(
+                (recipe) =>
+                  recipe.output === view.entityType,
+              )
+              invariant(i >= 0)
+
+              i = (i + 1) % availableRecipes.length
+              invariant(i < availableRecipes.length)
+
+              const next = availableRecipes[i]
+              invariant(next)
+
+              setSearch((prev) => {
+                prev.set('entityType', next.output)
+                return prev
+              })
+            }}
+          >
+            Recipe
+          </RenderTertiaryButton>
         </>
       )
     }
