@@ -180,11 +180,18 @@ export const RenderControls = React.memo(
             />
           )
         case EntityType.enum.Generator:
-          // TODO
-          return null
         case EntityType.enum.Crafter:
-          // TODO
-          return null
+          return (
+            <RenderTertiaryButton
+              onTap={() => {
+                navigate(
+                  `connect?sourceId=${cursorEntity.id}`,
+                )
+              }}
+            >
+              Connect
+            </RenderTertiaryButton>
+          )
         default:
           invariant(false)
       }
