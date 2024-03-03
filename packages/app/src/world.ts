@@ -265,8 +265,8 @@ function initWorld(seed: string = ''): World {
   const cursor: Cursor = {
     entityId: null,
     inventory: {
-      [ItemType.enum.Stone]: 80,
-      [ItemType.enum.IronPlate]: 80,
+      [ItemType.enum.Stone]: 1_000,
+      [ItemType.enum.IronPlate]: 1_000,
     },
     radius: 1,
   }
