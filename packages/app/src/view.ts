@@ -16,7 +16,11 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
-import { isConnectValid } from './connect.js'
+import {
+  isConnectAllowed,
+  isConnectValid,
+  isDisconnectAllowed,
+} from './connect.js'
 import { inventoryHas } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { EntityId, EntityType } from './world.js'
@@ -123,16 +127,26 @@ export function useView(): View {
         const source = shapes[sourceId]
         invariant(source)
         let valid: boolean = false
+        let action: ConnectAction | null = null
         if (cursor.entityId) {
           const target = shapes[cursor.entityId]
           invariant(target)
+
+          if (isDisconnectAllowed(source, target)) {
+            action = ConnectAction.enum.Disconnect
+          } else if (
+            isConnectAllowed(source, target, shapes)
+          ) {
+            action = ConnectAction.enum.Connect
+          }
+
           valid = isConnectValid(source, target, shapes)
         }
         return {
           type: viewType,
           valid,
           sourceId,
-          action: null,
+          action,
         }
       }
     }
