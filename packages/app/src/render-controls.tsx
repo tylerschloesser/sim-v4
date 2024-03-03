@@ -31,6 +31,8 @@ import { ViewContext } from './view-context.js'
 import {
   BuildView,
   ConnectAction,
+  ConnectView,
+  SelectView,
   ViewType,
 } from './view.js'
 import {
@@ -115,6 +117,79 @@ function RenderBuildControls({
     </>
   )
 }
+
+interface RenderConnectControlsProps {
+  cursor: Cursor
+  view: ConnectView
+  setWorld: Updater<World>
+}
+
+function RenderConnectControls({
+  cursor,
+  view,
+  setWorld,
+}: RenderConnectControlsProps) {
+  const navigate = useNavigate()
+  return (
+    <>
+      <RenderPrimaryButton
+        disabled={view.action === null}
+        onTap={() => {
+          invariant(cursor.entityId)
+          if (view.action === ConnectAction.enum.Connect) {
+            addConnection(
+              setWorld,
+              view.sourceId,
+              cursor.entityId,
+            )
+          } else if (
+            view.action === ConnectAction.enum.Disconnect
+          ) {
+            removeConnection(
+              setWorld,
+              view.sourceId,
+              cursor.entityId,
+            )
+          }
+        }}
+      >
+        {view.action === ConnectAction.enum.Disconnect
+          ? 'Disconnect'
+          : 'Connect'}
+      </RenderPrimaryButton>
+      <RenderSecondaryButton
+        onTap={() => {
+          navigate('..')
+        }}
+      >
+        Cancel
+      </RenderSecondaryButton>
+    </>
+  )
+}
+
+interface RenderSelectControlsProps {
+  view: SelectView
+}
+
+function RenderSelectControls({
+  view,
+}: RenderSelectControlsProps) {
+  const navigate = useNavigate()
+  return (
+    <>
+      <RenderPrimaryButton>Select</RenderPrimaryButton>
+      <RenderSecondaryButton
+        onTap={() => {
+          navigate('..')
+        }}
+      >
+        Cancel
+      </RenderSecondaryButton>
+    </>
+  )
+}
+
 export const RenderControls = React.memo(
   function RenderControls({
     cursor,
@@ -136,60 +211,15 @@ export const RenderControls = React.memo(
       }
       case ViewType.enum.Connect: {
         return (
-          <>
-            <RenderPrimaryButton
-              disabled={view.action === null}
-              onTap={() => {
-                invariant(cursor.entityId)
-                if (
-                  view.action === ConnectAction.enum.Connect
-                ) {
-                  addConnection(
-                    setWorld,
-                    view.sourceId,
-                    cursor.entityId,
-                  )
-                } else if (
-                  view.action ===
-                  ConnectAction.enum.Disconnect
-                ) {
-                  removeConnection(
-                    setWorld,
-                    view.sourceId,
-                    cursor.entityId,
-                  )
-                }
-              }}
-            >
-              {view.action === ConnectAction.enum.Disconnect
-                ? 'Disconnect'
-                : 'Connect'}
-            </RenderPrimaryButton>
-            <RenderSecondaryButton
-              onTap={() => {
-                navigate('..')
-              }}
-            >
-              Cancel
-            </RenderSecondaryButton>
-          </>
+          <RenderConnectControls
+            cursor={cursor}
+            setWorld={setWorld}
+            view={view}
+          />
         )
       }
       case ViewType.enum.Select: {
-        return (
-          <>
-            <RenderPrimaryButton>
-              Select
-            </RenderPrimaryButton>
-            <RenderSecondaryButton
-              onTap={() => {
-                navigate('..')
-              }}
-            >
-              Cancel
-            </RenderSecondaryButton>
-          </>
-        )
+        return <RenderSelectControls view={view} />
       }
     }
 
