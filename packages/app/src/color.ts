@@ -32,6 +32,8 @@ export function getEntityColor(entity: Entity): Color {
       return { fill: 'orange' }
     case EntityType.enum.Generator:
       return { fill: 'hsl(60, 50%, 50%)' }
+    case EntityType.enum.Crafter:
+      return { fill: 'hsl(300, 50%, 50%)' }
     default:
       invariant(false)
   }
