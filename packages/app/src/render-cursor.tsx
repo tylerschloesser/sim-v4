@@ -13,7 +13,7 @@ import { getClosestShape } from './closest.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
-import { ViewType } from './view.js'
+import { ConnectAction, ViewType } from './view.js'
 import { getScale } from './viewport.js'
 import {
   Cursor,
@@ -117,9 +117,10 @@ export const RenderCursor = React.memo(
         break
       }
       case ViewType.enum.Connect: {
-        fill = view.valid
-          ? 'hsla(120, 50%, 50%, .5)'
-          : 'hsla(0, 50%, 50%, .5)'
+        fill =
+          view.action === ConnectAction.enum.Connect
+            ? 'hsla(120, 50%, 50%, .5)'
+            : 'hsla(0, 50%, 50%, .5)'
         break
       }
       case ViewType.enum.Default: {

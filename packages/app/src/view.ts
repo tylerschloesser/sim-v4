@@ -16,11 +16,7 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
-import {
-  isConnectAllowed,
-  isConnectValid,
-  isDisconnectAllowed,
-} from './connect.js'
+import { getConnectAction } from './connect.js'
 import { inventoryHas } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { EntityId, EntityType } from './world.js'
@@ -55,7 +51,6 @@ export type ConnectAction = z.infer<typeof ConnectAction>
 
 export const ConnectView = z.strictObject({
   type: z.literal(ViewType.enum.Connect),
-  valid: z.boolean(),
   action: ConnectAction.nullable(),
   sourceId: EntityId,
 })
@@ -126,25 +121,14 @@ export function useView(): View {
         )
         const source = shapes[sourceId]
         invariant(source)
-        let valid: boolean = false
         let action: ConnectAction | null = null
         if (cursor.entityId) {
           const target = shapes[cursor.entityId]
           invariant(target)
-
-          if (isDisconnectAllowed(source, target)) {
-            action = ConnectAction.enum.Disconnect
-          } else if (
-            isConnectAllowed(source, target, shapes)
-          ) {
-            action = ConnectAction.enum.Connect
-          }
-
-          valid = isConnectValid(source, target, shapes)
+          action = getConnectAction(source, target, shapes)
         }
         return {
           type: viewType,
-          valid,
           sourceId,
           action,
         }
@@ -184,14 +168,18 @@ export function useView(): View {
         case ViewType.enum.Connect: {
           const source = shapes[view.current.sourceId]
           invariant(source)
-          let valid: boolean = false
+          let action: ConnectAction | null = null
           if (cursor.entityId) {
             const target = shapes[cursor.entityId]
             invariant(target)
-            valid = isConnectValid(source, target, shapes)
+            action = getConnectAction(
+              source,
+              target,
+              shapes,
+            )
           }
-          if (view.current.valid !== valid) {
-            view.current = { ...view.current, valid }
+          if (view.current.action !== action) {
+            view.current = { ...view.current, action }
             rerender()
           }
           break

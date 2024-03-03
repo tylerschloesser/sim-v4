@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import { hasConnectedPatch } from './miner.js'
+import { ConnectAction } from './view.js'
 import { EntityShape, EntityType, World } from './world.js'
 
 export function isDisconnectAllowed(
@@ -14,14 +15,6 @@ export function isDisconnectAllowed(
 }
 
 export function isConnectAllowed(
-  source: EntityShape,
-  target: EntityShape | null,
-  shapes: World['shapes'],
-): boolean {
-  return isConnectValid(source, target, shapes)
-}
-
-export function isConnectValid(
   source: EntityShape,
   target: EntityShape | null,
   shapes: World['shapes'],
@@ -60,4 +53,21 @@ export function isConnectValid(
   }
 
   return false
+}
+
+export function getConnectAction(
+  source: EntityShape,
+  target: EntityShape | null,
+  shapes: World['shapes'],
+): ConnectAction | null {
+  if (target === null) {
+    return null
+  }
+
+  if (isDisconnectAllowed(source, target)) {
+    return ConnectAction.enum.Disconnect
+  } else if (isConnectAllowed(source, target, shapes)) {
+    return ConnectAction.enum.Connect
+  }
+  return null
 }
