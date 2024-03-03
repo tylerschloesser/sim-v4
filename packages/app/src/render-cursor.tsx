@@ -118,7 +118,7 @@ export const RenderCursor = React.memo(
       }
       case ViewType.enum.Connect: {
         fill =
-          view.action === ConnectAction.enum.Connect
+          view.action !== null
             ? 'hsla(120, 50%, 50%, .5)'
             : 'hsla(0, 50%, 50%, .5)'
         break
