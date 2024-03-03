@@ -6,6 +6,7 @@ import styles from './render-info.module.scss'
 import { ViewContext } from './view-context.js'
 import { ViewType } from './view.js'
 import {
+  CrafterEntity,
   Cursor,
   Entity,
   EntityType,
@@ -166,6 +167,28 @@ function RenderGeneratorInfo({
   )
 }
 
+interface RenderCrafterInfoProps {
+  cursor: Cursor
+  entity: CrafterEntity
+}
+
+function RenderCrafterInfo({
+  cursor,
+  entity,
+}: RenderCrafterInfoProps) {
+  const { state } = entity
+  return (
+    <>
+      <div>{entity.type}</div>
+      <div>
+        Craft Ticks Remaining: {state.craftTicksRemaining}
+      </div>
+      <RenderInput cursor={cursor} entity={entity} />
+      <RenderOutput cursor={cursor} entity={entity} />
+    </>
+  )
+}
+
 interface RenderDefaultInfoProps {
   cursor: Cursor
 }
@@ -256,6 +279,14 @@ export const RenderInfo = React.memo(function RenderInfo({
           case EntityType.enum.Generator: {
             return (
               <RenderGeneratorInfo
+                cursor={cursor}
+                entity={cursorEntity}
+              />
+            )
+          }
+          case EntityType.enum.Crafter: {
+            return (
+              <RenderCrafterInfo
                 cursor={cursor}
                 entity={cursorEntity}
               />
