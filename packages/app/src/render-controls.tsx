@@ -57,100 +57,101 @@ export const RenderControls = React.memo(
     const { view } = useContext(ViewContext)
     const setSearch = useSearchParams()[1]
 
-    if (view.type === ViewType.enum.Build) {
-      const availableRecipes = getAvailableEntityRecipes(
-        cursor.inventory,
-      )
+    switch (view.type) {
+      case ViewType.enum.Build: {
+        const availableRecipes = getAvailableEntityRecipes(
+          cursor.inventory,
+        )
 
-      return (
-        <>
-          <RenderPrimaryButton
-            disabled={!view.valid}
-            onTap={() => {
-              buildEntity(
-                setWorld,
-                view.entityType,
-                vec2.clone(camera$.value.position),
-                view.connections,
-              )
-            }}
-          >
-            Build {view.entityType}
-          </RenderPrimaryButton>
-          <RenderSecondaryButton
-            onTap={() => {
-              navigate('..')
-            }}
-          >
-            Back
-          </RenderSecondaryButton>
-          <RenderTertiaryButton
-            disabled={availableRecipes.length < 2}
-            onTap={() => {
-              let i = availableRecipes.findIndex(
-                (recipe) =>
-                  recipe.output === view.entityType,
-              )
-              invariant(i >= 0)
-
-              i = (i + 1) % availableRecipes.length
-              invariant(i < availableRecipes.length)
-
-              const next = availableRecipes[i]
-              invariant(next)
-
-              setSearch((prev) => {
-                prev.set('entityType', next.output)
-                return prev
-              })
-            }}
-          >
-            Recipe
-          </RenderTertiaryButton>
-        </>
-      )
-    }
-
-    if (view.type === ViewType.enum.Connect) {
-      return (
-        <>
-          <RenderPrimaryButton
-            disabled={view.action === null}
-            onTap={() => {
-              invariant(cursor.entityId)
-              if (
-                view.action === ConnectAction.enum.Connect
-              ) {
-                addConnection(
+        return (
+          <>
+            <RenderPrimaryButton
+              disabled={!view.valid}
+              onTap={() => {
+                buildEntity(
                   setWorld,
-                  view.sourceId,
-                  cursor.entityId,
+                  view.entityType,
+                  vec2.clone(camera$.value.position),
+                  view.connections,
                 )
-              } else if (
-                view.action ===
-                ConnectAction.enum.Disconnect
-              ) {
-                removeConnection(
-                  setWorld,
-                  view.sourceId,
-                  cursor.entityId,
+              }}
+            >
+              Build {view.entityType}
+            </RenderPrimaryButton>
+            <RenderSecondaryButton
+              onTap={() => {
+                navigate('..')
+              }}
+            >
+              Back
+            </RenderSecondaryButton>
+            <RenderTertiaryButton
+              disabled={availableRecipes.length < 2}
+              onTap={() => {
+                let i = availableRecipes.findIndex(
+                  (recipe) =>
+                    recipe.output === view.entityType,
                 )
-              }
-            }}
-          >
-            {view.action === ConnectAction.enum.Disconnect
-              ? 'Disconnect'
-              : 'Connect'}
-          </RenderPrimaryButton>
-          <RenderSecondaryButton
-            onTap={() => {
-              navigate('..')
-            }}
-          >
-            Cancel
-          </RenderSecondaryButton>
-        </>
-      )
+                invariant(i >= 0)
+
+                i = (i + 1) % availableRecipes.length
+                invariant(i < availableRecipes.length)
+
+                const next = availableRecipes[i]
+                invariant(next)
+
+                setSearch((prev) => {
+                  prev.set('entityType', next.output)
+                  return prev
+                })
+              }}
+            >
+              Recipe
+            </RenderTertiaryButton>
+          </>
+        )
+      }
+      case ViewType.enum.Connect: {
+        return (
+          <>
+            <RenderPrimaryButton
+              disabled={view.action === null}
+              onTap={() => {
+                invariant(cursor.entityId)
+                if (
+                  view.action === ConnectAction.enum.Connect
+                ) {
+                  addConnection(
+                    setWorld,
+                    view.sourceId,
+                    cursor.entityId,
+                  )
+                } else if (
+                  view.action ===
+                  ConnectAction.enum.Disconnect
+                ) {
+                  removeConnection(
+                    setWorld,
+                    view.sourceId,
+                    cursor.entityId,
+                  )
+                }
+              }}
+            >
+              {view.action === ConnectAction.enum.Disconnect
+                ? 'Disconnect'
+                : 'Connect'}
+            </RenderPrimaryButton>
+            <RenderSecondaryButton
+              onTap={() => {
+                navigate('..')
+              }}
+            >
+              Cancel
+            </RenderSecondaryButton>
+          </>
+        )
+      }
     }
 
     if (cursorEntity) {
@@ -391,18 +392,27 @@ function RenderDefaultControls({
   const recipe = availableRecipes.at(0)
 
   return (
-    <RenderPrimaryButton
-      disabled={!recipe}
-      onTap={() => {
-        if (recipe) {
-          const search = new URLSearchParams()
-          search.set('entityType', recipe.output)
-          navigate(`build?${search.toString()}`)
-        }
-      }}
-    >
-      Build
-    </RenderPrimaryButton>
+    <>
+      <RenderPrimaryButton
+        disabled={!recipe}
+        onTap={() => {
+          if (recipe) {
+            const search = new URLSearchParams()
+            search.set('entityType', recipe.output)
+            navigate(`build?${search.toString()}`)
+          }
+        }}
+      >
+        Build
+      </RenderPrimaryButton>
+      <RenderSecondaryButton
+        onTap={() => {
+          navigate('select')
+        }}
+      >
+        Select
+      </RenderSecondaryButton>
+    </>
   )
 }
 

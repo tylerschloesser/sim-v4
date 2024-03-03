@@ -65,6 +65,15 @@ export const RenderCursor = React.memo(
             setWorld,
           })
         }
+        case ViewType.enum.Select: {
+          return initDefaultCursor({
+            position,
+            camera$,
+            circle: circle.current,
+            shapes,
+            setWorld,
+          })
+        }
         case ViewType.enum.Default: {
           return initDefaultCursor({
             position,
@@ -109,6 +118,7 @@ export const RenderCursor = React.memo(
             : 'hsla(0, 50%, 50%, .5)'
         break
       }
+      case ViewType.enum.Select:
       case ViewType.enum.Default: {
         fill = 'hsla(240, 50%, 50%, 1)'
         break
