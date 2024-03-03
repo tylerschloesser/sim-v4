@@ -67,7 +67,7 @@ export const RenderControls = React.memo(
               )
             }}
           >
-            Build
+            Build {view.entityType}
           </RenderPrimaryButton>
           <RenderSecondaryButton
             onTap={() => {
@@ -357,7 +357,7 @@ function RenderDefaultControls({
         }
       }}
     >
-      Build {recipe?.output}
+      Build
     </RenderPrimaryButton>
   )
 }
