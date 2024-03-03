@@ -43,9 +43,16 @@ export const BuildView = z.strictObject({
 })
 export type BuildView = z.infer<typeof BuildView>
 
+export const ConnectAction = z.enum([
+  'Connect',
+  'Disconnect',
+])
+export type ConnectAction = z.infer<typeof ConnectAction>
+
 export const ConnectView = z.strictObject({
   type: z.literal(ViewType.enum.Connect),
   valid: z.boolean(),
+  action: ConnectAction.nullable(),
   sourceId: EntityId,
 })
 export type ConnectView = z.infer<typeof ConnectView>
@@ -125,6 +132,7 @@ export function useView(): View {
           type: viewType,
           valid,
           sourceId,
+          action: null,
         }
       }
     }
