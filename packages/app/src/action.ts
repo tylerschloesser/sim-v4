@@ -197,3 +197,20 @@ export function addConnection(
     }
   })
 }
+
+export function removeConnection(
+  setWorld: Updater<World>,
+  sourceId: EntityId,
+  targetId: EntityId,
+): void {
+  setWorld((world) => {
+    const source = getEntity(world, sourceId)
+    const target = getEntity(world, targetId)
+
+    invariant(source.shape.connections[targetId])
+    invariant(target.shape.connections[sourceId])
+
+    delete source.shape.connections[targetId]
+    delete target.shape.connections[sourceId]
+  })
+}
