@@ -179,6 +179,9 @@ export const RenderControls = React.memo(
               setWorld={setWorld}
             />
           )
+        case EntityType.enum.Generator:
+          // TODO
+          return null
         default:
           invariant(false)
       }
