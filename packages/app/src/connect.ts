@@ -50,6 +50,16 @@ export function isConnectAllowed(
       }
       break
     }
+    case EntityType.enum.Patch: {
+      switch (target.type) {
+        case EntityType.enum.Miner: {
+          if (hasConnectedPatch(target, shapes)) {
+            return false
+          }
+          return true
+        }
+      }
+    }
   }
 
   return false

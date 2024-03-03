@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { isConnectAllowed } from './connect.js'
 import { deleteEmptyPatch } from './delete.js'
 import { inventoryMove, inventorySub } from './inventory.js'
 import { entityRecipes } from './recipe.js'
@@ -157,44 +158,16 @@ export function addConnection(
     invariant(!source.shape.connections[targetId])
     invariant(!target.shape.connections[sourceId])
 
-    switch (source.type) {
-      case EntityType.enum.Miner: {
-        switch (target.type) {
-          case EntityType.enum.Patch: {
-            const hasPatchConnection = Object.keys(
-              source.shape.connections,
-            ).find((peerId) => {
-              const peer = getEntity(world, peerId)
-              return peer.type === EntityType.enum.Patch
-            })
-            invariant(!hasPatchConnection)
+    invariant(
+      isConnectAllowed(
+        source.shape,
+        target.shape,
+        world.shapes,
+      ),
+    )
 
-            source.shape.connections[target.id] = true
-            target.shape.connections[source.id] = true
-            break
-          }
-          case EntityType.enum.Smelter: {
-            source.shape.connections[target.id] = true
-            target.shape.connections[source.id] = true
-            break
-          }
-          case EntityType.enum.Miner: {
-            source.shape.connections[target.id] = true
-            target.shape.connections[source.id] = true
-            break
-          }
-          default: {
-            // TODO
-            invariant(false)
-          }
-        }
-        break
-      }
-      default: {
-        // TODO
-        invariant(false)
-      }
-    }
+    source.shape.connections[targetId] = true
+    target.shape.connections[sourceId] = true
   })
 }
 

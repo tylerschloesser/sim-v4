@@ -338,6 +338,13 @@ function RenderPatchControls({
           Build Miner
         </RenderSecondaryButton>
       )}
+      <RenderTertiaryButton
+        onTap={() => {
+          navigate(`connect?sourceId=${entity.id}`)
+        }}
+      >
+        Connect
+      </RenderTertiaryButton>
     </>
   )
 }
