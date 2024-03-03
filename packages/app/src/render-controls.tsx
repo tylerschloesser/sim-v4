@@ -317,27 +317,24 @@ function RenderPatchControls({
       <RenderPrimaryButton onHold={mine}>
         Mine
       </RenderPrimaryButton>
-
-      {inventoryHas(
-        cursor.inventory,
-        minerRecipe.input,
-      ) && (
-        <RenderSecondaryButton
-          onTap={() => {
-            const search = new URLSearchParams()
-            search.set('entityType', EntityType.enum.Miner)
-            search.set(
-              'connections',
-              JSON.stringify({
-                [entity.id]: true,
-              }),
-            )
-            navigate(`build?${search.toString()}`)
-          }}
-        >
-          Build Miner
-        </RenderSecondaryButton>
-      )}
+      <RenderSecondaryButton
+        disabled={
+          !inventoryHas(cursor.inventory, minerRecipe.input)
+        }
+        onTap={() => {
+          const search = new URLSearchParams()
+          search.set('entityType', EntityType.enum.Miner)
+          search.set(
+            'connections',
+            JSON.stringify({
+              [entity.id]: true,
+            }),
+          )
+          navigate(`build?${search.toString()}`)
+        }}
+      >
+        Build Miner
+      </RenderSecondaryButton>
       <RenderTertiaryButton
         onTap={() => {
           navigate(`connect?sourceId=${entity.id}`)
@@ -396,6 +393,8 @@ function RenderSmelterControls({
   entity,
   setWorld,
 }: RenderSmelterControlsProps) {
+  const navigate = useNavigate()
+
   const outputType = ItemType.enum.IronPlate
   const hasOutput =
     (entity.state.output[outputType] ?? 0) > 0
@@ -447,6 +446,13 @@ function RenderSmelterControls({
           Add Iron Ore
         </RenderPrimaryButton>
       )}
+      <RenderTertiaryButton
+        onTap={() => {
+          navigate(`connect?sourceId=${entity.id}`)
+        }}
+      >
+        Connect
+      </RenderTertiaryButton>
     </>
   )
 }

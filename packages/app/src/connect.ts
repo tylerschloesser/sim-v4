@@ -59,6 +59,14 @@ export function isConnectAllowed(
           return true
         }
       }
+      break
+    }
+    case EntityType.enum.Smelter: {
+      switch (target.type) {
+        case EntityType.enum.Miner: {
+          return true
+        }
+      }
     }
   }
 
