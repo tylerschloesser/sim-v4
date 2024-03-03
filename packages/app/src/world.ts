@@ -21,6 +21,7 @@ export const EntityType = z.enum([
   'Smelter',
   'Patch',
   'Miner',
+  'Generator',
 ])
 export type EntityType = z.infer<typeof EntityType>
 
@@ -113,10 +114,38 @@ export const MinerEntity = z.strictObject({
 })
 export type MinerEntity = z.infer<typeof MinerEntity>
 
+//
+// Generator
+//
+export const GeneratorEntityShape = EntityShapeBase.extend({
+  type: z.literal(EntityType.enum.Generator),
+})
+export type GeneratorEntityShape = z.infer<
+  typeof GeneratorEntityShape
+>
+// prettier-ignore
+export const GeneratorEntityState = EntityStateBase.extend({
+  type: z.literal(EntityType.enum.Generator),
+  fuelTicksRemaining: z.number().int().positive().nullable(),
+})
+export type GeneratorEntityState = z.infer<
+  typeof GeneratorEntityState
+>
+export const GeneratorEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Generator),
+  id: EntityId,
+  shape: GeneratorEntityShape,
+  state: GeneratorEntityState,
+})
+export type GeneratorEntity = z.infer<
+  typeof GeneratorEntity
+>
+
 export const EntityShape = z.discriminatedUnion('type', [
   SmelterEntityShape,
   PatchEntityShape,
   MinerEntityShape,
+  GeneratorEntityShape,
 ])
 export type EntityShape = z.infer<typeof EntityShape>
 
@@ -124,6 +153,7 @@ export const EntityState = z.discriminatedUnion('type', [
   SmelterEntityState,
   PatchEntityState,
   MinerEntityState,
+  GeneratorEntityState,
 ])
 export type EntityState = z.infer<typeof EntityState>
 
@@ -131,6 +161,7 @@ export const Entity = z.discriminatedUnion('type', [
   SmelterEntity,
   PatchEntity,
   MinerEntity,
+  GeneratorEntity,
 ])
 export type Entity = z.infer<typeof Entity>
 
