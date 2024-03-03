@@ -63,10 +63,29 @@ export function isConnectAllowed(
     }
     case EntityType.enum.Smelter: {
       switch (target.type) {
+        case EntityType.enum.Crafter:
         case EntityType.enum.Miner: {
           return true
         }
       }
+      break
+    }
+    case EntityType.enum.Generator: {
+      switch (target.type) {
+        case EntityType.enum.Miner:
+        case EntityType.enum.Crafter:
+          return true
+      }
+      break
+    }
+    case EntityType.enum.Crafter: {
+      switch (target.type) {
+        case EntityType.enum.Generator:
+        case EntityType.enum.Smelter: {
+          return true
+        }
+      }
+      break
     }
   }
 
