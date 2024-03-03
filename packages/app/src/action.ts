@@ -133,6 +133,23 @@ export function buildEntity(
         }
         break
       }
+      case EntityType.enum.Generator: {
+        world.shapes[id] = {
+          type: EntityType.enum.Generator,
+          id,
+          connections,
+          position,
+          radius: 0.75,
+        }
+        world.states[id] = {
+          type: EntityType.enum.Generator,
+          id,
+          fuelTicksRemaining: null,
+          input: {},
+          output: {},
+        }
+        break
+      }
       default: {
         invariant(false)
       }
