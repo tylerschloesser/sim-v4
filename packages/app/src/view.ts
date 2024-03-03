@@ -25,6 +25,7 @@ export const ViewType = z.enum([
   'Default',
   'Build',
   'Connect',
+  'Select',
 ])
 export type ViewType = z.infer<typeof ViewType>
 
@@ -57,10 +58,17 @@ export const ConnectView = z.strictObject({
 })
 export type ConnectView = z.infer<typeof ConnectView>
 
+export const SelectView = z.strictObject({
+  type: z.literal(ViewType.enum.Select),
+  selected: z.record(EntityId, z.literal(true)),
+})
+export type SelectView = z.infer<typeof SelectView>
+
 export const View = z.discriminatedUnion('type', [
   DefaultView,
   BuildView,
   ConnectView,
+  SelectView,
 ])
 export type View = z.infer<typeof View>
 
@@ -140,6 +148,12 @@ export function useView(): View {
           action,
         }
       }
+      case ViewType.enum.Select: {
+        return {
+          type: viewType,
+          selected: {},
+        }
+      }
     }
   }, [viewType, search, cursor, camera$, shapes, hack])
 
@@ -189,6 +203,9 @@ export function useView(): View {
             view.current = { ...view.current, action }
             rerender()
           }
+          break
+        }
+        case ViewType.enum.Select: {
           break
         }
       }
