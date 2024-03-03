@@ -152,6 +152,22 @@ export const RenderControls = React.memo(
           </>
         )
       }
+      case ViewType.enum.Select: {
+        return (
+          <>
+            <RenderPrimaryButton>
+              Select
+            </RenderPrimaryButton>
+            <RenderSecondaryButton
+              onTap={() => {
+                navigate('..')
+              }}
+            >
+              Cancel
+            </RenderSecondaryButton>
+          </>
+        )
+      }
     }
 
     if (cursorEntity) {
