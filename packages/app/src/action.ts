@@ -150,6 +150,24 @@ export function buildEntity(
         }
         break
       }
+      case EntityType.enum.Crafter: {
+        world.shapes[id] = {
+          type: EntityType.enum.Crafter,
+          id,
+          connections,
+          position,
+          radius: 0.75,
+        }
+        world.states[id] = {
+          type: EntityType.enum.Crafter,
+          id,
+          craftTicksRemaining: null,
+          recipeId: null,
+          input: {},
+          output: {},
+        }
+        break
+      }
       default: {
         invariant(false)
       }

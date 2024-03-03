@@ -22,7 +22,7 @@ export const EntityType = z.enum([
   'Patch',
   'Miner',
   'Generator',
-  'Assembler',
+  'Crafter',
 ])
 export type EntityType = z.infer<typeof EntityType>
 
@@ -143,38 +143,37 @@ export type GeneratorEntity = z.infer<
 >
 
 //
-// Assembler
+// Crafter
 //
-export const AssemblerEntityShape = EntityShapeBase.extend({
-  type: z.literal(EntityType.enum.Assembler),
+export const CrafterEntityShape = EntityShapeBase.extend({
+  type: z.literal(EntityType.enum.Crafter),
 })
-export type AssemblerEntityShape = z.infer<
-  typeof AssemblerEntityShape
+export type CrafterEntityShape = z.infer<
+  typeof CrafterEntityShape
 >
 // prettier-ignore
-export const AssemblerEntityState = EntityStateBase.extend({
-  type: z.literal(EntityType.enum.Assembler),
-  fuelTicksRemaining: z.number().int().positive().nullable(),
+export const CrafterEntityState = EntityStateBase.extend({
+  type: z.literal(EntityType.enum.Crafter),
+  recipeId: z.string().nullable(),
+  craftTicksRemaining: z.number().int().positive().nullable(),
 })
-export type AssemblerEntityState = z.infer<
-  typeof AssemblerEntityState
+export type CrafterEntityState = z.infer<
+  typeof CrafterEntityState
 >
-export const AssemblerEntity = z.strictObject({
-  type: z.literal(EntityType.enum.Assembler),
+export const CrafterEntity = z.strictObject({
+  type: z.literal(EntityType.enum.Crafter),
   id: EntityId,
-  shape: AssemblerEntityShape,
-  state: AssemblerEntityState,
+  shape: CrafterEntityShape,
+  state: CrafterEntityState,
 })
-export type AssemblerEntity = z.infer<
-  typeof AssemblerEntity
->
+export type CrafterEntity = z.infer<typeof CrafterEntity>
 
 export const EntityShape = z.discriminatedUnion('type', [
   SmelterEntityShape,
   PatchEntityShape,
   MinerEntityShape,
   GeneratorEntityShape,
-  AssemblerEntityShape,
+  CrafterEntityShape,
 ])
 export type EntityShape = z.infer<typeof EntityShape>
 
@@ -183,7 +182,7 @@ export const EntityState = z.discriminatedUnion('type', [
   PatchEntityState,
   MinerEntityState,
   GeneratorEntityState,
-  AssemblerEntityState,
+  CrafterEntityState,
 ])
 export type EntityState = z.infer<typeof EntityState>
 
@@ -192,7 +191,7 @@ export const Entity = z.discriminatedUnion('type', [
   PatchEntity,
   MinerEntity,
   GeneratorEntity,
-  AssemblerEntity,
+  CrafterEntity,
 ])
 export type Entity = z.infer<typeof Entity>
 
@@ -370,6 +369,11 @@ function cacheEntity(
       entity = { type, id, shape, state }
       break
     case EntityType.enum.Generator:
+      invariant(shape.type === type)
+      invariant(state.type === type)
+      entity = { type, id, shape, state }
+      break
+    case EntityType.enum.Crafter:
       invariant(shape.type === type)
       invariant(state.type === type)
       entity = { type, id, shape, state }
