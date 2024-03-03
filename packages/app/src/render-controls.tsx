@@ -67,7 +67,7 @@ export const RenderControls = React.memo(
               )
             }}
           >
-            Build {view.entityType}
+            Build
           </RenderPrimaryButton>
           <RenderSecondaryButton
             onTap={() => {
@@ -348,15 +348,16 @@ function RenderDefaultControls({
 
   return (
     <RenderPrimaryButton
+      disabled={!recipe}
       onTap={() => {
-        const search = new URLSearchParams()
         if (recipe) {
+          const search = new URLSearchParams()
           search.set('entityType', recipe.output)
+          navigate(`build?${search.toString()}`)
         }
-        navigate(`build?${search.toString()}`)
       }}
     >
-      Build
+      Build {recipe?.output}
     </RenderPrimaryButton>
   )
 }
