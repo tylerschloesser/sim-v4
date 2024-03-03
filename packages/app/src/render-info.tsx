@@ -9,6 +9,7 @@ import {
   Cursor,
   Entity,
   EntityType,
+  GeneratorEntity,
   ItemType,
   MinerEntity,
   PatchEntity,
@@ -143,6 +144,28 @@ function RenderMinerInfo({
   )
 }
 
+interface RenderGeneratorInfoProps {
+  cursor: Cursor
+  entity: GeneratorEntity
+}
+
+function RenderGeneratorInfo({
+  cursor,
+  entity,
+}: RenderGeneratorInfoProps) {
+  const { state } = entity
+  return (
+    <>
+      <div>{entity.type}</div>
+      <div>
+        Fuel Ticks Remaining: {state.fuelTicksRemaining}
+      </div>
+      <RenderInput cursor={cursor} entity={entity} />
+      <RenderOutput cursor={cursor} entity={entity} />
+    </>
+  )
+}
+
 interface RenderDefaultInfoProps {
   cursor: Cursor
 }
@@ -225,6 +248,14 @@ export const RenderInfo = React.memo(function RenderInfo({
           case EntityType.enum.Miner: {
             return (
               <RenderMinerInfo
+                cursor={cursor}
+                entity={cursorEntity}
+              />
+            )
+          }
+          case EntityType.enum.Generator: {
+            return (
+              <RenderGeneratorInfo
                 cursor={cursor}
                 entity={cursorEntity}
               />

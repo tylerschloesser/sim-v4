@@ -338,6 +338,11 @@ function cacheEntity(
       invariant(state.type === type)
       entity = { type, id, shape, state }
       break
+    case EntityType.enum.Generator:
+      invariant(shape.type === type)
+      invariant(state.type === type)
+      entity = { type, id, shape, state }
+      break
     default:
       invariant(false)
   }
