@@ -28,7 +28,11 @@ import {
 import styles from './render-controls.module.scss'
 import { vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
-import { ConnectAction, ViewType } from './view.js'
+import {
+  BuildView,
+  ConnectAction,
+  ViewType,
+} from './view.js'
 import {
   Cursor,
   Entity,
@@ -46,6 +50,71 @@ export interface RenderControlsProps {
   setWorld: Updater<World>
 }
 
+interface RenderBuildControlsProps {
+  cursor: Cursor
+  setWorld: Updater<World>
+  view: BuildView
+}
+
+function RenderBuildControls({
+  cursor,
+  setWorld,
+  view,
+}: RenderBuildControlsProps) {
+  const navigate = useNavigate()
+  const setSearch = useSearchParams()[1]
+  const { camera$ } = useContext(AppContext)
+  const availableRecipes = getAvailableEntityRecipes(
+    cursor.inventory,
+  )
+
+  return (
+    <>
+      <RenderPrimaryButton
+        disabled={!view.valid}
+        onTap={() => {
+          buildEntity(
+            setWorld,
+            view.entityType,
+            vec2.clone(camera$.value.position),
+            view.connections,
+          )
+        }}
+      >
+        Build {view.entityType}
+      </RenderPrimaryButton>
+      <RenderSecondaryButton
+        onTap={() => {
+          navigate('..')
+        }}
+      >
+        Back
+      </RenderSecondaryButton>
+      <RenderTertiaryButton
+        disabled={availableRecipes.length < 2}
+        onTap={() => {
+          let i = availableRecipes.findIndex(
+            (recipe) => recipe.output === view.entityType,
+          )
+          invariant(i >= 0)
+
+          i = (i + 1) % availableRecipes.length
+          invariant(i < availableRecipes.length)
+
+          const next = availableRecipes[i]
+          invariant(next)
+
+          setSearch((prev) => {
+            prev.set('entityType', next.output)
+            return prev
+          })
+        }}
+      >
+        Recipe
+      </RenderTertiaryButton>
+    </>
+  )
+}
 export const RenderControls = React.memo(
   function RenderControls({
     cursor,
@@ -53,62 +122,16 @@ export const RenderControls = React.memo(
     setWorld,
   }: RenderControlsProps) {
     const navigate = useNavigate()
-    const { camera$ } = useContext(AppContext)
     const { view } = useContext(ViewContext)
-    const setSearch = useSearchParams()[1]
 
     switch (view.type) {
       case ViewType.enum.Build: {
-        const availableRecipes = getAvailableEntityRecipes(
-          cursor.inventory,
-        )
-
         return (
-          <>
-            <RenderPrimaryButton
-              disabled={!view.valid}
-              onTap={() => {
-                buildEntity(
-                  setWorld,
-                  view.entityType,
-                  vec2.clone(camera$.value.position),
-                  view.connections,
-                )
-              }}
-            >
-              Build {view.entityType}
-            </RenderPrimaryButton>
-            <RenderSecondaryButton
-              onTap={() => {
-                navigate('..')
-              }}
-            >
-              Back
-            </RenderSecondaryButton>
-            <RenderTertiaryButton
-              disabled={availableRecipes.length < 2}
-              onTap={() => {
-                let i = availableRecipes.findIndex(
-                  (recipe) =>
-                    recipe.output === view.entityType,
-                )
-                invariant(i >= 0)
-
-                i = (i + 1) % availableRecipes.length
-                invariant(i < availableRecipes.length)
-
-                const next = availableRecipes[i]
-                invariant(next)
-
-                setSearch((prev) => {
-                  prev.set('entityType', next.output)
-                  return prev
-                })
-              }}
-            >
-              Recipe
-            </RenderTertiaryButton>
-          </>
+          <RenderBuildControls
+            cursor={cursor}
+            setWorld={setWorld}
+            view={view}
+          />
         )
       }
       case ViewType.enum.Connect: {
