@@ -66,6 +66,13 @@ const router = createBrowserRouter([
           viewType: ViewType.enum.Connect,
         },
       },
+      {
+        path: 'select',
+        element: null,
+        handle: {
+          viewType: ViewType.enum.Select,
+        },
+      },
     ],
   },
 ])
