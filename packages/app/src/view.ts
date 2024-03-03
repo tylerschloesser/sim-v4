@@ -67,7 +67,7 @@ export type View = z.infer<typeof View>
 function parseConnections(
   search: URLSearchParams,
 ): Connections {
-  const json = search.get('connection')
+  const json = search.get('connections')
   if (!json) return Connections.parse({})
   return Connections.parse(JSON.parse(json))
 }

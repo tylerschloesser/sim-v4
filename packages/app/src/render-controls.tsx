@@ -61,7 +61,7 @@ export const RenderControls = React.memo(
             onTap={() => {
               buildEntity(
                 setWorld,
-                EntityType.enum.Miner,
+                view.entityType,
                 vec2.clone(camera$.value.position),
                 view.connections,
               )
