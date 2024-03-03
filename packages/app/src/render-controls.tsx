@@ -14,6 +14,7 @@ import {
   minePatch,
   moveFromCursorToEntityInput,
   moveFromEntityOutputToCursor,
+  removeConnection,
 } from './action.js'
 import { AppContext } from './app-context.js'
 import { inventoryHas } from './inventory.js'
@@ -24,7 +25,7 @@ import {
 import styles from './render-controls.module.scss'
 import { vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
-import { ViewType } from './view.js'
+import { ConnectAction, ViewType } from './view.js'
 import {
   Cursor,
   Entity,
@@ -92,17 +93,32 @@ export const RenderControls = React.memo(
       return (
         <>
           <RenderPrimaryButton
-            disabled={!view.valid}
+            disabled={view.action === null}
             onTap={() => {
               invariant(cursor.entityId)
-              addConnection(
-                setWorld,
-                view.sourceId,
-                cursor.entityId,
-              )
+              if (
+                view.action === ConnectAction.enum.Connect
+              ) {
+                addConnection(
+                  setWorld,
+                  view.sourceId,
+                  cursor.entityId,
+                )
+              } else if (
+                view.action ===
+                ConnectAction.enum.Disconnect
+              ) {
+                removeConnection(
+                  setWorld,
+                  view.sourceId,
+                  cursor.entityId,
+                )
+              }
             }}
           >
-            Connect
+            {view.action === ConnectAction.enum.Disconnect
+              ? 'Disconnect'
+              : 'Connect'}
           </RenderPrimaryButton>
           <RenderSecondaryButton
             onTap={() => {
