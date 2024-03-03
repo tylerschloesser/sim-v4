@@ -28,6 +28,13 @@ export const entityRecipes: Record<string, EntityRecipe> = {
     },
     output: EntityType.enum.Miner,
   },
+  [EntityType.enum.Generator]: {
+    input: {
+      [ItemType.enum.Stone]: 20,
+      [ItemType.enum.IronPlate]: 40,
+    },
+    output: EntityType.enum.Generator,
+  },
 }
 
 export const smelterRecipes: Record<string, SmelterRecipe> =
