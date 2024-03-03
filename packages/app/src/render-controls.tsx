@@ -182,6 +182,9 @@ export const RenderControls = React.memo(
         case EntityType.enum.Generator:
           // TODO
           return null
+        case EntityType.enum.Crafter:
+          // TODO
+          return null
         default:
           invariant(false)
       }
