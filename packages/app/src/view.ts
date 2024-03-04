@@ -19,7 +19,11 @@ import { isBuildValid } from './build.js'
 import { getConnectAction } from './connect.js'
 import { inventoryHas } from './inventory.js'
 import { entityRecipes } from './recipe.js'
-import { EntityId, EntityType } from './world.js'
+import {
+  Connections,
+  EntityId,
+  EntityType,
+} from './world.js'
 
 export const ViewType = z.enum([
   'Default',
@@ -33,9 +37,6 @@ export const DefaultView = z.strictObject({
   type: z.literal(ViewType.enum.Default),
 })
 export type DefaultView = z.infer<typeof DefaultView>
-
-const Connections = z.record(EntityId, z.literal(true))
-type Connections = z.infer<typeof Connections>
 
 export const BuildView = z.strictObject({
   type: z.literal(ViewType.enum.Build),

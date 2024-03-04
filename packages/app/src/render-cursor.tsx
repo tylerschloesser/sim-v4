@@ -15,7 +15,12 @@ import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
 import { ViewType } from './view.js'
 import { getScale } from './viewport.js'
-import { Cursor, EntityId, World } from './world.js'
+import {
+  Connections,
+  Cursor,
+  EntityId,
+  World,
+} from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
@@ -170,7 +175,7 @@ function initBuildCursor({
   camera$: BehaviorSubject<Camera>
   circle: SVGCircleElement
   lines: Record<string, SVGLineElement | null>
-  connections: Record<EntityId, true>
+  connections: Connections
   shapes: World['shapes']
 }): () => void {
   for (const entityId of Object.keys(connections)) {

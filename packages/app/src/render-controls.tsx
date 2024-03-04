@@ -36,6 +36,8 @@ import {
   ViewType,
 } from './view.js'
 import {
+  ConnectionType,
+  Connections,
   Cursor,
   Entity,
   EntityType,
@@ -424,11 +426,12 @@ function RenderPatchControls({
         onTap={() => {
           const search = new URLSearchParams()
           search.set('entityType', EntityType.enum.Miner)
+          const connections: Connections = {
+            [entity.id]: ConnectionType.enum.Item,
+          }
           search.set(
             'connections',
-            JSON.stringify({
-              [entity.id]: true,
-            }),
+            JSON.stringify(connections),
           )
           navigate(`build?${search.toString()}`)
         }}
