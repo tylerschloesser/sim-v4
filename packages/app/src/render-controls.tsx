@@ -200,7 +200,6 @@ export const RenderControls = React.memo(
     cursorEntity,
     setWorld,
   }: RenderControlsProps) {
-    const navigate = useNavigate()
     const { view } = useContext(ViewContext)
 
     switch (view.type) {
