@@ -648,6 +648,11 @@ function Render({
 }: RenderProps) {
   return (
     <div className={styles.controls}>
+      <button
+        className={styles['left-button']}
+        data-pointer="capture"
+        disabled={true}
+      ></button>
       <RenderTertiaryButton
         disabled={!tertiary || tertiary?.disabled}
         onTap={tertiary?.onTap}
@@ -666,6 +671,11 @@ function Render({
         onHold={secondary?.onHold}
         label={secondary?.label ?? ''}
       />
+      <button
+        className={styles['right-button']}
+        data-pointer="capture"
+        disabled={true}
+      ></button>
     </div>
   )
 }

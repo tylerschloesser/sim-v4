@@ -22,32 +22,37 @@
 }
 
 .controls {
+  --size-lg: 10vmax;
+  --size-md: 6vmax;
+  --size-sm: 6vmax;
+
   display: flex;
   position: absolute;
   width: 100%;
-  bottom: calc(env(safe-area-inset-bottom));
+  bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(var(--size-lg) / 2);
 
   justify-content: space-evenly;
   align-items: center;
-
-  --size-large: 12vmax;
-  --size-small: 8vmax;
 }
 
 .primary-button {
-  --size: var(--size-large);
+  --size: var(--size-lg);
   @include button;
 }
 
-.secondary-button {
-  --size: var(--size-small);
-  @include button;
-}
-
+.secondary-button,
 .tertiary-button {
-  --size: var(--size-small);
+  --size: var(--size-md);
   @include button;
 }
 
-.settings-button {
+.left-button,
+.right-button {
+  --size: var(--size-sm);
+  @include button;
+
+  color: var(--black);
+  background: transparent;
+  border: 1px solid var(--black);
 }
