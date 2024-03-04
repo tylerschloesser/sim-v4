@@ -23,7 +23,7 @@ export function RenderViewport() {
 
     root.current.style.setProperty(
       '--stroke-width',
-      `${((1 / scale) * 2).toFixed(2)}`,
+      `${((1 / scale) * 2).toFixed(4)}`,
     )
   })
 

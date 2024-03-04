@@ -26,8 +26,8 @@ export const RenderEntityConnection = React.memo(
               : 'yellow'
           }
           // TODO set this based on viewport
-          strokeWidth=".05px"
-          strokeDasharray={'.2px'}
+          strokeWidth="var(--stroke-width)"
+          strokeDasharray="calc(var(--stroke-width) * 4)"
         />
       </g>
     )
