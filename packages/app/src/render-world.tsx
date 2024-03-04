@@ -5,6 +5,7 @@ import { AppContext } from './app-context.js'
 import { RenderCursor } from './render-cursor.js'
 import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
+import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
 import {
@@ -19,21 +20,6 @@ export interface RenderWorldProps {
   cursor: Cursor
   shapes: World['shapes']
   setWorld: Updater<World>
-}
-
-function RenderGeneratorPowerArea({
-  shape,
-}: {
-  shape: GeneratorEntityShape
-}) {
-  return (
-    <circle
-      cx={shape.position.x}
-      cy={shape.position.y}
-      r={10}
-      fill={'hsla(60, 50%, 50%, .2)'}
-    />
-  )
 }
 
 export const RenderWorld = React.memo(function RenderWorld({
