@@ -9,6 +9,7 @@ import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
 import {
+  ConnectionType,
   Cursor,
   EntityShape,
   EntityType,
@@ -68,13 +69,17 @@ export const RenderWorld = React.memo(function RenderWorld({
           return null
         }
       })}
-      {mapConnections(shapes, (id, source, target) => (
-        <RenderEntityConnection
-          key={id}
-          a={source}
-          b={target}
-        />
-      ))}
+      {mapConnections(
+        shapes,
+        (id, source, target, type) => (
+          <RenderEntityConnection
+            key={id}
+            a={source}
+            b={target}
+            type={type}
+          />
+        ),
+      )}
       <RenderCursor
         cursor={cursor}
         shapes={shapes}
@@ -119,13 +124,14 @@ function mapConnections(
     id: string,
     source: EntityShape,
     target: EntityShape,
+    type: ConnectionType,
   ) => JSX.Element,
 ): JSX.Element[] {
   const seen = new Set<string>()
   const result = new Array<JSX.Element>()
 
   for (const source of Object.values(shapes)) {
-    for (const targetId of Object.keys(
+    for (const [targetId, type] of Object.entries(
       source.connections,
     )) {
       const id = getConnectionId(source.id, targetId)
@@ -135,7 +141,7 @@ function mapConnections(
       seen.add(id)
       const target = shapes[targetId]
       invariant(target)
-      result.push(cb(id, source, target))
+      result.push(cb(id, source, target, type))
     }
   }
 

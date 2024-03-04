@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash-es'
 import {
   useCallback,
   useContext,
@@ -16,7 +17,10 @@ import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
-import { getConnectAction } from './connect.js'
+import {
+  getBuildGeneratorConnections,
+  getConnectAction,
+} from './connect.js'
 import { inventoryHas } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import {
@@ -117,7 +121,17 @@ export function useView(): View {
         const entityType = EntityType.parse(
           search.get('entityType'),
         )
-        const connections = parseConnections(search)
+        let connections = parseConnections(search)
+
+        if (entityType === EntityType.enum.Generator) {
+          connections = {
+            ...getBuildGeneratorConnections(
+              camera$.value.position,
+              shapes,
+            ),
+          }
+        }
+
         const radius = 0.75
         const valid = isBuildValid(
           camera$.value.position,
@@ -181,8 +195,34 @@ export function useView(): View {
             0.75,
             shapes,
           )
+          let needsRerender = false
+          if (
+            view.current.entityType ===
+            EntityType.enum.Generator
+          ) {
+            const connections =
+              getBuildGeneratorConnections(
+                camera.position,
+                shapes,
+              )
+            if (
+              !isEqual(
+                view.current.connections,
+                connections,
+              )
+            ) {
+              view.current = {
+                ...view.current,
+                connections,
+              }
+              needsRerender = true
+            }
+          }
           if (view.current.valid !== valid) {
             view.current = { ...view.current, valid }
+            needsRerender = true
+          }
+          if (needsRerender) {
             rerender()
           }
           break

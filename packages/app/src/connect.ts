@@ -1,7 +1,15 @@
 import invariant from 'tiny-invariant'
 import { hasConnectedPatch } from './miner.js'
+import { Vec2, vec2 } from './vec2.js'
 import { ConnectAction } from './view.js'
-import { EntityShape, EntityType, World } from './world.js'
+import {
+  ConnectionType,
+  Connections,
+  EntityShape,
+  EntityType,
+  GeneratorEntityShape,
+  World,
+} from './world.js'
 
 export function isDisconnectAllowed(
   source: EntityShape,
@@ -107,4 +115,24 @@ export function getConnectAction(
     return ConnectAction.enum.Connect
   }
   return null
+}
+
+export function getBuildGeneratorConnections(
+  position: Vec2,
+  shapes: World['shapes'],
+): Connections {
+  const connections: Connections = {}
+
+  for (const shape of Object.values(shapes)) {
+    if (shape.type !== EntityType.enum.Crafter) {
+      continue
+    }
+    const v = vec2.clone(shape.position)
+    vec2.sub(v, position)
+    if (vec2.len(v) <= 10) {
+      connections[shape.id] = ConnectionType.enum.Power
+    }
+  }
+
+  return connections
 }

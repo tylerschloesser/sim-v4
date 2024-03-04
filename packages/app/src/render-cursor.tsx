@@ -10,6 +10,7 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
 import { getClosestShape } from './closest.js'
+import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
@@ -19,6 +20,7 @@ import {
   Connections,
   Cursor,
   EntityId,
+  EntityType,
   World,
 } from './world.js'
 
@@ -155,6 +157,11 @@ export const RenderCursor = React.memo(
         )}
         <g ref={g}>
           <circle r={cursor.radius} fill={fill} />
+          {view.type === ViewType.enum.Build &&
+            view.entityType ===
+              EntityType.enum.Generator && (
+              <RenderGeneratorPowerArea />
+            )}
         </g>
       </g>
     )
