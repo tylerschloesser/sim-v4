@@ -675,7 +675,9 @@ function Render({
         className={styles['right-button']}
         data-pointer="capture"
         disabled={true}
-      ></button>
+      >
+        S
+      </button>
     </div>
   )
 }
