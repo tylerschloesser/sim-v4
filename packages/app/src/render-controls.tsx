@@ -650,19 +650,19 @@ function Render({
   return (
     <>
       <RenderPrimaryButton
-        disabled={primary?.disabled}
+        disabled={!primary || primary?.disabled}
         onTap={primary?.onTap}
         onHold={primary?.onHold}
         label={primary?.label ?? ''}
       />
       <RenderSecondaryButton
-        disabled={secondary?.disabled}
+        disabled={!secondary || secondary?.disabled}
         onTap={secondary?.onTap}
         onHold={secondary?.onHold}
         label={secondary?.label ?? ''}
       />
       <RenderTertiaryButton
-        disabled={tertiary?.disabled}
+        disabled={!tertiary || tertiary?.disabled}
         onTap={tertiary?.onTap}
         onHold={tertiary?.onHold}
         label={tertiary?.label ?? ''}
