@@ -29,20 +29,23 @@
 
   justify-content: space-evenly;
   align-items: center;
+
+  --size-large: 12vmax;
+  --size-small: 8vmax;
 }
 
 .primary-button {
-  --size: 12vmax;
+  --size: var(--size-large);
   @include button;
 }
 
 .secondary-button {
-  --size: 8vmax;
+  --size: var(--size-small);
   @include button;
 }
 
 .tertiary-button {
-  --size: 8vmax;
+  --size: var(--size-small);
   @include button;
 }
 
