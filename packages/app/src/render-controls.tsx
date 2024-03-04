@@ -181,17 +181,16 @@ function RenderSelectControls({
   view,
 }: RenderSelectControlsProps) {
   const navigate = useNavigate()
-  return (
-    <>
-      <RenderPrimaryButton label="Select" />
-      <RenderSecondaryButton
-        onTap={() => {
-          navigate('..')
-        }}
-        label="Cancel"
-      />
-    </>
-  )
+  const primary: ButtonProps = {
+    label: 'Select',
+  }
+  const secondary: ButtonProps = {
+    onTap() {
+      navigate('..')
+    },
+    label: 'Cancel',
+  }
+  return <Render primary={primary} secondary={secondary} />
 }
 
 export const RenderControls = React.memo(
