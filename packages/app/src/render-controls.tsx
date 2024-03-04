@@ -582,27 +582,27 @@ function RenderMinerControls({
   const navigate = useNavigate()
 
   return (
-    <>
-      <RenderPrimaryButton
-        disabled={!hasCoal}
-        onHold={addCoal}
-        label="Add Coal"
-      />
-      <RenderSecondaryButton
-        disabled={!hasOutput}
-        onTap={() => {
+    <Render
+      primary={{
+        disabled: !hasCoal,
+        onHold: addCoal,
+        label: 'Add Coal',
+      }}
+      secondary={{
+        disabled: !hasOutput,
+        onTap: () => {
           if (!hasOutput) return
           moveFromEntityOutputToCursor(setWorld, entity.id)
-        }}
-        label="Take All"
-      />
-      <RenderTertiaryButton
-        onTap={() => {
+        },
+        label: 'Take All',
+      }}
+      tertiary={{
+        onTap: () => {
           navigate(`connect?sourceId=${entity.id}`)
-        }}
-        label="Connect"
-      />
-    </>
+        },
+        label: 'Connect',
+      }}
+    />
   )
 }
 
@@ -612,11 +612,31 @@ interface RenderProps {
   tertiary?: ButtonProps
 }
 
-// function Render({ primary, secondary, tertiary }: RenderProps) {
-//   return (
-//     <>
-//       <RenderPrimaryButton
-//         disabled
-//       </>
-//   )
-// }
+function Render({
+  primary,
+  secondary,
+  tertiary,
+}: RenderProps) {
+  return (
+    <>
+      <RenderPrimaryButton
+        disabled={primary?.disabled}
+        onTap={primary?.onTap}
+        onHold={primary?.onHold}
+        label={primary?.label ?? ''}
+      />
+      <RenderSecondaryButton
+        disabled={secondary?.disabled}
+        onTap={secondary?.onTap}
+        onHold={secondary?.onHold}
+        label={secondary?.label ?? ''}
+      />
+      <RenderTertiaryButton
+        disabled={tertiary?.disabled}
+        onTap={tertiary?.onTap}
+        onHold={tertiary?.onHold}
+        label={tertiary?.label ?? ''}
+      />
+    </>
+  )
+}
