@@ -456,27 +456,25 @@ function RenderDefaultControls({
   )
   const recipe = availableRecipes.at(0)
 
-  return (
-    <>
-      <RenderPrimaryButton
-        disabled={!recipe}
-        onTap={() => {
-          if (recipe) {
-            const search = new URLSearchParams()
-            search.set('entityType', recipe.output)
-            navigate(`build?${search.toString()}`)
-          }
-        }}
-        label="Build"
-      />
-      <RenderSecondaryButton
-        onTap={() => {
-          navigate('select')
-        }}
-        label="Select"
-      />
-    </>
-  )
+  const primary: ButtonProps = {
+    disabled: !recipe,
+    onTap: () => {
+      invariant(recipe)
+      const search = new URLSearchParams()
+      search.set('entityType', recipe.output)
+      navigate(`build?${search.toString()}`)
+    },
+    label: 'Build',
+  }
+
+  const secondary: ButtonProps = {
+    onTap() {
+      navigate('select')
+    },
+    label: 'Select',
+  }
+
+  return <Render primary={primary} secondary={secondary} />
 }
 
 interface RenderSmelterControlsProps {
