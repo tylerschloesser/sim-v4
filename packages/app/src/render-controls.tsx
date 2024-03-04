@@ -648,34 +648,40 @@ function Render({
 }: RenderProps) {
   return (
     <div className={styles.controls}>
-      <button
-        className={styles['left-button']}
-        data-pointer="capture"
-        disabled={true}
-      ></button>
-      <RenderTertiaryButton
-        disabled={!tertiary || tertiary?.disabled}
-        onTap={tertiary?.onTap}
-        onHold={tertiary?.onHold}
-        label={tertiary?.label ?? ''}
-      />
-      <RenderPrimaryButton
-        disabled={!primary || primary?.disabled}
-        onTap={primary?.onTap}
-        onHold={primary?.onHold}
-        label={primary?.label ?? ''}
-      />
-      <RenderSecondaryButton
-        disabled={!secondary || secondary?.disabled}
-        onTap={secondary?.onTap}
-        onHold={secondary?.onHold}
-        label={secondary?.label ?? ''}
-      />
-      <button
-        className={styles['right-button']}
-        data-pointer="capture"
-        disabled={true}
-      ></button>
+      <div className={styles.group}>
+        <button
+          className={styles['left-button']}
+          data-pointer="capture"
+          disabled={true}
+        ></button>
+        <RenderTertiaryButton
+          disabled={!tertiary || tertiary?.disabled}
+          onTap={tertiary?.onTap}
+          onHold={tertiary?.onHold}
+          label={tertiary?.label ?? ''}
+        />
+      </div>
+      <div className={styles['group-center']}>
+        <RenderPrimaryButton
+          disabled={!primary || primary?.disabled}
+          onTap={primary?.onTap}
+          onHold={primary?.onHold}
+          label={primary?.label ?? ''}
+        />
+      </div>
+      <div className={styles.group}>
+        <RenderSecondaryButton
+          disabled={!secondary || secondary?.disabled}
+          onTap={secondary?.onTap}
+          onHold={secondary?.onHold}
+          label={secondary?.label ?? ''}
+        />
+        <button
+          className={styles['right-button']}
+          data-pointer="capture"
+          disabled={true}
+        ></button>
+      </div>
     </div>
   )
 }
