@@ -175,10 +175,12 @@ export function buildEntity(
       }
     }
 
-    for (const peerId of Object.keys(connections)) {
+    for (const [peerId, type] of Object.entries(
+      connections,
+    )) {
       const peer = getEntity(world, peerId)
       invariant(!peer.shape.connections[id])
-      peer.shape.connections[id] = ConnectionType.enum.Item
+      peer.shape.connections[id] = type
     }
   })
 }
