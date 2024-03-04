@@ -84,16 +84,14 @@ function RenderBuildControls({
             view.connections,
           )
         }}
-      >
-        Build {view.entityType}
-      </RenderPrimaryButton>
+        label={`Build ${view.entityType}`}
+      />
       <RenderSecondaryButton
         onTap={() => {
           navigate('..')
         }}
-      >
-        Back
-      </RenderSecondaryButton>
+        label="Back"
+      />
       <RenderTertiaryButton
         disabled={availableRecipes.length < 2}
         onTap={() => {
@@ -113,9 +111,8 @@ function RenderBuildControls({
             return prev
           })
         }}
-      >
-        Recipe
-      </RenderTertiaryButton>
+        label="Recipe"
+      />
     </>
   )
 }
@@ -154,18 +151,18 @@ function RenderConnectControls({
             )
           }
         }}
-      >
-        {view.action === ConnectAction.enum.Disconnect
-          ? 'Disconnect'
-          : 'Connect'}
-      </RenderPrimaryButton>
+        label={
+          view.action === ConnectAction.enum.Disconnect
+            ? 'Disconnect'
+            : 'Connect'
+        }
+      />
       <RenderSecondaryButton
         onTap={() => {
           navigate('..')
         }}
-      >
-        Cancel
-      </RenderSecondaryButton>
+        label="Cancel"
+      />
     </>
   )
 }
@@ -181,14 +178,13 @@ function RenderSelectControls({
   const navigate = useNavigate()
   return (
     <>
-      <RenderPrimaryButton>Select</RenderPrimaryButton>
+      <RenderPrimaryButton label="Select" />
       <RenderSecondaryButton
         onTap={() => {
           navigate('..')
         }}
-      >
-        Cancel
-      </RenderSecondaryButton>
+        label="Cancel"
+      />
     </>
   )
 }
@@ -261,9 +257,8 @@ export const RenderControls = React.memo(
                   `connect?sourceId=${cursorEntity.id}`,
                 )
               }}
-            >
-              Connect
-            </RenderTertiaryButton>
+              label="Connect"
+            />
           )
         default:
           invariant(false)
@@ -274,17 +269,18 @@ export const RenderControls = React.memo(
   },
 )
 
-type ButtonProps = React.PropsWithChildren<{
+interface ButtonProps {
   disabled?: boolean
   onTap?(): void
   onHold?(): void
-}>
+  label: string
+}
 
 function RenderPrimaryButton({
   disabled = false,
   onTap,
   onHold,
-  children,
+  label,
 }: ButtonProps) {
   invariant(!onTap || !onHold)
 
@@ -311,7 +307,7 @@ function RenderPrimaryButton({
         data-pointer="capture"
         disabled={disabled}
       >
-        {children}
+        {label}
       </button>
     )
   }
@@ -355,7 +351,7 @@ function RenderPrimaryButton({
       }
       disabled={disabled}
     >
-      {children}
+      {label}
     </button>
   )
 }
@@ -363,7 +359,7 @@ function RenderPrimaryButton({
 function RenderSecondaryButton({
   disabled = false,
   onTap,
-  children,
+  label,
 }: ButtonProps) {
   return (
     <button
@@ -372,7 +368,7 @@ function RenderSecondaryButton({
       onPointerUp={disabled ? undefined : onTap}
       disabled={disabled}
     >
-      {children}
+      {label}
     </button>
   )
 }
@@ -381,7 +377,7 @@ function RenderSecondaryButton({
 function RenderTertiaryButton({
   disabled = false,
   onTap,
-  children,
+  label,
 }: ButtonProps) {
   return (
     <button
@@ -390,7 +386,7 @@ function RenderTertiaryButton({
       onPointerUp={disabled ? undefined : onTap}
       disabled={disabled}
     >
-      {children}
+      {label}
     </button>
   )
 }
@@ -417,9 +413,7 @@ function RenderPatchControls({
 
   return (
     <>
-      <RenderPrimaryButton onHold={mine}>
-        Mine
-      </RenderPrimaryButton>
+      <RenderPrimaryButton onHold={mine} label="Mine" />
       <RenderSecondaryButton
         disabled={
           !inventoryHas(cursor.inventory, minerRecipe.input)
@@ -436,16 +430,14 @@ function RenderPatchControls({
           )
           navigate(`build?${search.toString()}`)
         }}
-      >
-        Build Miner
-      </RenderSecondaryButton>
+        label="Build Miner"
+      />
       <RenderTertiaryButton
         onTap={() => {
           navigate(`connect?sourceId=${entity.id}`)
         }}
-      >
-        Connect
-      </RenderTertiaryButton>
+        label="Connect"
+      />
     </>
   )
 }
@@ -475,16 +467,14 @@ function RenderDefaultControls({
             navigate(`build?${search.toString()}`)
           }
         }}
-      >
-        Build
-      </RenderPrimaryButton>
+        label="Build"
+      />
       <RenderSecondaryButton
         onTap={() => {
           navigate('select')
         }}
-      >
-        Select
-      </RenderSecondaryButton>
+        label="Select"
+      />
     </>
   )
 }
@@ -538,28 +528,26 @@ function RenderSmelterControls({
             cursor.entityId,
           )
         }}
-      >
-        Take All
-      </RenderSecondaryButton>
+        label="Take All"
+      />
       {coalCount < 5 && hasCoal ? (
-        <RenderPrimaryButton onHold={addCoal}>
-          Add Coal
-        </RenderPrimaryButton>
+        <RenderPrimaryButton
+          onHold={addCoal}
+          label="Add Coal"
+        />
       ) : (
         <RenderPrimaryButton
           disabled={!hasIronOre}
           onHold={addIronOre}
-        >
-          Add Iron Ore
-        </RenderPrimaryButton>
+          label="Add Iron Ore"
+        />
       )}
       <RenderTertiaryButton
         onTap={() => {
           navigate(`connect?sourceId=${entity.id}`)
         }}
-      >
-        Connect
-      </RenderTertiaryButton>
+        label="Connect"
+      />
     </>
   )
 }
@@ -598,25 +586,37 @@ function RenderMinerControls({
       <RenderPrimaryButton
         disabled={!hasCoal}
         onHold={addCoal}
-      >
-        Add Coal
-      </RenderPrimaryButton>
+        label="Add Coal"
+      />
       <RenderSecondaryButton
         disabled={!hasOutput}
         onTap={() => {
           if (!hasOutput) return
           moveFromEntityOutputToCursor(setWorld, entity.id)
         }}
-      >
-        Take All
-      </RenderSecondaryButton>
+        label="Take All"
+      />
       <RenderTertiaryButton
         onTap={() => {
           navigate(`connect?sourceId=${entity.id}`)
         }}
-      >
-        Connect
-      </RenderTertiaryButton>
+        label="Connect"
+      />
     </>
   )
 }
+
+interface RenderProps {
+  primary?: ButtonProps
+  secondary?: ButtonProps
+  tertiary?: ButtonProps
+}
+
+// function Render({ primary, secondary, tertiary }: RenderProps) {
+//   return (
+//     <>
+//       <RenderPrimaryButton
+//         disabled
+//       </>
+//   )
+// }
