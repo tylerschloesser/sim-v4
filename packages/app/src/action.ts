@@ -6,6 +6,8 @@ import { inventoryMove, inventorySub } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { Vec2 } from './vec2.js'
 import {
+  ConnectionType,
+  Connections,
   EntityId,
   EntityType,
   Inventory,
@@ -85,7 +87,7 @@ export function buildEntity(
   setWorld: Updater<World>,
   entityType: EntityType,
   position: Vec2,
-  connections: Record<EntityId, true>,
+  connections: Connections,
 ): void {
   const recipe = entityRecipes[entityType]
   invariant(recipe)
@@ -176,7 +178,7 @@ export function buildEntity(
     for (const peerId of Object.keys(connections)) {
       const peer = getEntity(world, peerId)
       invariant(!peer.shape.connections[id])
-      peer.shape.connections[id] = true
+      peer.shape.connections[id] = ConnectionType.enum.Item
     }
   })
 }
@@ -201,8 +203,9 @@ export function addConnection(
       ),
     )
 
-    source.shape.connections[targetId] = true
-    target.shape.connections[sourceId] = true
+    const connectionType = ConnectionType.enum.Item
+    source.shape.connections[targetId] = connectionType
+    target.shape.connections[sourceId] = connectionType
   })
 }
 
