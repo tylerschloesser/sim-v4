@@ -1,5 +1,4 @@
 @mixin button {
-  position: absolute;
   margin: 0;
   padding: 0;
   border-radius: 100%;
@@ -22,28 +21,30 @@
   }
 }
 
+.controls {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  bottom: calc(env(safe-area-inset-bottom));
+
+  justify-content: space-evenly;
+  align-items: center;
+}
+
 .primary-button {
   --size: 12vmax;
-  bottom: calc(
-    env(safe-area-inset-bottom) + var(--size) / 2
-  );
-  left: calc(50% - var(--size) / 2);
-
   @include button;
 }
 
 .secondary-button {
   --size: 8vmax;
-  bottom: calc(env(safe-area-inset-bottom) + 16vmax / 2);
-  left: calc(50% + 16vmax / 2);
-
   @include button;
 }
 
 .tertiary-button {
   --size: 8vmax;
-  bottom: calc(env(safe-area-inset-bottom) + 16vmax / 2);
-  left: calc(50% - 16vmax / 2 - var(--size));
-
   @include button;
+}
+
+.settings-button {
 }

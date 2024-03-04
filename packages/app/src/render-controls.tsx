@@ -647,7 +647,13 @@ function Render({
   tertiary,
 }: RenderProps) {
   return (
-    <>
+    <div className={styles.controls}>
+      <RenderTertiaryButton
+        disabled={!tertiary || tertiary?.disabled}
+        onTap={tertiary?.onTap}
+        onHold={tertiary?.onHold}
+        label={tertiary?.label ?? ''}
+      />
       <RenderPrimaryButton
         disabled={!primary || primary?.disabled}
         onTap={primary?.onTap}
@@ -660,12 +666,6 @@ function Render({
         onHold={secondary?.onHold}
         label={secondary?.label ?? ''}
       />
-      <RenderTertiaryButton
-        disabled={!tertiary || tertiary?.disabled}
-        onTap={tertiary?.onTap}
-        onHold={tertiary?.onHold}
-        label={tertiary?.label ?? ''}
-      />
-    </>
+    </div>
   )
 }
