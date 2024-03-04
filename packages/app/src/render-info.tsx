@@ -205,24 +205,21 @@ function RenderDefaultInfo({
         Inventory:{' '}
         {Object.keys(cursor.inventory).length === 0 &&
           'None'}
-        {Object.entries(cursor.inventory).map(
-          ([key, value]) => {
+        {Object.entries(cursor.inventory)
+          .map(([key, value]) => {
             const itemType = ItemType.parse(key)
-            return (
-              <div key={key}>
-                {itemType}: {value}
-              </div>
-            )
-          },
-        )}
+            return `${value} ${itemType}`
+          })
+          .join(', ')}
       </div>
       <div>
         Available Recipes:{' '}
-        {availableRecipes.length === 0 && 'None'}
+        {availableRecipes.length === 0
+          ? 'None'
+          : availableRecipes
+              .map((recipe) => recipe.output)
+              .join(',')}
       </div>
-      {availableRecipes.map((recipe) => (
-        <div key={recipe.output}>{recipe.output}</div>
-      ))}
     </>
   )
 }

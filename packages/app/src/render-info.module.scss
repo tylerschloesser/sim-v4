@@ -1,3 +1,19 @@
 .info {
   position: absolute;
+  --padding: calc(2vw);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+
+  width: 50vw;
+  height: 20vh;
+  overflow: hidden;
+
+  padding: var(--padding);
+  margin: var(--margin);
+  box-sizing: border-box;
+
+  background: var(--white);
+  opacity: 0.5;
 }
