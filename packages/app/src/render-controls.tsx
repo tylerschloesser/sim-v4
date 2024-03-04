@@ -129,42 +129,41 @@ function RenderConnectControls({
   setWorld,
 }: RenderConnectControlsProps) {
   const navigate = useNavigate()
-  return (
-    <>
-      <RenderPrimaryButton
-        disabled={view.action === null}
-        onTap={() => {
-          invariant(cursor.entityId)
-          if (view.action === ConnectAction.enum.Connect) {
-            addConnection(
-              setWorld,
-              view.sourceId,
-              cursor.entityId,
-            )
-          } else if (
-            view.action === ConnectAction.enum.Disconnect
-          ) {
-            removeConnection(
-              setWorld,
-              view.sourceId,
-              cursor.entityId,
-            )
-          }
-        }}
-        label={
-          view.action === ConnectAction.enum.Disconnect
-            ? 'Disconnect'
-            : 'Connect'
-        }
-      />
-      <RenderSecondaryButton
-        onTap={() => {
-          navigate('..')
-        }}
-        label="Cancel"
-      />
-    </>
-  )
+
+  const primary: ButtonProps = {
+    disabled: view.action === null,
+    onTap() {
+      invariant(cursor.entityId)
+      if (view.action === ConnectAction.enum.Connect) {
+        addConnection(
+          setWorld,
+          view.sourceId,
+          cursor.entityId,
+        )
+      } else if (
+        view.action === ConnectAction.enum.Disconnect
+      ) {
+        removeConnection(
+          setWorld,
+          view.sourceId,
+          cursor.entityId,
+        )
+      }
+    },
+    label:
+      view.action === ConnectAction.enum.Disconnect
+        ? 'Disconnect'
+        : 'Connect',
+  }
+
+  const secondary: ButtonProps = {
+    onTap() {
+      navigate('..')
+    },
+    label: 'Cancel',
+  }
+
+  return <Render primary={primary} secondary={secondary} />
 }
 
 interface RenderSelectControlsProps {
