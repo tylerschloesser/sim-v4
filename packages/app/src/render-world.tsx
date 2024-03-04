@@ -7,12 +7,33 @@ import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { Cursor, EntityShape, World } from './world.js'
+import {
+  Cursor,
+  EntityShape,
+  EntityType,
+  GeneratorEntityShape,
+  World,
+} from './world.js'
 
 export interface RenderWorldProps {
   cursor: Cursor
   shapes: World['shapes']
   setWorld: Updater<World>
+}
+
+function RenderGeneratorPowerArea({
+  shape,
+}: {
+  shape: GeneratorEntityShape
+}) {
+  return (
+    <circle
+      cx={shape.position.x}
+      cy={shape.position.y}
+      r={10}
+      fill={'hsla(60, 50%, 50%, .2)'}
+    />
+  )
 }
 
 export const RenderWorld = React.memo(function RenderWorld({
@@ -49,6 +70,18 @@ export const RenderWorld = React.memo(function RenderWorld({
 
   return (
     <g data-group="world" ref={root}>
+      {mapGenerators(shapes, (shape) => {
+        if (cursor.entityId === shape.id) {
+          return (
+            <RenderGeneratorPowerArea
+              key={shape.id}
+              shape={shape}
+            />
+          )
+        } else {
+          return null
+        }
+      })}
       {mapConnections(shapes, (id, source, target) => (
         <RenderEntityConnection
           key={id}
@@ -80,6 +113,18 @@ function getConnectionId(
   const ids = [sourceId, targetId]
   ids.sort()
   return ids.join('.')
+}
+
+function mapGenerators(
+  shapes: World['shapes'],
+  cb: (shape: GeneratorEntityShape) => JSX.Element | null,
+): (JSX.Element | null)[] {
+  return Object.values(shapes)
+    .filter(
+      (shape): shape is GeneratorEntityShape =>
+        shape.type === EntityType.enum.Generator,
+    )
+    .map((entity) => cb(entity))
 }
 
 function mapConnections(
