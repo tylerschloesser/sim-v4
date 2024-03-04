@@ -11,11 +11,9 @@ import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
 import { getClosestShape } from './closest.js'
 import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
-import { useCameraEffect } from './use-camera-effect.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
 import { ViewType } from './view.js'
-import { getScale } from './viewport.js'
 import {
   Connections,
   Cursor,
@@ -42,7 +40,6 @@ export const RenderCursor = React.memo(
       vec2.clone(camera$.value.position),
     )
 
-    const root = useRef<SVGGElement>(null)
     const g = useRef<SVGGElement>(null)
     const lines = useRef<
       Record<string, SVGLineElement | null>
@@ -96,19 +93,6 @@ export const RenderCursor = React.memo(
       }
     }, [shapes, view])
 
-    useCameraEffect((camera, viewport) => {
-      const { x: vx, y: vy } = viewport.size
-
-      const scale = getScale(camera.zoom, vx, vy)
-
-      invariant(root.current)
-
-      root.current.style.setProperty(
-        '--stroke-width',
-        `${((1 / scale) * 2).toFixed(2)}`,
-      )
-    })
-
     let fill: string
 
     switch (view.type) {
@@ -136,7 +120,7 @@ export const RenderCursor = React.memo(
     }
 
     return (
-      <g data-group="cursor" ref={root}>
+      <g data-group="cursor">
         {view.type === ViewType.enum.Build &&
           Object.keys(view.connections).map((id) => (
             <line
