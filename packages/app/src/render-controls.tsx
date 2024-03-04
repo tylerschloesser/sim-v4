@@ -646,6 +646,7 @@ function Render({
   secondary,
   tertiary,
 }: RenderProps) {
+  const navigate = useNavigate()
   return (
     <div className={styles.controls}>
       <button
@@ -675,6 +676,9 @@ function Render({
         className={styles['right-button']}
         data-pointer="capture"
         disabled={true}
+        onPointerUp={() => {
+          navigate('/settings')
+        }}
       >
         S
       </button>

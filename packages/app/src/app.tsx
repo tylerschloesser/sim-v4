@@ -10,6 +10,7 @@ import { AppContext } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { PathRoot } from './path-root.js'
+import { PathSettings } from './path-settings.js'
 import { handlePointer } from './pointer.js'
 import { tickWorld } from './tick-world.js'
 import { ViewType } from './view.js'
@@ -71,6 +72,14 @@ const router = createBrowserRouter([
         element: null,
         handle: {
           viewType: ViewType.enum.Select,
+        },
+      },
+      {
+        path: 'settings',
+        Component: PathSettings,
+        // TODO this doesn't make sense
+        handle: {
+          viewType: ViewType.enum.Default,
         },
       },
     ],
@@ -144,24 +153,7 @@ export function App() {
           <RouterProvider router={router} />
         </AppContext.Provider>
       )}
-      <ResetButton />
     </div>
-  )
-}
-
-function ResetButton() {
-  return (
-    <button
-      className={styles['reset-button']}
-      onPointerUp={() => {
-        if (window.confirm('Reset?')) {
-          localStorage.setItem('reset', 'true')
-          self.location.reload()
-        }
-      }}
-    >
-      Reset
-    </button>
   )
 }
 
