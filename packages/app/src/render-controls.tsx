@@ -516,39 +516,44 @@ function RenderSmelterControls({
     })
   }, [hasIronOre])
 
+  const primary: ButtonProps =
+    coalCount < 5 && hasCoal
+      ? {
+          onHold: addCoal,
+          label: 'Add Coal',
+        }
+      : {
+          disabled: !hasIronOre,
+          onHold: addIronOre,
+          label: 'Add Iron Ore',
+        }
+
+  const secondary: ButtonProps = {
+    disabled: !hasOutput,
+    onTap: () => {
+      if (!hasOutput) return
+      invariant(cursor.entityId)
+      moveFromEntityOutputToCursor(
+        setWorld,
+        cursor.entityId,
+      )
+    },
+    label: 'Take All',
+  }
+
+  const tertiary: ButtonProps = {
+    onTap: () => {
+      navigate(`connect?sourceId=${entity.id}`)
+    },
+    label: 'Connect',
+  }
+
   return (
-    <>
-      <RenderSecondaryButton
-        disabled={!hasOutput}
-        onTap={() => {
-          if (!hasOutput) return
-          invariant(cursor.entityId)
-          moveFromEntityOutputToCursor(
-            setWorld,
-            cursor.entityId,
-          )
-        }}
-        label="Take All"
-      />
-      {coalCount < 5 && hasCoal ? (
-        <RenderPrimaryButton
-          onHold={addCoal}
-          label="Add Coal"
-        />
-      ) : (
-        <RenderPrimaryButton
-          disabled={!hasIronOre}
-          onHold={addIronOre}
-          label="Add Iron Ore"
-        />
-      )}
-      <RenderTertiaryButton
-        onTap={() => {
-          navigate(`connect?sourceId=${entity.id}`)
-        }}
-        label="Connect"
-      />
-    </>
+    <Render
+      primary={primary}
+      secondary={secondary}
+      tertiary={tertiary}
+    />
   )
 }
 
