@@ -41,19 +41,19 @@ export const RenderCursor = React.memo(
     )
 
     const root = useRef<SVGGElement>(null)
-    const circle = useRef<SVGCircleElement>(null)
+    const g = useRef<SVGGElement>(null)
     const lines = useRef<
       Record<string, SVGLineElement | null>
     >({})
 
     useEffect(() => {
-      invariant(circle.current)
+      invariant(g.current)
       switch (view.type) {
         case ViewType.enum.Build: {
           return initBuildCursor({
             position,
             camera$,
-            circle: circle.current,
+            g: g.current,
             lines: lines.current,
             connections: view.connections,
             shapes,
@@ -63,7 +63,7 @@ export const RenderCursor = React.memo(
           return initConnectCursor({
             position,
             camera$,
-            circle: circle.current,
+            g: g.current,
             lines: lines.current,
             sourceId: view.sourceId,
             shapes,
@@ -74,7 +74,7 @@ export const RenderCursor = React.memo(
           return initDefaultCursor({
             position,
             camera$,
-            circle: circle.current,
+            g: g.current,
             shapes,
             setWorld,
           })
@@ -83,7 +83,7 @@ export const RenderCursor = React.memo(
           return initDefaultCursor({
             position,
             camera$,
-            circle: circle.current,
+            g: g.current,
             shapes,
             setWorld,
           })
@@ -153,11 +153,9 @@ export const RenderCursor = React.memo(
             strokeWidth="var(--stroke-width)"
           />
         )}
-        <circle
-          r={cursor.radius}
-          fill={fill}
-          ref={circle}
-        />
+        <g ref={g}>
+          <circle r={cursor.radius} fill={fill} />
+        </g>
       </g>
     )
   },
@@ -166,14 +164,14 @@ export const RenderCursor = React.memo(
 function initBuildCursor({
   position,
   camera$,
-  circle,
+  g,
   lines,
   connections,
   shapes,
 }: {
   position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
-  circle: SVGCircleElement
+  g: SVGGElement
   lines: Record<string, SVGLineElement | null>
   connections: Connections
   shapes: World['shapes']
@@ -195,15 +193,16 @@ function initBuildCursor({
 
   const sub = camera$.subscribe((camera) => {
     position.current = vec2.clone(camera.position)
-    const { x, y } = position.current
-    circle.setAttribute('cx', `${x.toFixed(4)}`)
-    circle.setAttribute('cy', `${y.toFixed(4)}`)
+
+    const x = position.current.x.toFixed(4)
+    const y = position.current.y.toFixed(4)
+    g.setAttribute('transform', `translate(${x} ${y})`)
 
     for (const entityId of Object.keys(connections)) {
       const line = lines[entityId]
       invariant(line)
-      line.setAttribute('x1', `${x.toFixed(4)}`)
-      line.setAttribute('y1', `${y.toFixed(4)}`)
+      line.setAttribute('x1', x)
+      line.setAttribute('y1', y)
     }
   })
 
@@ -298,20 +297,20 @@ function initHomingCursor({
 function initDefaultCursor({
   position,
   camera$,
-  circle,
+  g,
   shapes,
   setWorld,
 }: {
   position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
-  circle: SVGCircleElement
+  g: SVGGElement
   shapes: World['shapes']
   setWorld: Updater<World>
 }): () => void {
-  function update(position: Vec2): void {
-    const { x, y } = position
-    circle.setAttribute('cx', `${x.toFixed(4)}`)
-    circle.setAttribute('cy', `${y.toFixed(4)}`)
+  function update(): void {
+    const x = position.current.x.toFixed(4)
+    const y = position.current.y.toFixed(4)
+    g.setAttribute('transform', `translate(${x} ${y})`)
   }
   function setAttachedEntityId(entityId: string | null) {
     setWorld((draft) => {
@@ -330,7 +329,7 @@ function initDefaultCursor({
 function initConnectCursor({
   position,
   camera$,
-  circle,
+  g,
   lines,
   sourceId,
   shapes,
@@ -338,7 +337,7 @@ function initConnectCursor({
 }: {
   position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
-  circle: SVGCircleElement
+  g: SVGGElement
   lines: Record<EntityId, SVGLineElement | null>
   sourceId: EntityId
   shapes: World['shapes']
@@ -352,13 +351,14 @@ function initConnectCursor({
   line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
   line.setAttribute('y2', `${source.position.y.toFixed(4)}`)
 
-  function update(position: Vec2): void {
-    const { x, y } = position
-    circle.setAttribute('cx', `${x.toFixed(4)}`)
-    circle.setAttribute('cy', `${y.toFixed(4)}`)
+  function update(): void {
+    const x = position.current.x.toFixed(4)
+    const y = position.current.y.toFixed(4)
+    g.setAttribute('transform', `translate(${x} ${y})`)
+
     invariant(line)
-    line.setAttribute('x1', `${x.toFixed(4)}`)
-    line.setAttribute('y1', `${y.toFixed(4)}`)
+    line.setAttribute('x1', x)
+    line.setAttribute('y1', y)
   }
 
   function setAttachedEntityId(entityId: string | null) {
