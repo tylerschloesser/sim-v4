@@ -72,48 +72,54 @@ function RenderBuildControls({
     cursor.inventory,
   )
 
+  const primary: ButtonProps = {
+    disabled: !view.valid,
+    onTap() {
+      buildEntity(
+        setWorld,
+        view.entityType,
+        vec2.clone(camera$.value.position),
+        view.connections,
+      )
+    },
+    label: `Build ${view.entityType}`,
+  }
+
+  const secondary: ButtonProps = {
+    onTap() {
+      navigate('..')
+    },
+    label: 'Back',
+  }
+
+  const tertiary: ButtonProps = {
+    disabled: availableRecipes.length < 2,
+    onTap() {
+      let i = availableRecipes.findIndex(
+        (recipe) => recipe.output === view.entityType,
+      )
+      invariant(i >= 0)
+
+      i = (i + 1) % availableRecipes.length
+      invariant(i < availableRecipes.length)
+
+      const next = availableRecipes[i]
+      invariant(next)
+
+      setSearch((prev) => {
+        prev.set('entityType', next.output)
+        return prev
+      })
+    },
+    label: 'Recipe',
+  }
+
   return (
-    <>
-      <RenderPrimaryButton
-        disabled={!view.valid}
-        onTap={() => {
-          buildEntity(
-            setWorld,
-            view.entityType,
-            vec2.clone(camera$.value.position),
-            view.connections,
-          )
-        }}
-        label={`Build ${view.entityType}`}
-      />
-      <RenderSecondaryButton
-        onTap={() => {
-          navigate('..')
-        }}
-        label="Back"
-      />
-      <RenderTertiaryButton
-        disabled={availableRecipes.length < 2}
-        onTap={() => {
-          let i = availableRecipes.findIndex(
-            (recipe) => recipe.output === view.entityType,
-          )
-          invariant(i >= 0)
-
-          i = (i + 1) % availableRecipes.length
-          invariant(i < availableRecipes.length)
-
-          const next = availableRecipes[i]
-          invariant(next)
-
-          setSearch((prev) => {
-            prev.set('entityType', next.output)
-            return prev
-          })
-        }}
-        label="Recipe"
-      />
-    </>
+    <Render
+      primary={primary}
+      secondary={secondary}
+      tertiary={tertiary}
+    />
   )
 }
 
