@@ -40,6 +40,7 @@ import {
   Connections,
   Cursor,
   Entity,
+  EntityId,
   EntityType,
   ItemType,
   MinerEntity,
@@ -255,13 +256,8 @@ export const RenderControls = React.memo(
         case EntityType.enum.Generator:
         case EntityType.enum.Crafter:
           return (
-            <RenderTertiaryButton
-              onTap={() => {
-                navigate(
-                  `connect?sourceId=${cursorEntity.id}`,
-                )
-              }}
-              label="Connect"
+            <RenderDefaultEntityControls
+              entityId={cursorEntity.id}
             />
           )
         default:
@@ -272,6 +268,26 @@ export const RenderControls = React.memo(
     return <RenderDefaultControls cursor={cursor} />
   },
 )
+
+interface RenderDefaultEntityControlsProps {
+  entityId: EntityId
+}
+
+function RenderDefaultEntityControls({
+  entityId,
+}: RenderDefaultEntityControlsProps) {
+  const navigate = useNavigate()
+  return (
+    <Render
+      tertiary={{
+        onTap() {
+          navigate(`connect?sourceId=${entityId}`)
+        },
+        label: 'Connect',
+      }}
+    />
+  )
+}
 
 interface ButtonProps {
   disabled?: boolean
