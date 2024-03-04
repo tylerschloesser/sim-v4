@@ -415,34 +415,41 @@ function RenderPatchControls({
     minePatch(setWorld, cursor.entityId)
   }, [cursor.entityId])
 
+  const primary: ButtonProps = {
+    onHold: mine,
+    label: 'Mine',
+  }
+
+  const secondary: ButtonProps = {
+    disabled: !inventoryHas(
+      cursor.inventory,
+      minerRecipe.input,
+    ),
+    onTap() {
+      const search = new URLSearchParams()
+      search.set('entityType', EntityType.enum.Miner)
+      const connections: Connections = {
+        [entity.id]: ConnectionType.enum.Item,
+      }
+      search.set('connections', JSON.stringify(connections))
+      navigate(`build?${search.toString()}`)
+    },
+    label: 'Build Miner',
+  }
+
+  const tertiary: ButtonProps = {
+    onTap() {
+      navigate(`connect?sourceId=${entity.id}`)
+    },
+    label: 'Connect',
+  }
+
   return (
-    <>
-      <RenderPrimaryButton onHold={mine} label="Mine" />
-      <RenderSecondaryButton
-        disabled={
-          !inventoryHas(cursor.inventory, minerRecipe.input)
-        }
-        onTap={() => {
-          const search = new URLSearchParams()
-          search.set('entityType', EntityType.enum.Miner)
-          const connections: Connections = {
-            [entity.id]: ConnectionType.enum.Item,
-          }
-          search.set(
-            'connections',
-            JSON.stringify(connections),
-          )
-          navigate(`build?${search.toString()}`)
-        }}
-        label="Build Miner"
-      />
-      <RenderTertiaryButton
-        onTap={() => {
-          navigate(`connect?sourceId=${entity.id}`)
-        }}
-        label="Connect"
-      />
-    </>
+    <Render
+      primary={primary}
+      secondary={secondary}
+      tertiary={tertiary}
+    />
   )
 }
 
