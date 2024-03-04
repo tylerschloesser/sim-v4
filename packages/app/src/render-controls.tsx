@@ -175,6 +175,7 @@ interface RenderSelectControlsProps {
 }
 
 function RenderSelectControls({
+  // eslint-disable-next-line
   view,
 }: RenderSelectControlsProps) {
   const navigate = useNavigate()

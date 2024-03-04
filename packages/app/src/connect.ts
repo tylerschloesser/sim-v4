@@ -7,7 +7,6 @@ import {
   Connections,
   EntityShape,
   EntityType,
-  GeneratorEntityShape,
   World,
 } from './world.js'
 
