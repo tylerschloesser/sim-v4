@@ -10,7 +10,7 @@ export function RenderGeneratorPowerArea({
       cx={shape?.position.x}
       cy={shape?.position.y}
       r={10}
-      fill={'hsla(60, 50%, 50%, .2)'}
+      fill={'hsla(60, 50%, 50%, .1)'}
     />
   )
 }
