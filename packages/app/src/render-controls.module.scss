@@ -30,18 +30,10 @@
   position: absolute;
   width: 100%;
   bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(var(--size-lg) / 4);
 
   justify-content: space-evenly;
-  // align-items: center;
-}
-
-.group {
-  padding: calc((var(--size-lg) - var(--size-md)) / 2) 0;
-  display: flex;
-}
-
-.group-center {
-  padding-bottom: calc(var(--size-lg) / 2);
+  align-items: center;
 }
 
 .primary-button {
@@ -63,6 +55,4 @@
   color: var(--black);
   background: transparent;
   border: 1px solid var(--black);
-
-  align-self: flex-end;
 }
