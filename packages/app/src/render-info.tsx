@@ -4,7 +4,7 @@ import { getConnectedMinerShapes } from './patch.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { ViewContext } from './view-context.js'
-import { ViewType } from './view.js'
+import { BuildView, ViewType } from './view.js'
 import {
   CrafterEntity,
   Cursor,
@@ -224,6 +224,20 @@ function RenderDefaultInfo({
   )
 }
 
+interface RenderBuildInfoProps {
+  view: BuildView
+}
+function RenderBuildInfo({ view }: RenderBuildInfoProps) {
+  return (
+    <>
+      <div>Input</div>
+      <pre>{JSON.stringify(view.input)}</pre>
+      <div>Output</div>
+      <pre>{JSON.stringify(view.output)}</pre>
+    </>
+  )
+}
+
 export interface RenderInfoProps {
   cursor: Cursor
   cursorEntity: Entity | null
@@ -236,13 +250,12 @@ export const RenderInfo = React.memo(function RenderInfo({
   shapes,
 }: RenderInfoProps) {
   const { view } = useContext(ViewContext)
-  if (view.type === ViewType.enum.Build) {
-    return null
-  }
-
   return (
     <div className={styles.info}>
       {(() => {
+        if (view.type === ViewType.enum.Build) {
+          return <RenderBuildInfo view={view} />
+        }
         if (!cursorEntity) {
           return <RenderDefaultInfo cursor={cursor} />
         }
