@@ -228,16 +228,15 @@ export function useView(): View {
   const [view, setView] = useState(initialView)
 
   useEffect(() => {
-    camera$.subscribe(
-      // TODO this can cause race condition because we might
-      // show valid button while state is actually invalid
-      throttle((camera) => {
-        setView((prev) => {
-          const next = getView(param, camera, world)
-          return isEqual(next, prev) ? prev : next
-        })
-      }, 100),
-    )
+    const sub = camera$.subscribe((camera) => {
+      setView((prev) => {
+        const next = getView(param, camera, world)
+        return isEqual(next, prev) ? prev : next
+      })
+    })
+    return () => {
+      sub.unsubscribe()
+    }
   }, [param, world])
 
   const navigate = useNavigate()
