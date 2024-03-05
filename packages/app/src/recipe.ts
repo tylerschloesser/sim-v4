@@ -43,17 +43,18 @@ export const entityRecipes: Record<string, EntityRecipe> = {
   },
 }
 
+interface ItemRecipe {
+  itemType: ItemType
+  entityType: EntityType
+  input: Partial<Record<ItemType, number>>
+  output: Partial<Record<ItemType, number>>
+}
+
 export const itemRecipes: Partial<
-  Record<
-    ItemType,
-    {
-      entityType: EntityType
-      input: Partial<Record<ItemType, number>>
-      output: Partial<Record<ItemType, number>>
-    }
-  >
+  Record<ItemType, ItemRecipe>
 > = {
   [ItemType.enum.Coal]: {
+    itemType: ItemType.enum.Coal,
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableCoal]: 1,
