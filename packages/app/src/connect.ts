@@ -178,11 +178,15 @@ export function getInputOutput(
 
     for (const outputType of needsOutput) {
       if (peer.input[outputType]) {
-        const entry = output[outputType]
-        invariant(entry)
-        entry[peer.id] = true
-        // TODO allow multiple outputs
-        needsOutput.delete(outputType)
+        const entityIds = Object.keys(
+          peer.input[outputType]!,
+        ) as EntityId[]
+
+        if (entityIds.length === 0) {
+          const entry = output[outputType]
+          invariant(entry)
+          entry[peer.id] = true
+        }
       }
     }
   }
