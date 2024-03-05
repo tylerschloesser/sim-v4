@@ -165,6 +165,15 @@ function* iterateConnectedEntityIds(view: BuildView) {
     seen.add(entityId)
     yield entityId
   }
+  for (const entityId of Object.keys(
+    Object.values(view.output),
+  )) {
+    if (seen.has(entityId)) {
+      continue
+    }
+    seen.add(entityId)
+    yield entityId
+  }
 }
 
 function mapConnectedEntityIds(
