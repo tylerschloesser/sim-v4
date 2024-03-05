@@ -48,6 +48,8 @@ export const ItemRecipeKey = z.enum([
   ItemType.enum.Coal,
   ItemType.enum.IronOre,
   ItemType.enum.Stone,
+
+  ItemType.enum.IronPlate,
 ])
 export type ItemRecipeKey = z.infer<typeof ItemRecipeKey>
 
@@ -62,8 +64,8 @@ export const itemRecipes: Record<
   ItemRecipeKey,
   ItemRecipe
 > = {
-  [ItemType.enum.Coal]: {
-    itemRecipeKey: ItemType.enum.Coal,
+  [ItemRecipeKey.enum.Coal]: {
+    itemRecipeKey: ItemRecipeKey.enum.Coal,
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableCoal]: 1,
@@ -72,8 +74,8 @@ export const itemRecipes: Record<
       [ItemType.enum.Coal]: 1,
     },
   },
-  [ItemType.enum.IronOre]: {
-    itemRecipeKey: ItemType.enum.IronOre,
+  [ItemRecipeKey.enum.IronOre]: {
+    itemRecipeKey: ItemRecipeKey.enum.IronOre,
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableIronOre]: 1,
@@ -82,14 +84,26 @@ export const itemRecipes: Record<
       [ItemType.enum.IronOre]: 1,
     },
   },
-  [ItemType.enum.Stone]: {
-    itemRecipeKey: ItemType.enum.Stone,
+  [ItemRecipeKey.enum.Stone]: {
+    itemRecipeKey: ItemRecipeKey.enum.Stone,
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableStone]: 1,
     },
     output: {
       [ItemType.enum.Stone]: 1,
+    },
+  },
+
+  [ItemRecipeKey.enum.IronPlate]: {
+    itemRecipeKey: ItemRecipeKey.enum.IronPlate,
+    entityType: EntityType.enum.Smelter,
+    input: {
+      [ItemType.enum.IronOre]: 1,
+      [ItemType.enum.Coal]: 0.1,
+    },
+    output: {
+      [ItemType.enum.IronPlate]: 1,
     },
   },
 }
