@@ -18,6 +18,8 @@ import { Camera } from './camera.js'
 import {
   getBuildGeneratorConnections,
   getConnectAction,
+  getInput,
+  getOutput,
 } from './connect.js'
 import { inventoryHas } from './inventory.js'
 import { entityRecipes } from './recipe.js'
@@ -62,8 +64,8 @@ export type BuildViewSearchParam = z.infer<
 >
 export const BuildView = BuildViewSearchParam.extend({
   valid: z.boolean(),
-  input: z.record(ItemType, EntityType),
-  output: z.record(ItemType, EntityType),
+  input: z.record(ItemType, EntityId),
+  output: z.record(ItemType, EntityId),
 })
 export type BuildView = z.infer<typeof BuildView>
 
@@ -178,8 +180,16 @@ function getView(
         world.shapes,
       )
 
-      const input: BuildView['input'] = {}
-      const output: BuildView['output'] = {}
+      const input = getInput(
+        param.entityType,
+        camera.position,
+        world.shapes,
+      )
+      const output = getOutput(
+        param.entityType,
+        camera.position,
+        world.shapes,
+      )
 
       return {
         ...param,

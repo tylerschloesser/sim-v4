@@ -5,8 +5,10 @@ import { ConnectAction } from './view.js'
 import {
   ConnectionType,
   Connections,
+  EntityId,
   EntityShape,
   EntityType,
+  ItemType,
   World,
 } from './world.js'
 
@@ -134,4 +136,20 @@ export function getBuildGeneratorConnections(
   }
 
   return connections
+}
+
+export function getInput(
+  entityType: EntityType,
+  position: Vec2,
+  shapes: World['shapes'],
+): Partial<Record<ItemType, EntityId>> {
+  return {}
+}
+
+export function getOutput(
+  entityType: EntityType,
+  position: Vec2,
+  shapes: World['shapes'],
+): Partial<Record<ItemType, EntityId>> {
+  return {}
 }
