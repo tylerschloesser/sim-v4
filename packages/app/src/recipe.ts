@@ -51,7 +51,7 @@ export const ItemRecipeKey = z.enum([
 ])
 export type ItemRecipeKey = z.infer<typeof ItemRecipeKey>
 
-interface ItemRecipe {
+export interface ItemRecipe {
   itemRecipeKey: ItemRecipeKey
   entityType: EntityType
   input: Partial<Record<ItemType, number>>

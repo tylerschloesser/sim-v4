@@ -267,7 +267,9 @@ function addPatch({
     type,
     connections: {},
     input: {},
-    output: {},
+    output: {
+      [itemType]: {},
+    },
     position,
     radius,
   }

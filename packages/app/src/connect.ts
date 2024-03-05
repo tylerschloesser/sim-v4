@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import { hasConnectedPatch } from './miner.js'
+import { ItemRecipe } from './recipe.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ConnectAction } from './view.js'
 import {
@@ -117,7 +118,7 @@ export function getConnectAction(
 }
 
 export function getInputOutput(
-  entityType: EntityType,
+  recipe: ItemRecipe,
   position: Vec2,
   shapes: World['shapes'],
 ): {
@@ -137,15 +138,56 @@ export function getInputOutput(
     Record<ItemType, Record<EntityId, true>>
   > = {}
 
-  const closest = sorted.at(0)
-  if (closest) {
-    input[ItemType.enum.IronOre] = {
-      [closest.id]: true,
+  const needsInput = new Set<ItemType>(
+    Object.keys(recipe.input).map((key) =>
+      ItemType.parse(key),
+    ),
+  )
+
+  for (const inputType of needsInput) {
+    input[inputType] = {}
+  }
+
+  const output: Partial<
+    Record<ItemType, Record<EntityId, true>>
+  > = {}
+
+  const needsOutput = new Set<ItemType>(
+    Object.keys(recipe.output).map((key) =>
+      ItemType.parse(key),
+    ),
+  )
+
+  for (const outputType of needsOutput) {
+    output[outputType] = {}
+  }
+
+  for (const peer of sorted) {
+    if (needsInput.size > 0 && needsOutput.size === 0) {
+      break
+    }
+
+    for (const inputType of needsInput) {
+      if (peer.output[inputType]) {
+        const entry = input[inputType]
+        invariant(entry)
+        entry[peer.id] = true
+        needsInput.delete(inputType)
+      }
+    }
+
+    for (const outputType of needsOutput) {
+      if (peer.output[outputType]) {
+        const entry = output[outputType]
+        invariant(entry)
+        entry[peer.id] = true
+        needsOutput.delete(outputType)
+      }
     }
   }
 
   return {
     input,
-    output: {},
+    output,
   }
 }

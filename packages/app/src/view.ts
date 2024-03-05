@@ -180,7 +180,7 @@ function getView(
       const recipe = itemRecipes[param.itemRecipeKey]
 
       const { input, output } = getInputOutput(
-        recipe.entityType,
+        recipe,
         camera.position,
         world.shapes,
       )
