@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import invariant from 'tiny-invariant'
-import { getConnectedMinerShapes } from './patch.js'
+import { getConnectedMinerCount } from './patch.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { ViewContext } from './view-context.js'
@@ -82,7 +82,7 @@ function RenderPatchInfo({
   entity,
   shapes,
 }: RenderPatchInfoProps) {
-  const connectedMiners = getConnectedMinerShapes(
+  const connectedMinerCount = getConnectedMinerCount(
     entity,
     shapes,
   )
@@ -90,7 +90,7 @@ function RenderPatchInfo({
     <>
       <div>Patch</div>
       <RenderOutput cursor={cursor} entity={entity} />
-      <div>Miners: {connectedMiners.length}</div>
+      <div>Miners: {connectedMinerCount}</div>
     </>
   )
 }

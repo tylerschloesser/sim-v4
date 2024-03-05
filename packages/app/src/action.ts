@@ -1,6 +1,5 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { deleteEmptyPatch } from './delete.js'
 import { inventoryMove, inventorySub } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { Vec2 } from './vec2.js'
@@ -53,16 +52,6 @@ export function minePatch(
       world.cursor.inventory,
       { [itemType]: 1 },
     )
-
-    const isPatchEmpty = (() => {
-      const keys = Object.keys(patch.state.output)
-      invariant(keys.length <= 1)
-      return keys.length === 0
-    })()
-
-    if (isPatchEmpty) {
-      deleteEmptyPatch(world, patch.id)
-    }
   })
 }
 
