@@ -103,6 +103,8 @@ export function buildEntity(
           type: EntityType.enum.Miner,
           id,
           connections,
+          input: {},
+          output: {},
           position,
           radius: 0.75,
         }
@@ -121,6 +123,8 @@ export function buildEntity(
           type: EntityType.enum.Smelter,
           id,
           connections,
+          input: {},
+          output: {},
           position,
           radius: 0.75,
         }
@@ -140,6 +144,8 @@ export function buildEntity(
           type: EntityType.enum.Generator,
           id,
           connections,
+          input: {},
+          output: {},
           position,
           radius: 0.75,
         }
@@ -157,6 +163,8 @@ export function buildEntity(
           type: EntityType.enum.Crafter,
           id,
           connections,
+          input: {},
+          output: {},
           position,
           radius: 0.75,
         }

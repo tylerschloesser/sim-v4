@@ -39,7 +39,11 @@ const EntityShapeBase = z.strictObject({
   id: EntityId,
   position: Vec2,
   radius: z.literal(0.75),
+
   connections: Connections,
+
+  input: z.record(ItemType, EntityId),
+  output: z.record(ItemType, EntityId),
 })
 
 const EntityStateBase = z.strictObject({
@@ -251,6 +255,8 @@ function addPatch({
     id,
     type,
     connections: {},
+    input: {},
+    output: {},
     position,
     radius,
   }
