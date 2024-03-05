@@ -9,6 +9,7 @@ import {
   ConnectionType,
   Connections,
   EntityId,
+  EntityShape,
   EntityType,
   Inventory,
   ItemType,
@@ -97,14 +98,17 @@ export function buildEntity(
 
     const id = getNextEntityId(world)
 
+    const input: EntityShape['input'] = {}
+    const output: EntityShape['output'] = {}
+
     switch (entityType) {
       case EntityType.enum.Miner: {
         world.shapes[id] = {
           type: EntityType.enum.Miner,
           id,
           connections,
-          input: {},
-          output: {},
+          input,
+          output,
           position,
           radius: 0.75,
         }
@@ -123,8 +127,8 @@ export function buildEntity(
           type: EntityType.enum.Smelter,
           id,
           connections,
-          input: {},
-          output: {},
+          input,
+          output,
           position,
           radius: 0.75,
         }
@@ -144,8 +148,8 @@ export function buildEntity(
           type: EntityType.enum.Generator,
           id,
           connections,
-          input: {},
-          output: {},
+          input,
+          output,
           position,
           radius: 0.75,
         }
@@ -163,8 +167,8 @@ export function buildEntity(
           type: EntityType.enum.Crafter,
           id,
           connections,
-          input: {},
-          output: {},
+          input,
+          output,
           position,
           radius: 0.75,
         }
