@@ -5,7 +5,10 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
@@ -660,6 +663,7 @@ function Render({
   tertiary,
 }: RenderProps) {
   const navigate = useNavigate()
+  const [search] = useSearchParams()
   return (
     <div className={styles.controls}>
       <button
@@ -690,7 +694,7 @@ function Render({
         data-pointer="capture"
         disabled={true}
         onPointerUp={() => {
-          navigate('/settings')
+          navigate(`/settings?${search.toString()}`)
         }}
       >
         S
