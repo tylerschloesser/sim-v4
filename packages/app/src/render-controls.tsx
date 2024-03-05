@@ -9,6 +9,7 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom'
+import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
@@ -19,7 +20,7 @@ import {
   moveFromEntityOutputToCursor,
   removeConnection,
 } from './action.js'
-import { AppContext } from './app-context.js'
+import { Camera } from './camera.js'
 import { inventoryHas } from './inventory.js'
 import {
   ItemRecipeKey,
@@ -51,24 +52,26 @@ import {
 } from './world.js'
 
 export interface RenderControlsProps {
+  camera$: BehaviorSubject<Camera>
   cursor: Cursor
   cursorEntity: Entity | null
   setWorld: Updater<World>
 }
 
 interface RenderBuildControlsProps {
+  camera$: BehaviorSubject<Camera>
   cursor: Cursor
   setWorld: Updater<World>
   view: BuildView
 }
 
 function RenderBuildControls({
+  camera$,
   cursor,
   setWorld,
   view,
 }: RenderBuildControlsProps) {
   const setView = useSetViewSearchParam()
-  const { camera$ } = useContext(AppContext)
   const availableRecipes = getAvailableItemRecipes(
     cursor.inventory,
   )
@@ -78,6 +81,7 @@ function RenderBuildControls({
   const primary: ButtonProps = {
     disabled: !view.valid,
     onTap() {
+      console.log('calling build entity')
       buildEntity(
         setWorld,
         recipe.entityType,
@@ -202,6 +206,7 @@ function RenderSelectControls({
 
 export const RenderControls = React.memo(
   function RenderControls({
+    camera$,
     cursor,
     cursorEntity,
     setWorld,
@@ -212,6 +217,7 @@ export const RenderControls = React.memo(
       case ViewType.enum.Build: {
         return (
           <RenderBuildControls
+            camera$={camera$}
             cursor={cursor}
             setWorld={setWorld}
             view={view}

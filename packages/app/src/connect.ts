@@ -155,7 +155,6 @@ export function getInputOutput(
   for (const inputType of needsInput) {
     input[inputType] = {}
     if (needsOutput.has(inputType)) {
-      console.log('deleting', inputType, 'from input')
       needsInput.delete(inputType)
     }
   }
@@ -182,6 +181,7 @@ export function getInputOutput(
         const entry = output[outputType]
         invariant(entry)
         entry[peer.id] = true
+        // TODO allow multiple outputs
         needsOutput.delete(outputType)
       }
     }

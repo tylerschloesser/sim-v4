@@ -9,7 +9,8 @@ import { useView } from './view.js'
 import { getEntity } from './world.js'
 
 export function PathRoot() {
-  const { world, setWorld } = useContext(AppContext)
+  const { camera$, world, setWorld } =
+    useContext(AppContext)
   const view = useView()
 
   const { cursor } = world
@@ -27,6 +28,7 @@ export function PathRoot() {
         shapes={world.shapes}
       />
       <RenderControls
+        camera$={camera$}
         cursor={cursor}
         cursorEntity={cursorEntity}
         setWorld={setWorld}

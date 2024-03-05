@@ -96,6 +96,7 @@ export function buildEntity(
   const recipe = entityRecipes[entityType]
   invariant(recipe)
 
+  console.log('before set world')
   setWorld((world) => {
     console.log('in set world')
     inventorySub(world.cursor.inventory, recipe.input)
