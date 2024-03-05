@@ -65,6 +65,7 @@ export function App() {
   const app = useRef<HTMLDivElement>(null)
 
   const [world, setWorld] = useImmer(loadWorld())
+
   const [camera$] = useState(
     new BehaviorSubject(loadCamera()),
   )

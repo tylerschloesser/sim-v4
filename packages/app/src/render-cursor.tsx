@@ -45,13 +45,6 @@ export const RenderCursor = React.memo(
     >({})
 
     useEffect(() => {
-      console.log('shapes changed')
-    }, [shapes])
-    useEffect(() => {
-      console.log('view changed')
-    }, [view])
-
-    useEffect(() => {
       invariant(g.current)
       switch (view.type) {
         case ViewType.enum.Build: {
