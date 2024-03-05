@@ -7,8 +7,6 @@ import {
   useState,
 } from 'react'
 import {
-  UIMatch,
-  useMatches,
   useNavigate,
   useSearchParams,
 } from 'react-router-dom'
@@ -27,6 +25,7 @@ import {
   Connections,
   EntityId,
   EntityType,
+  ItemType,
   World,
 } from './world.js'
 
@@ -63,6 +62,8 @@ export type BuildViewSearchParam = z.infer<
 >
 export const BuildView = BuildViewSearchParam.extend({
   valid: z.boolean(),
+  input: z.record(ItemType, EntityType),
+  output: z.record(ItemType, EntityType),
 })
 export type BuildView = z.infer<typeof BuildView>
 
@@ -176,10 +177,16 @@ function getView(
         radius,
         world.shapes,
       )
+
+      const input: BuildView['input'] = {}
+      const output: BuildView['output'] = {}
+
       return {
         ...param,
         valid,
         connections,
+        input,
+        output,
       }
     }
     case ViewType.enum.Connect: {
