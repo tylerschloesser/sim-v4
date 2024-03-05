@@ -13,9 +13,8 @@ import { getClosestShape } from './closest.js'
 import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
-import { ViewType } from './view.js'
+import { BuildView, ViewType } from './view.js'
 import {
-  Connections,
   Cursor,
   EntityId,
   EntityType,
@@ -54,7 +53,7 @@ export const RenderCursor = React.memo(
             camera$,
             g: g.current,
             lines: lines.current,
-            connections: view.connections,
+            view,
             shapes,
           })
         }
@@ -121,15 +120,28 @@ export const RenderCursor = React.memo(
 
     return (
       <g data-group="cursor">
-        {view.type === ViewType.enum.Build &&
-          Object.keys(view.connections).map((id) => (
-            <line
-              key={id}
-              stroke={fill}
-              ref={(el) => (lines.current[id] = el)}
-              strokeWidth="var(--stroke-width)"
-            />
-          ))}
+        {view.type === ViewType.enum.Build && (
+          <>
+            {Object.keys(view.connections).map((id) => (
+              <line
+                key={id}
+                stroke={fill}
+                ref={(el) => (lines.current[id] = el)}
+                strokeWidth="var(--stroke-width)"
+              />
+            ))}
+            {Object.values(view.input).map((id) => (
+              <line
+                key={`input-${id}`}
+                stroke={fill}
+                ref={(el) =>
+                  (lines.current[`input-${id}`] = el)
+                }
+                strokeWidth="var(--stroke-width)"
+              />
+            ))}
+          </>
+        )}
         {view.type === ViewType.enum.Connect && (
           <line
             stroke={fill}
@@ -157,17 +169,17 @@ function initBuildCursor({
   camera$,
   g,
   lines,
-  connections,
+  view,
   shapes,
 }: {
   position: MutableRefObject<Vec2>
   camera$: BehaviorSubject<Camera>
   g: SVGGElement
   lines: Record<string, SVGLineElement | null>
-  connections: Connections
+  view: BuildView
   shapes: World['shapes']
 }): () => void {
-  for (const entityId of Object.keys(connections)) {
+  for (const entityId of Object.keys(view.connections)) {
     const entity = shapes[entityId]
     invariant(entity)
     const line = lines[entityId]
@@ -182,6 +194,8 @@ function initBuildCursor({
     )
   }
 
+  // for (const entityId of Object.values(o))
+
   const sub = camera$.subscribe((camera) => {
     position.current = vec2.clone(camera.position)
 
@@ -189,7 +203,7 @@ function initBuildCursor({
     const y = position.current.y.toFixed(4)
     g.setAttribute('transform', `translate(${x} ${y})`)
 
-    for (const entityId of Object.keys(connections)) {
+    for (const entityId of Object.keys(view.connections)) {
       const line = lines[entityId]
       invariant(line)
       line.setAttribute('x1', x)

@@ -146,8 +146,24 @@ export function getInputOutput(
   input: Partial<Record<ItemType, EntityId>>
   output: Partial<Record<ItemType, EntityId>>
 } {
+  const dists = new Map<EntityId, number>()
+  for (const shape of Object.values(shapes)) {
+    dists.set(shape.id, vec2.dist(position, shape.position))
+  }
+
+  const sorted = Object.values(shapes).sort(
+    (a, b) => dists.get(a.id)! - dists.get(b.id)!,
+  )
+
+  const input: Partial<Record<ItemType, EntityId>> = {}
+
+  const closest = sorted.at(0)
+  if (closest) {
+    input[ItemType.enum.IronOre] = closest.id
+  }
+
   return {
-    input: {},
+    input,
     output: {},
   }
 }

@@ -66,6 +66,10 @@ function norm(v: Vec2): void {
   div(v, len(v))
 }
 
+function dist(a: Vec2, b: Vec2): number {
+  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+}
+
 export const vec2 = {
   init,
   reset,
@@ -78,4 +82,5 @@ export const vec2 = {
   div,
   len,
   norm,
+  dist,
 }
