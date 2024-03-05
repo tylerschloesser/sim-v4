@@ -13,12 +13,10 @@ import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
-  addConnection,
   buildEntity,
   minePatch,
   moveFromCursorToEntityInput,
   moveFromEntityOutputToCursor,
-  removeConnection,
 } from './action.js'
 import { Camera } from './camera.js'
 import { inventoryHas } from './inventory.js'
@@ -33,8 +31,6 @@ import { vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
 import {
   BuildView,
-  ConnectAction,
-  ConnectView,
   SelectView,
   ViewType,
   useSetViewSearchParam,
@@ -42,7 +38,6 @@ import {
 import {
   Cursor,
   Entity,
-  EntityId,
   EntityType,
   ItemType,
   MinerEntity,
@@ -81,13 +76,11 @@ function RenderBuildControls({
   const primary: ButtonProps = {
     disabled: !view.valid,
     onTap() {
-      console.log('calling build entity')
       buildEntity(
         setWorld,
         recipe.entityType,
         view.itemRecipeKey,
         vec2.clone(camera$.value.position),
-        {},
         view.input,
         view.output,
       )
@@ -134,62 +127,13 @@ function RenderBuildControls({
   )
 }
 
-interface RenderConnectControlsProps {
-  cursor: Cursor
-  view: ConnectView
-  setWorld: Updater<World>
-}
-
-function RenderConnectControls({
-  cursor,
-  view,
-  setWorld,
-}: RenderConnectControlsProps) {
-  const setView = useSetViewSearchParam()
-
-  const primary: ButtonProps = {
-    disabled: view.action === null,
-    onTap() {
-      invariant(cursor.entityId)
-      if (view.action === ConnectAction.enum.Connect) {
-        addConnection(
-          setWorld,
-          view.sourceId,
-          cursor.entityId,
-        )
-      } else if (
-        view.action === ConnectAction.enum.Disconnect
-      ) {
-        removeConnection(
-          setWorld,
-          view.sourceId,
-          cursor.entityId,
-        )
-      }
-    },
-    label:
-      view.action === ConnectAction.enum.Disconnect
-        ? 'Disconnect'
-        : 'Connect',
-  }
-
-  const secondary: ButtonProps = {
-    onTap() {
-      setView(null)
-    },
-    label: 'Cancel',
-  }
-
-  return <Render primary={primary} secondary={secondary} />
-}
-
 interface RenderSelectControlsProps {
   view: SelectView
 }
 
 function RenderSelectControls({
   // eslint-disable-next-line
-  view,
+  view: _view,
 }: RenderSelectControlsProps) {
   const setView = useSetViewSearchParam()
   const primary: ButtonProps = {
@@ -218,15 +162,6 @@ export const RenderControls = React.memo(
         return (
           <RenderBuildControls
             camera$={camera$}
-            cursor={cursor}
-            setWorld={setWorld}
-            view={view}
-          />
-        )
-      }
-      case ViewType.enum.Connect: {
-        return (
-          <RenderConnectControls
             cursor={cursor}
             setWorld={setWorld}
             view={view}
@@ -266,11 +201,7 @@ export const RenderControls = React.memo(
           )
         case EntityType.enum.Generator:
         case EntityType.enum.Crafter:
-          return (
-            <RenderDefaultEntityControls
-              entityId={cursorEntity.id}
-            />
-          )
+          return <Render />
         default:
           invariant(false)
       }
@@ -279,29 +210,6 @@ export const RenderControls = React.memo(
     return <RenderDefaultControls cursor={cursor} />
   },
 )
-
-interface RenderDefaultEntityControlsProps {
-  entityId: EntityId
-}
-
-function RenderDefaultEntityControls({
-  entityId,
-}: RenderDefaultEntityControlsProps) {
-  const setView = useSetViewSearchParam()
-  return (
-    <Render
-      tertiary={{
-        onTap() {
-          setView({
-            type: ViewType.enum.Connect,
-            sourceId: entityId,
-          })
-        },
-        label: 'Connect',
-      }}
-    />
-  )
-}
 
 interface ButtonProps {
   disabled?: boolean
@@ -480,23 +388,7 @@ function RenderPatchControls({
     label: 'Build Miner',
   }
 
-  const tertiary: ButtonProps = {
-    onTap() {
-      setView({
-        type: ViewType.enum.Connect,
-        sourceId: entity.id,
-      })
-    },
-    label: 'Connect',
-  }
-
-  return (
-    <Render
-      primary={primary}
-      secondary={secondary}
-      tertiary={tertiary}
-    />
-  )
+  return <Render primary={primary} secondary={secondary} />
 }
 
 interface RenderDefaultControlsProps {
@@ -549,8 +441,6 @@ function RenderSmelterControls({
   entity,
   setWorld,
 }: RenderSmelterControlsProps) {
-  const setView = useSetViewSearchParam()
-
   const outputType = ItemType.enum.IronPlate
   const hasOutput =
     (entity.state.output[outputType] ?? 0) > 0
@@ -600,23 +490,7 @@ function RenderSmelterControls({
     label: 'Take All',
   }
 
-  const tertiary: ButtonProps = {
-    onTap: () => {
-      setView({
-        type: ViewType.enum.Connect,
-        sourceId: entity.id,
-      })
-    },
-    label: 'Connect',
-  }
-
-  return (
-    <Render
-      primary={primary}
-      secondary={secondary}
-      tertiary={tertiary}
-    />
-  )
+  return <Render primary={primary} secondary={secondary} />
 }
 
 interface RenderMinerControlsProps {
@@ -630,7 +504,6 @@ function RenderMinerControls({
   entity,
   setWorld,
 }: RenderMinerControlsProps) {
-  const setView = useSetViewSearchParam()
   const outputType = (() => {
     const first = Object.keys(entity.state.output)
     return first.length ? ItemType.parse(first.at(0)) : null
@@ -661,15 +534,6 @@ function RenderMinerControls({
           moveFromEntityOutputToCursor(setWorld, entity.id)
         },
         label: 'Take All',
-      }}
-      tertiary={{
-        onTap: () => {
-          setView({
-            type: ViewType.enum.Connect,
-            sourceId: entity.id,
-          })
-        },
-        label: 'Connect',
       }}
     />
   )

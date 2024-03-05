@@ -57,17 +57,6 @@ export const RenderCursor = React.memo(
             shapes,
           })
         }
-        case ViewType.enum.Connect: {
-          return initConnectCursor({
-            position,
-            camera$,
-            g: g.current,
-            lines: lines.current,
-            sourceId: view.sourceId,
-            shapes,
-            setWorld,
-          })
-        }
         case ViewType.enum.Select: {
           return initDefaultCursor({
             position,
@@ -101,13 +90,6 @@ export const RenderCursor = React.memo(
           : 'hsla(0, 50%, 50%, .5)'
         break
       }
-      case ViewType.enum.Connect: {
-        fill =
-          view.action !== null
-            ? 'hsla(120, 50%, 50%, .5)'
-            : 'hsla(0, 50%, 50%, .5)'
-        break
-      }
       case ViewType.enum.Select:
       case ViewType.enum.Default: {
         fill = 'hsla(240, 50%, 50%, 1)'
@@ -131,15 +113,6 @@ export const RenderCursor = React.memo(
               />
             ))}
           </>
-        )}
-        {view.type === ViewType.enum.Connect && (
-          <line
-            stroke={fill}
-            ref={(el) =>
-              (lines.current[view.sourceId] = el)
-            }
-            strokeWidth="var(--stroke-width)"
-          />
         )}
         <g ref={g}>
           <circle r={cursor.radius} fill={fill} />
@@ -351,56 +324,6 @@ function initDefaultCursor({
       draft.cursor.entityId = entityId
     })
   }
-  return initHomingCursor({
-    position,
-    camera$,
-    shapes,
-    update,
-    setAttachedEntityId,
-  })
-}
-
-function initConnectCursor({
-  position,
-  camera$,
-  g,
-  lines,
-  sourceId,
-  shapes,
-  setWorld,
-}: {
-  position: MutableRefObject<Vec2>
-  camera$: BehaviorSubject<Camera>
-  g: SVGGElement
-  lines: Record<EntityId, SVGLineElement | null>
-  sourceId: EntityId
-  shapes: World['shapes']
-  setWorld: Updater<World>
-}): () => void {
-  const line = lines[sourceId]
-  invariant(line)
-
-  const source = shapes[sourceId]
-  invariant(source)
-  line.setAttribute('x2', `${source.position.x.toFixed(4)}`)
-  line.setAttribute('y2', `${source.position.y.toFixed(4)}`)
-
-  function update(): void {
-    const x = position.current.x.toFixed(4)
-    const y = position.current.y.toFixed(4)
-    g.setAttribute('transform', `translate(${x} ${y})`)
-
-    invariant(line)
-    line.setAttribute('x1', x)
-    line.setAttribute('y1', y)
-  }
-
-  function setAttachedEntityId(entityId: string | null) {
-    setWorld((draft) => {
-      draft.cursor.entityId = entityId
-    })
-  }
-
   return initHomingCursor({
     position,
     camera$,

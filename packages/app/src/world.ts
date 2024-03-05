@@ -31,21 +31,10 @@ export const EntityType = z.enum([
 ])
 export type EntityType = z.infer<typeof EntityType>
 
-export const ConnectionType = z.enum(['Item', 'Power'])
-export type ConnectionType = z.infer<typeof ConnectionType>
-
-export const Connections = z.record(
-  EntityId,
-  ConnectionType,
-)
-export type Connections = z.infer<typeof Connections>
-
 const EntityShapeBase = z.strictObject({
   id: EntityId,
   position: Vec2,
   radius: z.literal(0.75),
-
-  connections: Connections,
 
   itemType: ItemType,
 
@@ -269,7 +258,6 @@ function addPatch({
   const shape: PatchEntityShape = {
     id,
     type,
-    connections: {},
     itemType,
     input: {},
     output: {

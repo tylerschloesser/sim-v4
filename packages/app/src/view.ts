@@ -15,10 +15,7 @@ import * as z from 'zod'
 import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
-import {
-  getConnectAction,
-  getInputOutput,
-} from './connect.js'
+import { getInputOutput } from './connect.js'
 import { inventoryHas } from './inventory.js'
 import {
   ItemRecipeKey,
@@ -36,7 +33,6 @@ import {
 export const ViewType = z.enum([
   'Default',
   'Build',
-  'Connect',
   'Select',
 ])
 export type ViewType = z.infer<typeof ViewType>
@@ -78,26 +74,6 @@ export const BuildView = BuildViewSearchParam.extend({
 export type BuildView = z.infer<typeof BuildView>
 
 //
-// Connect
-//
-export const ConnectAction = z.enum([
-  'Connect',
-  'Disconnect',
-])
-export type ConnectAction = z.infer<typeof ConnectAction>
-export const ConnectViewSearchParam = z.strictObject({
-  type: z.literal(ViewType.enum.Connect),
-  sourceId: EntityId,
-})
-export type ConnectViewSearchParam = z.infer<
-  typeof ConnectViewSearchParam
->
-export const ConnectView = ConnectViewSearchParam.extend({
-  action: ConnectAction.nullable(),
-})
-export type ConnectView = z.infer<typeof ConnectView>
-
-//
 // Select
 //
 export const SelectViewSearchParam = z.strictObject({
@@ -113,7 +89,6 @@ export type SelectView = z.infer<typeof SelectView>
 const ViewSearchParam = z.discriminatedUnion('type', [
   DefaultViewSearchParam,
   BuildViewSearchParam,
-  ConnectViewSearchParam,
   SelectViewSearchParam,
 ])
 type ViewSearchParam = z.infer<typeof ViewSearchParam>
@@ -121,7 +96,6 @@ type ViewSearchParam = z.infer<typeof ViewSearchParam>
 export const View = z.discriminatedUnion('type', [
   DefaultView,
   BuildView,
-  ConnectView,
   SelectView,
 ])
 export type View = z.infer<typeof View>
@@ -164,7 +138,6 @@ export function useSetViewSearchParam(): (
 function getView(
   param: ViewSearchParam,
   camera: Camera,
-  cursor: World['cursor'],
   shapes: World['shapes'],
 ): View {
   switch (param.type) {
@@ -195,17 +168,6 @@ function getView(
         entityType: recipe.entityType,
       }
     }
-    case ViewType.enum.Connect: {
-      const source = shapes[param.sourceId]
-      invariant(source)
-      let action: ConnectAction | null = null
-      if (cursor.entityId) {
-        const target = shapes[cursor.entityId]
-        invariant(target)
-        action = getConnectAction(source, target, shapes)
-      }
-      return { ...param, action }
-    }
     case ViewType.enum.Select: {
       return param
     }
@@ -219,13 +181,7 @@ export function useView(): View {
   const param = useViewSearchParam()
 
   const initialView = useMemo(
-    () =>
-      getView(
-        param,
-        camera$.value,
-        world.cursor,
-        world.shapes,
-      ),
+    () => getView(param, camera$.value, world.shapes),
     [],
   )
 
@@ -235,16 +191,11 @@ export function useView(): View {
     camera$,
     (camera) => {
       setView((prev) => {
-        const next = getView(
-          param,
-          camera,
-          world.cursor,
-          world.shapes,
-        )
+        const next = getView(param, camera, world.shapes)
         return isEqual(next, prev) ? prev : next
       })
     },
-    [param, world.cursor, world.shapes],
+    [param, world.shapes],
   )
 
   const navigate = useNavigate()

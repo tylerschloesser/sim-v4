@@ -1,13 +1,10 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { isConnectAllowed } from './connect.js'
 import { deleteEmptyPatch } from './delete.js'
 import { inventoryMove, inventorySub } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { Vec2 } from './vec2.js'
 import {
-  ConnectionType,
-  Connections,
   EntityId,
   EntityShape,
   EntityType,
@@ -89,7 +86,6 @@ export function buildEntity(
   entityType: EntityType,
   itemType: ItemType,
   position: Vec2,
-  connections: Connections,
   input: EntityShape['input'],
   output: EntityShape['output'],
 ): void {
@@ -119,7 +115,6 @@ export function buildEntity(
           type: EntityType.enum.Miner,
           id,
           itemType,
-          connections,
           input,
           output,
           position,
@@ -140,7 +135,6 @@ export function buildEntity(
           type: EntityType.enum.Smelter,
           id,
           itemType,
-          connections,
           input,
           output,
           position,
@@ -162,7 +156,6 @@ export function buildEntity(
           type: EntityType.enum.Generator,
           id,
           itemType,
-          connections,
           input,
           output,
           position,
@@ -182,7 +175,6 @@ export function buildEntity(
           type: EntityType.enum.Crafter,
           id,
           itemType,
-          connections,
           input,
           output,
           position,
@@ -234,50 +226,5 @@ export function buildEntity(
         value[id] = true
       }
     }
-
-    invariant(Object.keys(connections).length === 0)
-  })
-}
-
-export function addConnection(
-  setWorld: Updater<World>,
-  sourceId: EntityId,
-  targetId: EntityId,
-): void {
-  setWorld((world) => {
-    const source = getEntity(world, sourceId)
-    const target = getEntity(world, targetId)
-
-    invariant(!source.shape.connections[targetId])
-    invariant(!target.shape.connections[sourceId])
-
-    invariant(
-      isConnectAllowed(
-        source.shape,
-        target.shape,
-        world.shapes,
-      ),
-    )
-
-    const connectionType = ConnectionType.enum.Item
-    source.shape.connections[targetId] = connectionType
-    target.shape.connections[sourceId] = connectionType
-  })
-}
-
-export function removeConnection(
-  setWorld: Updater<World>,
-  sourceId: EntityId,
-  targetId: EntityId,
-): void {
-  setWorld((world) => {
-    const source = getEntity(world, sourceId)
-    const target = getEntity(world, targetId)
-
-    invariant(source.shape.connections[targetId])
-    invariant(target.shape.connections[sourceId])
-
-    delete source.shape.connections[targetId]
-    delete target.shape.connections[sourceId]
   })
 }
