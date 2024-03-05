@@ -22,8 +22,10 @@ import {
 import { AppContext } from './app-context.js'
 import { inventoryHas } from './inventory.js'
 import {
+  ItemRecipeKey,
   entityRecipes,
-  getAvailableEntityRecipes,
+  getAvailableItemRecipes,
+  itemRecipes,
 } from './recipe.js'
 import styles from './render-controls.module.scss'
 import { vec2 } from './vec2.js'
@@ -68,21 +70,23 @@ function RenderBuildControls({
 }: RenderBuildControlsProps) {
   const setView = useSetViewSearchParam()
   const { camera$ } = useContext(AppContext)
-  const availableRecipes = getAvailableEntityRecipes(
+  const availableRecipes = getAvailableItemRecipes(
     cursor.inventory,
   )
+
+  const recipe = itemRecipes[view.itemRecipeKey]
 
   const primary: ButtonProps = {
     disabled: !view.valid,
     onTap() {
       buildEntity(
         setWorld,
-        view.entityType,
+        recipe.entityType,
         vec2.clone(camera$.value.position),
         view.connections,
       )
     },
-    label: `Build ${view.entityType}`,
+    label: `Prodcue ${view.itemRecipeKey}`,
   }
 
   const secondary: ButtonProps = {
@@ -96,7 +100,8 @@ function RenderBuildControls({
     disabled: availableRecipes.length < 2,
     onTap() {
       let i = availableRecipes.findIndex(
-        (recipe) => recipe.output === view.entityType,
+        (recipe) =>
+          recipe.itemRecipeKey === view.itemRecipeKey,
       )
       invariant(i >= 0)
 
@@ -108,7 +113,7 @@ function RenderBuildControls({
 
       setView({
         type: ViewType.enum.Build,
-        entityType: next.output,
+        itemRecipeKey: next.itemRecipeKey,
         connections: {},
       })
     },
@@ -433,6 +438,22 @@ function RenderPatchControls({
     minePatch(setWorld, cursor.entityId)
   }, [cursor.entityId])
 
+  const itemRecipeKey: ItemRecipeKey = (() => {
+    const keys = Object.keys(entity.state.output)
+    invariant(keys.length === 1)
+    const itemType = ItemType.parse(keys.at(0))
+    switch (itemType) {
+      case ItemType.enum.MineableCoal:
+        return ItemRecipeKey.enum.Coal
+      case ItemType.enum.MineableIronOre:
+        return ItemRecipeKey.enum.IronOre
+      case ItemType.enum.MineableStone:
+        return ItemRecipeKey.enum.Stone
+      default:
+        invariant(false)
+    }
+  })()
+
   const primary: ButtonProps = {
     onHold: mine,
     label: 'Mine',
@@ -446,7 +467,7 @@ function RenderPatchControls({
     onTap() {
       setView({
         type: ViewType.enum.Build,
-        entityType: EntityType.enum.Miner,
+        itemRecipeKey,
         connections: {
           [entity.id]: ConnectionType.enum.Item,
         },
@@ -483,7 +504,7 @@ function RenderDefaultControls({
 }: RenderDefaultControlsProps) {
   const setView = useSetViewSearchParam()
 
-  const availableRecipes = getAvailableEntityRecipes(
+  const availableRecipes = getAvailableItemRecipes(
     cursor.inventory,
   )
   const recipe = availableRecipes.at(0)
@@ -494,7 +515,7 @@ function RenderDefaultControls({
       invariant(recipe)
       setView({
         type: ViewType.enum.Build,
-        entityType: recipe.output,
+        itemRecipeKey: recipe.itemRecipeKey,
         connections: {},
       })
     },

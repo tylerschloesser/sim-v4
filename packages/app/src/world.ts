@@ -318,12 +318,23 @@ function initWorld(seed: string = ''): World {
     })
   }
 
-  // prettier-ignore
   {
     const count = 1_000
-    generatePatch(Math.PI * -0.5 * rng.next(), ItemType.enum.Coal, count)
-    generatePatch(Math.PI * 0.5 * rng.next(), ItemType.enum.IronOre, count)
-    generatePatch(Math.PI * -0.5 + Math.PI * -0.5 * rng.next(), ItemType.enum.Stone, count)
+    generatePatch(
+      Math.PI * -0.5 * rng.next(),
+      ItemType.enum.MineableCoal,
+      count,
+    )
+    generatePatch(
+      Math.PI * 0.5 * rng.next(),
+      ItemType.enum.MineableIronOre,
+      count,
+    )
+    generatePatch(
+      Math.PI * -0.5 + Math.PI * -0.5 * rng.next(),
+      ItemType.enum.MineableStone,
+      count,
+    )
   }
 
   return world

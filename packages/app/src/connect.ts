@@ -118,26 +118,6 @@ export function getConnectAction(
   return null
 }
 
-export function getBuildGeneratorConnections(
-  position: Vec2,
-  shapes: World['shapes'],
-): Connections {
-  const connections: Connections = {}
-
-  for (const shape of Object.values(shapes)) {
-    if (shape.type !== EntityType.enum.Crafter) {
-      continue
-    }
-    const v = vec2.clone(shape.position)
-    vec2.sub(v, position)
-    if (vec2.len(v) <= 10) {
-      connections[shape.id] = ConnectionType.enum.Power
-    }
-  }
-
-  return connections
-}
-
 export function getInputOutput(
   entityType: EntityType,
   position: Vec2,

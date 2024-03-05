@@ -1,3 +1,4 @@
+import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { inventoryHas } from './inventory.js'
 import { EntityType, Inventory, ItemType } from './world.js'
@@ -43,24 +44,52 @@ export const entityRecipes: Record<string, EntityRecipe> = {
   },
 }
 
+export const ItemRecipeKey = z.enum([
+  ItemType.enum.Coal,
+  ItemType.enum.IronOre,
+  ItemType.enum.Stone,
+])
+export type ItemRecipeKey = z.infer<typeof ItemRecipeKey>
+
 interface ItemRecipe {
-  itemType: ItemType
+  itemRecipeKey: ItemRecipeKey
   entityType: EntityType
   input: Partial<Record<ItemType, number>>
   output: Partial<Record<ItemType, number>>
 }
 
-export const itemRecipes: Partial<
-  Record<ItemType, ItemRecipe>
+export const itemRecipes: Record<
+  ItemRecipeKey,
+  ItemRecipe
 > = {
   [ItemType.enum.Coal]: {
-    itemType: ItemType.enum.Coal,
+    itemRecipeKey: ItemType.enum.Coal,
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableCoal]: 1,
     },
     output: {
       [ItemType.enum.Coal]: 1,
+    },
+  },
+  [ItemType.enum.IronOre]: {
+    itemRecipeKey: ItemType.enum.IronOre,
+    entityType: EntityType.enum.Miner,
+    input: {
+      [ItemType.enum.MineableIronOre]: 1,
+    },
+    output: {
+      [ItemType.enum.IronOre]: 1,
+    },
+  },
+  [ItemType.enum.Stone]: {
+    itemRecipeKey: ItemType.enum.Stone,
+    entityType: EntityType.enum.Miner,
+    input: {
+      [ItemType.enum.MineableStone]: 1,
+    },
+    output: {
+      [ItemType.enum.Stone]: 1,
     },
   },
 }
@@ -83,4 +112,15 @@ export function getAvailableEntityRecipes(
   return Object.values(entityRecipes).filter((recipe) =>
     inventoryHas(inventory, recipe.input),
   )
+}
+
+export function getAvailableItemRecipes(
+  inventory: Inventory,
+): ItemRecipe[] {
+  return Object.values(itemRecipes).filter((itemRecipe) => {
+    const entityRecipe =
+      entityRecipes[itemRecipe.entityType]
+    invariant(entityRecipe)
+    return inventoryHas(inventory, entityRecipe.input)
+  })
 }

@@ -16,12 +16,15 @@ import { AppContext } from './app-context.js'
 import { isBuildValid } from './build.js'
 import { Camera } from './camera.js'
 import {
-  getBuildGeneratorConnections,
   getConnectAction,
   getInputOutput,
 } from './connect.js'
 import { inventoryHas } from './inventory.js'
-import { entityRecipes } from './recipe.js'
+import {
+  ItemRecipeKey,
+  entityRecipes,
+  itemRecipes,
+} from './recipe.js'
 import {
   Connections,
   EntityId,
@@ -55,7 +58,7 @@ export type DefaultView = z.infer<typeof DefaultView>
 //
 export const BuildViewSearchParam = z.strictObject({
   type: z.literal(ViewType.enum.Build),
-  entityType: EntityType,
+  itemRecipeKey: ItemRecipeKey,
   connections: Connections,
 })
 export type BuildViewSearchParam = z.infer<
@@ -63,6 +66,7 @@ export type BuildViewSearchParam = z.infer<
 >
 export const BuildView = BuildViewSearchParam.extend({
   valid: z.boolean(),
+  entityType: EntityType,
   input: z.record(ItemType, EntityId),
   output: z.record(ItemType, EntityId),
 })
@@ -162,16 +166,7 @@ function getView(
       return param
     }
     case ViewType.enum.Build: {
-      let connections = param.connections
-      if (param.entityType === EntityType.enum.Generator) {
-        connections = {
-          ...getBuildGeneratorConnections(
-            camera.position,
-            world.shapes,
-          ),
-        }
-      }
-
+      const connections = param.connections
       const radius = 0.75
       const valid = isBuildValid(
         camera.position,
@@ -179,8 +174,10 @@ function getView(
         world.shapes,
       )
 
+      const recipe = itemRecipes[param.itemRecipeKey]
+
       const { input, output } = getInputOutput(
-        param.entityType,
+        recipe.entityType,
         camera.position,
         world.shapes,
       )
@@ -191,6 +188,7 @@ function getView(
         connections,
         input,
         output,
+        entityType: recipe.entityType,
       }
     }
     case ViewType.enum.Connect: {
@@ -240,9 +238,17 @@ export function useView(): View {
   useEffect(() => {
     switch (view.type) {
       case ViewType.enum.Build: {
-        const recipe = entityRecipes[view.entityType]
-        invariant(recipe)
-        if (!inventoryHas(cursor.inventory, recipe.input)) {
+        const itemRecipe = itemRecipes[view.itemRecipeKey]
+        invariant(itemRecipe)
+        const entityRecipe =
+          entityRecipes[itemRecipe.entityType]
+        invariant(entityRecipe)
+        if (
+          !inventoryHas(
+            cursor.inventory,
+            entityRecipe.input,
+          )
+        ) {
           navigate('..')
         }
       }
