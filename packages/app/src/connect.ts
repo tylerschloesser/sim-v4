@@ -138,18 +138,16 @@ export function getBuildGeneratorConnections(
   return connections
 }
 
-export function getInput(
+export function getInputOutput(
   entityType: EntityType,
   position: Vec2,
   shapes: World['shapes'],
-): Partial<Record<ItemType, EntityId>> {
-  return {}
-}
-
-export function getOutput(
-  entityType: EntityType,
-  position: Vec2,
-  shapes: World['shapes'],
-): Partial<Record<ItemType, EntityId>> {
-  return {}
+): {
+  input: Partial<Record<ItemType, EntityId>>
+  output: Partial<Record<ItemType, EntityId>>
+} {
+  return {
+    input: {},
+    output: {},
+  }
 }

@@ -18,8 +18,7 @@ import { Camera } from './camera.js'
 import {
   getBuildGeneratorConnections,
   getConnectAction,
-  getInput,
-  getOutput,
+  getInputOutput,
 } from './connect.js'
 import { inventoryHas } from './inventory.js'
 import { entityRecipes } from './recipe.js'
@@ -180,12 +179,7 @@ function getView(
         world.shapes,
       )
 
-      const input = getInput(
-        param.entityType,
-        camera.position,
-        world.shapes,
-      )
-      const output = getOutput(
+      const { input, output } = getInputOutput(
         param.entityType,
         camera.position,
         world.shapes,
