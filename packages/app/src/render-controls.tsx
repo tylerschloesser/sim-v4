@@ -5,10 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import {
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
