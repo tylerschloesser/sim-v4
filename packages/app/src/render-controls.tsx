@@ -135,7 +135,7 @@ function RenderConnectControls({
   view,
   setWorld,
 }: RenderConnectControlsProps) {
-  const navigate = useNavigate()
+  const setView = useSetViewSearchParam()
 
   const primary: ButtonProps = {
     disabled: view.action === null,
@@ -165,7 +165,7 @@ function RenderConnectControls({
 
   const secondary: ButtonProps = {
     onTap() {
-      navigate('..')
+      setView(null)
     },
     label: 'Cancel',
   }
