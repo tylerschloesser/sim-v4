@@ -10,6 +10,7 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom'
+import { BehaviorSubject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { AppContext } from './app-context.js'
@@ -25,6 +26,7 @@ import {
   entityRecipes,
   itemRecipes,
 } from './recipe.js'
+import { useSubscribeEffect } from './use-subscribe-effect.js'
 import {
   EntityId,
   EntityType,
@@ -227,17 +229,16 @@ export function useView(): View {
 
   const [view, setView] = useState(initialView)
 
-  useEffect(() => {
-    const sub = camera$.subscribe((camera) => {
+  useSubscribeEffect(
+    camera$,
+    (camera) => {
       setView((prev) => {
         const next = getView(param, camera, world)
         return isEqual(next, prev) ? prev : next
       })
-    })
-    return () => {
-      sub.unsubscribe()
-    }
-  }, [param, world])
+    },
+    [param, world],
+  )
 
   const navigate = useNavigate()
   useEffect(() => {
