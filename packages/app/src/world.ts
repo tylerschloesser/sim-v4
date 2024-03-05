@@ -7,9 +7,14 @@ export const EntityId = z.string()
 export type EntityId = z.infer<typeof EntityId>
 
 export const ItemType = z.enum([
+  'MineableCoal',
+  'MineableIronOre',
+  'MineableStone',
+
+  'Coal',
   'IronOre',
   'Stone',
-  'Coal',
+
   'IronPlate',
 ])
 export type ItemType = z.infer<typeof ItemType>
