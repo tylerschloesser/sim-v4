@@ -89,6 +89,8 @@ export function buildEntity(
   entityType: EntityType,
   position: Vec2,
   connections: Connections,
+  input: EntityShape['input'],
+  output: EntityShape['output'],
 ): void {
   const recipe = entityRecipes[entityType]
   invariant(recipe)
@@ -97,9 +99,6 @@ export function buildEntity(
     inventorySub(world.cursor.inventory, recipe.input)
 
     const id = getNextEntityId(world)
-
-    const input: EntityShape['input'] = {}
-    const output: EntityShape['output'] = {}
 
     switch (entityType) {
       case EntityType.enum.Miner: {

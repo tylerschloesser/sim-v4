@@ -131,17 +131,17 @@ function mapConnections(
   const result = new Array<JSX.Element>()
 
   for (const source of Object.values(shapes)) {
-    for (const [targetId, type] of Object.entries(
-      source.connections,
-    )) {
+    for (const targetId of Object.values(source.output)
+      .map((entry) => Object.keys(entry))
+      .flat()) {
       const id = getConnectionId(source.id, targetId)
-      if (seen.has(id)) {
-        continue
-      }
+      invariant(!seen.has(id))
       seen.add(id)
       const target = shapes[targetId]
       invariant(target)
-      result.push(cb(id, source, target, type))
+      result.push(
+        cb(id, source, target, ConnectionType.enum.Item),
+      )
     }
   }
 

@@ -83,6 +83,8 @@ function RenderBuildControls({
         recipe.entityType,
         vec2.clone(camera$.value.position),
         {},
+        view.input,
+        view.output,
       )
     },
     label: `${recipe.itemRecipeKey} ${recipe.entityType}`,
