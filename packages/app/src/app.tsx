@@ -54,33 +54,8 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: 'build',
-        element: null,
-        handle: {
-          viewType: ViewType.enum.Build,
-        },
-      },
-      {
-        path: 'connect',
-        element: null,
-        handle: {
-          viewType: ViewType.enum.Connect,
-        },
-      },
-      {
-        path: 'select',
-        element: null,
-        handle: {
-          viewType: ViewType.enum.Select,
-        },
-      },
-      {
         path: 'settings',
         Component: PathSettings,
-        // TODO this doesn't make sense
-        handle: {
-          viewType: ViewType.enum.Default,
-        },
       },
     ],
   },

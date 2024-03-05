@@ -34,10 +34,10 @@ import {
   ConnectView,
   SelectView,
   ViewType,
+  useSetViewSearchParam,
 } from './view.js'
 import {
   ConnectionType,
-  Connections,
   Cursor,
   Entity,
   EntityId,
@@ -66,7 +66,7 @@ function RenderBuildControls({
   setWorld,
   view,
 }: RenderBuildControlsProps) {
-  const navigate = useNavigate()
+  const setView = useSetViewSearchParam()
   const setSearch = useSearchParams()[1]
   const { camera$ } = useContext(AppContext)
   const availableRecipes = getAvailableEntityRecipes(
@@ -88,7 +88,7 @@ function RenderBuildControls({
 
   const secondary: ButtonProps = {
     onTap() {
-      navigate('..')
+      setView(null)
     },
     label: 'Back',
   }
@@ -181,13 +181,13 @@ function RenderSelectControls({
   // eslint-disable-next-line
   view,
 }: RenderSelectControlsProps) {
-  const navigate = useNavigate()
+  const setView = useSetViewSearchParam()
   const primary: ButtonProps = {
     label: 'Select',
   }
   const secondary: ButtonProps = {
     onTap() {
-      navigate('..')
+      setView(null)
     },
     label: 'Cancel',
   }
@@ -275,12 +275,15 @@ interface RenderDefaultEntityControlsProps {
 function RenderDefaultEntityControls({
   entityId,
 }: RenderDefaultEntityControlsProps) {
-  const navigate = useNavigate()
+  const setView = useSetViewSearchParam()
   return (
     <Render
       tertiary={{
         onTap() {
-          navigate(`connect?sourceId=${entityId}`)
+          setView({
+            type: ViewType.enum.Connect,
+            sourceId: entityId,
+          })
         },
         label: 'Connect',
       }}
@@ -421,7 +424,7 @@ function RenderPatchControls({
   entity,
   setWorld,
 }: RenderPatchControlsProps) {
-  const navigate = useNavigate()
+  const setView = useSetViewSearchParam()
   const minerRecipe = entityRecipes[EntityType.enum.Miner]
   invariant(minerRecipe)
 
@@ -441,20 +444,23 @@ function RenderPatchControls({
       minerRecipe.input,
     ),
     onTap() {
-      const search = new URLSearchParams()
-      search.set('entityType', EntityType.enum.Miner)
-      const connections: Connections = {
-        [entity.id]: ConnectionType.enum.Item,
-      }
-      search.set('connections', JSON.stringify(connections))
-      navigate(`build?${search.toString()}`)
+      setView({
+        type: ViewType.enum.Build,
+        entityType: EntityType.enum.Miner,
+        connections: {
+          [entity.id]: ConnectionType.enum.Item,
+        },
+      })
     },
     label: 'Build Miner',
   }
 
   const tertiary: ButtonProps = {
     onTap() {
-      navigate(`connect?sourceId=${entity.id}`)
+      setView({
+        type: ViewType.enum.Connect,
+        sourceId: entity.id,
+      })
     },
     label: 'Connect',
   }
@@ -475,7 +481,7 @@ interface RenderDefaultControlsProps {
 function RenderDefaultControls({
   cursor,
 }: RenderDefaultControlsProps) {
-  const navigate = useNavigate()
+  const setView = useSetViewSearchParam()
 
   const availableRecipes = getAvailableEntityRecipes(
     cursor.inventory,
@@ -488,14 +494,21 @@ function RenderDefaultControls({
       invariant(recipe)
       const search = new URLSearchParams()
       search.set('entityType', recipe.output)
-      navigate(`build?${search.toString()}`)
+      setView({
+        type: ViewType.enum.Build,
+        entityType: recipe.output,
+        connections: {},
+      })
     },
     label: 'Build',
   }
 
   const secondary: ButtonProps = {
     onTap() {
-      navigate('select')
+      setView({
+        type: ViewType.enum.Select,
+        selected: {},
+      })
     },
     label: 'Select',
   }
@@ -514,7 +527,7 @@ function RenderSmelterControls({
   entity,
   setWorld,
 }: RenderSmelterControlsProps) {
-  const navigate = useNavigate()
+  const setView = useSetViewSearchParam()
 
   const outputType = ItemType.enum.IronPlate
   const hasOutput =
@@ -567,7 +580,10 @@ function RenderSmelterControls({
 
   const tertiary: ButtonProps = {
     onTap: () => {
-      navigate(`connect?sourceId=${entity.id}`)
+      setView({
+        type: ViewType.enum.Connect,
+        sourceId: entity.id,
+      })
     },
     label: 'Connect',
   }
@@ -592,6 +608,7 @@ function RenderMinerControls({
   entity,
   setWorld,
 }: RenderMinerControlsProps) {
+  const setView = useSetViewSearchParam()
   const outputType = (() => {
     const first = Object.keys(entity.state.output)
     return first.length ? ItemType.parse(first.at(0)) : null
@@ -607,8 +624,6 @@ function RenderMinerControls({
       [ItemType.enum.Coal]: 1,
     })
   }, [hasCoal])
-
-  const navigate = useNavigate()
 
   return (
     <Render
@@ -627,7 +642,10 @@ function RenderMinerControls({
       }}
       tertiary={{
         onTap: () => {
-          navigate(`connect?sourceId=${entity.id}`)
+          setView({
+            type: ViewType.enum.Connect,
+            sourceId: entity.id,
+          })
         },
         label: 'Connect',
       }}

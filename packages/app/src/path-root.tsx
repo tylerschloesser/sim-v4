@@ -1,21 +1,16 @@
 import { useContext } from 'react'
 import { Outlet } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 import { AppContext } from './app-context.js'
-import { entityRecipes } from './recipe.js'
 import { RenderControls } from './render-controls.js'
 import { RenderInfo } from './render-info.js'
 import { RenderViewport } from './render-viewport.js'
 import { ViewContext } from './view-context.js'
 import { useView } from './view.js'
-import { EntityType, getEntity } from './world.js'
+import { getEntity } from './world.js'
 
 export function PathRoot() {
   const { world, setWorld } = useContext(AppContext)
   const view = useView()
-
-  const minerRecipe = entityRecipes[EntityType.enum.Miner]
-  invariant(minerRecipe)
 
   const { cursor } = world
 
