@@ -492,8 +492,6 @@ function RenderDefaultControls({
     disabled: !recipe,
     onTap: () => {
       invariant(recipe)
-      const search = new URLSearchParams()
-      search.set('entityType', recipe.output)
       setView({
         type: ViewType.enum.Build,
         entityType: recipe.output,
