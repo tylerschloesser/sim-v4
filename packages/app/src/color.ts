@@ -45,14 +45,17 @@ function getPatchColor(entity: PatchEntity) {
 
   const itemType = getPatchItemType(entity)
   switch (itemType) {
+    case ItemType.enum.MineableCoal:
     case ItemType.enum.Coal:
       fill = 'black'
       stroke = 'gray'
       break
+    case ItemType.enum.MineableIronOre:
     case ItemType.enum.IronOre:
       fill = 'lightblue'
       stroke = 'gray'
       break
+    case ItemType.enum.MineableStone:
     case ItemType.enum.Stone:
       fill = 'darkgray'
       stroke = 'gray'
