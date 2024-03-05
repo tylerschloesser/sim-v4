@@ -60,6 +60,11 @@ export interface ItemRecipe {
   output: Partial<Record<ItemType, number>>
 }
 
+const TICKS_PER_SECOND = 10
+function perSecond(s: number): number {
+  return s / TICKS_PER_SECOND
+}
+
 export const itemRecipes: Record<
   ItemRecipeKey,
   ItemRecipe
@@ -68,33 +73,33 @@ export const itemRecipes: Record<
     itemRecipeKey: ItemRecipeKey.enum.Coal,
     entityType: EntityType.enum.Miner,
     input: {
-      [ItemType.enum.MineableCoal]: 1,
-      [ItemType.enum.Coal]: 0.1,
+      [ItemType.enum.MineableCoal]: perSecond(1),
+      [ItemType.enum.Coal]: perSecond(0.1),
     },
     output: {
-      [ItemType.enum.Coal]: 1,
+      [ItemType.enum.Coal]: perSecond(1),
     },
   },
   [ItemRecipeKey.enum.IronOre]: {
     itemRecipeKey: ItemRecipeKey.enum.IronOre,
     entityType: EntityType.enum.Miner,
     input: {
-      [ItemType.enum.MineableIronOre]: 1,
-      [ItemType.enum.Coal]: 0.1,
+      [ItemType.enum.MineableIronOre]: perSecond(1),
+      [ItemType.enum.Coal]: perSecond(0.1),
     },
     output: {
-      [ItemType.enum.IronOre]: 1,
+      [ItemType.enum.IronOre]: perSecond(1),
     },
   },
   [ItemRecipeKey.enum.Stone]: {
     itemRecipeKey: ItemRecipeKey.enum.Stone,
     entityType: EntityType.enum.Miner,
     input: {
-      [ItemType.enum.MineableStone]: 1,
-      [ItemType.enum.Coal]: 0.1,
+      [ItemType.enum.MineableStone]: perSecond(1),
+      [ItemType.enum.Coal]: perSecond(0.1),
     },
     output: {
-      [ItemType.enum.Stone]: 1,
+      [ItemType.enum.Stone]: perSecond(1),
     },
   },
 
@@ -102,11 +107,11 @@ export const itemRecipes: Record<
     itemRecipeKey: ItemRecipeKey.enum.IronPlate,
     entityType: EntityType.enum.Smelter,
     input: {
-      [ItemType.enum.IronOre]: 1,
-      [ItemType.enum.Coal]: 0.1,
+      [ItemType.enum.IronOre]: perSecond(1),
+      [ItemType.enum.Coal]: perSecond(0.1),
     },
     output: {
-      [ItemType.enum.IronPlate]: 1,
+      [ItemType.enum.IronPlate]: perSecond(1),
     },
   },
 }
