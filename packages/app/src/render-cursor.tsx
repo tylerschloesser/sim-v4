@@ -194,7 +194,23 @@ function initBuildCursor({
     )
   }
 
-  // for (const entityId of Object.values(o))
+  for (const entityId of Object.values(view.input)) {
+    const entity = shapes[entityId]
+    invariant(entity)
+    const line = lines[`input-${entityId}`]
+    if (!line) {
+      // may happen because lines are added asyncronously by react
+      continue
+    }
+    line.setAttribute(
+      'x2',
+      `${entity.position.x.toFixed(4)}`,
+    )
+    line.setAttribute(
+      'y2',
+      `${entity.position.y.toFixed(4)}`,
+    )
+  }
 
   const sub = camera$.subscribe((camera) => {
     position.current = vec2.clone(camera.position)
@@ -206,6 +222,16 @@ function initBuildCursor({
     for (const entityId of Object.keys(view.connections)) {
       const line = lines[entityId]
       invariant(line)
+      line.setAttribute('x1', x)
+      line.setAttribute('y1', y)
+    }
+
+    for (const entityId of Object.values(view.input)) {
+      const line = lines[`input-${entityId}`]
+      if (!line) {
+        // may happen because lines are added asyncronously by react
+        continue
+      }
       line.setAttribute('x1', x)
       line.setAttribute('y1', y)
     }
