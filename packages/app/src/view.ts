@@ -65,8 +65,14 @@ export type BuildViewSearchParam = z.infer<
 export const BuildView = BuildViewSearchParam.extend({
   valid: z.boolean(),
   entityType: EntityType,
-  input: z.record(ItemType, EntityId),
-  output: z.record(ItemType, EntityId),
+  input: z.record(
+    ItemType,
+    z.record(EntityId, z.literal(true)),
+  ),
+  output: z.record(
+    ItemType,
+    z.record(EntityId, z.literal(true)),
+  ),
 })
 export type BuildView = z.infer<typeof BuildView>
 

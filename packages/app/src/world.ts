@@ -47,8 +47,14 @@ const EntityShapeBase = z.strictObject({
 
   connections: Connections,
 
-  input: z.record(ItemType, EntityId),
-  output: z.record(ItemType, EntityId),
+  input: z.record(
+    ItemType,
+    z.record(EntityId, z.literal(true)),
+  ),
+  output: z.record(
+    ItemType,
+    z.record(EntityId, z.literal(true)),
+  ),
 })
 
 const EntityStateBase = z.strictObject({

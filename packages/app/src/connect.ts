@@ -3,8 +3,6 @@ import { hasConnectedPatch } from './miner.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ConnectAction } from './view.js'
 import {
-  ConnectionType,
-  Connections,
   EntityId,
   EntityShape,
   EntityType,
@@ -123,8 +121,8 @@ export function getInputOutput(
   position: Vec2,
   shapes: World['shapes'],
 ): {
-  input: Partial<Record<ItemType, EntityId>>
-  output: Partial<Record<ItemType, EntityId>>
+  input: Partial<Record<ItemType, Record<EntityId, true>>>
+  output: Partial<Record<ItemType, Record<EntityId, true>>>
 } {
   const dists = new Map<EntityId, number>()
   for (const shape of Object.values(shapes)) {
@@ -135,11 +133,15 @@ export function getInputOutput(
     (a, b) => dists.get(a.id)! - dists.get(b.id)!,
   )
 
-  const input: Partial<Record<ItemType, EntityId>> = {}
+  const input: Partial<
+    Record<ItemType, Record<EntityId, true>>
+  > = {}
 
   const closest = sorted.at(0)
   if (closest) {
-    input[ItemType.enum.IronOre] = closest.id
+    input[ItemType.enum.IronOre] = {
+      [closest.id]: true,
+    }
   }
 
   return {

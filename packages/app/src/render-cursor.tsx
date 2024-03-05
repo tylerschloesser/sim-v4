@@ -122,13 +122,11 @@ export const RenderCursor = React.memo(
       <g data-group="cursor">
         {view.type === ViewType.enum.Build && (
           <>
-            {Object.values(view.input).map((id) => (
+            {mapConnectedEntityIds(view, (id) => (
               <line
-                key={`input-${id}`}
+                key={id}
                 stroke={fill}
-                ref={(el) =>
-                  (lines.current[`input-${id}`] = el)
-                }
+                ref={(el) => (lines.current[id] = el)}
                 strokeWidth="var(--stroke-width)"
               />
             ))}
@@ -156,6 +154,30 @@ export const RenderCursor = React.memo(
   },
 )
 
+function* iterateConnectedEntityIds(view: BuildView) {
+  const seen = new Set<EntityId>()
+  for (const entityId of Object.keys(
+    Object.values(view.input),
+  )) {
+    if (seen.has(entityId)) {
+      continue
+    }
+    seen.add(entityId)
+    yield entityId
+  }
+}
+
+function mapConnectedEntityIds(
+  view: BuildView,
+  cb: (id: EntityId) => JSX.Element,
+): JSX.Element[] {
+  const result = new Array<JSX.Element>()
+  for (const id of iterateConnectedEntityIds(view)) {
+    result.push(cb(id))
+  }
+  return result
+}
+
 function initBuildCursor({
   position,
   camera$,
@@ -171,10 +193,10 @@ function initBuildCursor({
   view: BuildView
   shapes: World['shapes']
 }): () => void {
-  for (const entityId of Object.values(view.input)) {
-    const entity = shapes[entityId]
+  for (const id of iterateConnectedEntityIds(view)) {
+    const entity = shapes[id]
     invariant(entity)
-    const line = lines[`input-${entityId}`]
+    const line = lines[id]
     if (!line) {
       // may happen because lines are added asyncronously by react
       continue
@@ -196,8 +218,8 @@ function initBuildCursor({
     const y = position.current.y.toFixed(4)
     g.setAttribute('transform', `translate(${x} ${y})`)
 
-    for (const entityId of Object.values(view.input)) {
-      const line = lines[`input-${entityId}`]
+    for (const id of iterateConnectedEntityIds(view)) {
+      const line = lines[id]
       if (!line) {
         // may happen because lines are added asyncronously by react
         continue
