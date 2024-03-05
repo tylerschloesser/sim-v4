@@ -45,6 +45,13 @@ export const RenderCursor = React.memo(
     >({})
 
     useEffect(() => {
+      console.log('shapes changed')
+    }, [shapes])
+    useEffect(() => {
+      console.log('view changed')
+    }, [view])
+
+    useEffect(() => {
       invariant(g.current)
       switch (view.type) {
         case ViewType.enum.Build: {
@@ -156,18 +163,18 @@ export const RenderCursor = React.memo(
 
 function* iterateConnectedEntityIds(view: BuildView) {
   const seen = new Set<EntityId>()
-  for (const entityId of Object.keys(
-    Object.values(view.input),
-  )) {
+  for (const entityId of Object.values(view.input)
+    .map((entry) => Object.keys(entry))
+    .flat()) {
     if (seen.has(entityId)) {
       continue
     }
     seen.add(entityId)
     yield entityId
   }
-  for (const entityId of Object.keys(
-    Object.values(view.output),
-  )) {
+  for (const entityId of Object.values(view.output)
+    .map((entry) => Object.keys(entry))
+    .flat()) {
     if (seen.has(entityId)) {
       continue
     }
@@ -206,10 +213,11 @@ function initBuildCursor({
     const entity = shapes[id]
     invariant(entity)
     const line = lines[id]
-    if (!line) {
-      // may happen because lines are added asyncronously by react
-      continue
-    }
+    invariant(line)
+    // if (!line) {
+    //   // may happen because lines are added asyncronously by react
+    //   continue
+    // }
     line.setAttribute(
       'x2',
       `${entity.position.x.toFixed(4)}`,
@@ -229,10 +237,11 @@ function initBuildCursor({
 
     for (const id of iterateConnectedEntityIds(view)) {
       const line = lines[id]
-      if (!line) {
-        // may happen because lines are added asyncronously by react
-        continue
-      }
+      invariant(line)
+      // if (!line) {
+      //   // may happen because lines are added asyncronously by react
+      //   continue
+      // }
       line.setAttribute('x1', x)
       line.setAttribute('y1', y)
     }
