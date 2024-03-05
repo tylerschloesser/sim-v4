@@ -164,7 +164,8 @@ export function useSetViewSearchParam(): (
 function getView(
   param: ViewSearchParam,
   camera: Camera,
-  world: World,
+  cursor: World['cursor'],
+  shapes: World['shapes'],
 ): View {
   switch (param.type) {
     case ViewType.enum.Default: {
@@ -175,7 +176,7 @@ function getView(
       const valid = isBuildValid(
         camera.position,
         radius,
-        world.shapes,
+        shapes,
       )
 
       const recipe = itemRecipes[param.itemRecipeKey]
@@ -183,7 +184,7 @@ function getView(
       const { input, output } = getInputOutput(
         recipe,
         camera.position,
-        world.shapes,
+        shapes,
       )
 
       return {
@@ -195,17 +196,13 @@ function getView(
       }
     }
     case ViewType.enum.Connect: {
-      const source = world.shapes[param.sourceId]
+      const source = shapes[param.sourceId]
       invariant(source)
       let action: ConnectAction | null = null
-      if (world.cursor.entityId) {
-        const target = world.shapes[world.cursor.entityId]
+      if (cursor.entityId) {
+        const target = shapes[cursor.entityId]
         invariant(target)
-        action = getConnectAction(
-          source,
-          target,
-          world.shapes,
-        )
+        action = getConnectAction(source, target, shapes)
       }
       return { ...param, action }
     }
@@ -222,7 +219,13 @@ export function useView(): View {
   const param = useViewSearchParam()
 
   const initialView = useMemo(
-    () => getView(param, camera$.value, world),
+    () =>
+      getView(
+        param,
+        camera$.value,
+        world.cursor,
+        world.shapes,
+      ),
     [],
   )
 
@@ -232,11 +235,16 @@ export function useView(): View {
     camera$,
     (camera) => {
       setView((prev) => {
-        const next = getView(param, camera, world)
+        const next = getView(
+          param,
+          camera,
+          world.cursor,
+          world.shapes,
+        )
         return isEqual(next, prev) ? prev : next
       })
     },
-    [param, world],
+    [param, world.cursor, world.shapes],
   )
 
   const navigate = useNavigate()

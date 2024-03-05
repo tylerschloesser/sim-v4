@@ -134,36 +134,37 @@ export function getInputOutput(
     (a, b) => dists.get(a.id)! - dists.get(b.id)!,
   )
 
-  const input: Partial<
-    Record<ItemType, Record<EntityId, true>>
-  > = {}
-
   const needsInput = new Set<ItemType>(
     Object.keys(recipe.input).map((key) =>
       ItemType.parse(key),
     ),
   )
-
-  for (const inputType of needsInput) {
-    input[inputType] = {}
-  }
-
-  const output: Partial<
-    Record<ItemType, Record<EntityId, true>>
-  > = {}
-
   const needsOutput = new Set<ItemType>(
     Object.keys(recipe.output).map((key) =>
       ItemType.parse(key),
     ),
   )
 
+  const input: Partial<
+    Record<ItemType, Record<EntityId, true>>
+  > = {}
+  const output: Partial<
+    Record<ItemType, Record<EntityId, true>>
+  > = {}
+
+  for (const inputType of needsInput) {
+    input[inputType] = {}
+    if (needsOutput.has(inputType)) {
+      console.log('deleting', inputType, 'from input')
+      needsInput.delete(inputType)
+    }
+  }
   for (const outputType of needsOutput) {
     output[outputType] = {}
   }
 
   for (const peer of sorted) {
-    if (needsInput.size > 0 && needsOutput.size === 0) {
+    if (needsInput.size === 0 && needsOutput.size === 0) {
       break
     }
 
@@ -177,7 +178,7 @@ export function getInputOutput(
     }
 
     for (const outputType of needsOutput) {
-      if (peer.output[outputType]) {
+      if (peer.input[outputType]) {
         const entry = output[outputType]
         invariant(entry)
         entry[peer.id] = true

@@ -87,6 +87,7 @@ export function moveFromCursorToEntityInput(
 export function buildEntity(
   setWorld: Updater<World>,
   entityType: EntityType,
+  itemType: ItemType,
   position: Vec2,
   connections: Connections,
   input: EntityShape['input'],
@@ -96,15 +97,31 @@ export function buildEntity(
   invariant(recipe)
 
   setWorld((world) => {
+    console.log('in set world')
     inventorySub(world.cursor.inventory, recipe.input)
 
     const id = getNextEntityId(world)
+
+    for (const key of Object.keys(output)) {
+      const outputType = ItemType.parse(key)
+      if (input[outputType]) {
+        // connect this entity to itself
+        invariant(
+          Object.keys(input[outputType]!).length === 0,
+        )
+        input = { ...input }
+        output = { ...output }
+        input[outputType]![id] = true
+        output[outputType]![id] = true
+      }
+    }
 
     switch (entityType) {
       case EntityType.enum.Miner: {
         world.shapes[id] = {
           type: EntityType.enum.Miner,
           id,
+          itemType,
           connections,
           input,
           output,
@@ -125,6 +142,7 @@ export function buildEntity(
         world.shapes[id] = {
           type: EntityType.enum.Smelter,
           id,
+          itemType,
           connections,
           input,
           output,
@@ -146,6 +164,7 @@ export function buildEntity(
         world.shapes[id] = {
           type: EntityType.enum.Generator,
           id,
+          itemType,
           connections,
           input,
           output,
@@ -165,6 +184,7 @@ export function buildEntity(
         world.shapes[id] = {
           type: EntityType.enum.Crafter,
           id,
+          itemType,
           connections,
           input,
           output,

@@ -81,6 +81,7 @@ function RenderBuildControls({
       buildEntity(
         setWorld,
         recipe.entityType,
+        view.itemRecipeKey,
         vec2.clone(camera$.value.position),
         {},
         view.input,

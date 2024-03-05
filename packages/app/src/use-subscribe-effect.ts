@@ -7,7 +7,7 @@ export function useSubscribeEffect<T>(
   deps?: React.DependencyList,
 ) {
   useEffect(() => {
-    const sub = subject.subscribe(cb)
+    const sub = subject.subscribe((value) => cb(value))
     return () => {
       sub.unsubscribe()
     }
