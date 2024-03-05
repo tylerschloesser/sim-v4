@@ -186,6 +186,28 @@ export function buildEntity(
       }
     }
 
+    for (const [key, peerIds] of Object.entries(input)) {
+      const itemType = ItemType.parse(key)
+      for (const peerId of Object.keys(peerIds)) {
+        const peer = getEntity(world, peerId)
+        const value = peer.shape.output[itemType]
+        invariant(value)
+        invariant(!value[id])
+        value[id] = true
+      }
+    }
+
+    for (const [key, peerIds] of Object.entries(output)) {
+      const itemType = ItemType.parse(key)
+      for (const peerId of Object.keys(peerIds)) {
+        const peer = getEntity(world, peerId)
+        const value = peer.shape.input[itemType]
+        invariant(value)
+        invariant(!value[id])
+        value[id] = true
+      }
+    }
+
     for (const [peerId, type] of Object.entries(
       connections,
     )) {

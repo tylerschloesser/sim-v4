@@ -69,6 +69,7 @@ export const itemRecipes: Record<
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableCoal]: 1,
+      [ItemType.enum.Coal]: 0.1,
     },
     output: {
       [ItemType.enum.Coal]: 1,
@@ -79,6 +80,7 @@ export const itemRecipes: Record<
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableIronOre]: 1,
+      [ItemType.enum.Coal]: 0.1,
     },
     output: {
       [ItemType.enum.IronOre]: 1,
@@ -89,6 +91,7 @@ export const itemRecipes: Record<
     entityType: EntityType.enum.Miner,
     input: {
       [ItemType.enum.MineableStone]: 1,
+      [ItemType.enum.Coal]: 0.1,
     },
     output: {
       [ItemType.enum.Stone]: 1,
