@@ -1,6 +1,10 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { inventoryMove, inventorySub } from './inventory.js'
+import {
+  inventoryAdd,
+  inventoryMove,
+  inventorySub,
+} from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { Vec2 } from './vec2.js'
 import {
@@ -41,17 +45,29 @@ export function minePatch(
     const patch = getEntity(world, patchId)
     invariant(patch.type === EntityType.enum.Patch)
 
-    const itemType = (() => {
+    const mineableType = (() => {
       const keys = Object.keys(patch.state.output)
       invariant(keys.length === 1)
       return ItemType.parse(keys.at(0))
     })()
 
-    inventoryMove(
-      patch.state.output,
-      world.cursor.inventory,
-      { [itemType]: 1 },
-    )
+    const itemType = (() => {
+      switch (mineableType) {
+        case ItemType.enum.MineableCoal:
+          return ItemType.enum.Coal
+        case ItemType.enum.MineableStone:
+          return ItemType.enum.Stone
+        case ItemType.enum.MineableIronOre:
+          return ItemType.enum.IronOre
+        default:
+          invariant(false)
+      }
+    })()
+
+    inventorySub(patch.state.output, {
+      [mineableType]: 1,
+    })
+    inventoryAdd(world.cursor.inventory, { [itemType]: 1 })
   })
 }
 

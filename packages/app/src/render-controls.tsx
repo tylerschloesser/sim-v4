@@ -452,18 +452,16 @@ function RenderSmelterControls({
     (cursor.inventory[ItemType.enum.IronOre] ?? 0) > 0
 
   const addCoal = useCallback(() => {
-    if (!hasCoal) return
     moveFromCursorToEntityInput(setWorld, entity.id, {
       [ItemType.enum.Coal]: 1,
     })
-  }, [hasCoal])
+  }, [entity.id])
 
   const addIronOre = useCallback(() => {
-    if (!hasIronOre) return
     moveFromCursorToEntityInput(setWorld, entity.id, {
       [ItemType.enum.IronOre]: 1,
     })
-  }, [hasIronOre])
+  }, [entity.id])
 
   const primary: ButtonProps =
     coalCount < 5 && hasCoal
@@ -480,7 +478,6 @@ function RenderSmelterControls({
   const secondary: ButtonProps = {
     disabled: !hasOutput,
     onTap: () => {
-      if (!hasOutput) return
       invariant(cursor.entityId)
       moveFromEntityOutputToCursor(
         setWorld,
@@ -514,11 +511,10 @@ function RenderMinerControls({
     (cursor.inventory[ItemType.enum.Coal] ?? 0) > 0
 
   const addCoal = useCallback(() => {
-    if (!hasCoal) return
     moveFromCursorToEntityInput(setWorld, entity.id, {
       [ItemType.enum.Coal]: 1,
     })
-  }, [hasCoal])
+  }, [entity.id])
 
   return (
     <Render
