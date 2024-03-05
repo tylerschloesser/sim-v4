@@ -67,7 +67,6 @@ function RenderBuildControls({
   view,
 }: RenderBuildControlsProps) {
   const setView = useSetViewSearchParam()
-  const setSearch = useSearchParams()[1]
   const { camera$ } = useContext(AppContext)
   const availableRecipes = getAvailableEntityRecipes(
     cursor.inventory,
@@ -107,9 +106,10 @@ function RenderBuildControls({
       const next = availableRecipes[i]
       invariant(next)
 
-      setSearch((prev) => {
-        prev.set('entityType', next.output)
-        return prev
+      setView({
+        type: ViewType.enum.Build,
+        entityType: next.output,
+        connections: {},
       })
     },
     label: 'Recipe',
