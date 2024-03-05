@@ -85,7 +85,7 @@ function RenderBuildControls({
         {},
       )
     },
-    label: `Prodcue ${view.itemRecipeKey}`,
+    label: `${recipe.itemRecipeKey} ${recipe.entityType}`,
   }
 
   const secondary: ButtonProps = {
