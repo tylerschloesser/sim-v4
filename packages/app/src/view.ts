@@ -26,7 +26,6 @@ import {
   itemRecipes,
 } from './recipe.js'
 import {
-  Connections,
   EntityId,
   EntityType,
   ItemType,
@@ -59,7 +58,6 @@ export type DefaultView = z.infer<typeof DefaultView>
 export const BuildViewSearchParam = z.strictObject({
   type: z.literal(ViewType.enum.Build),
   itemRecipeKey: ItemRecipeKey,
-  connections: Connections,
 })
 export type BuildViewSearchParam = z.infer<
   typeof BuildViewSearchParam
@@ -166,7 +164,6 @@ function getView(
       return param
     }
     case ViewType.enum.Build: {
-      const connections = param.connections
       const radius = 0.75
       const valid = isBuildValid(
         camera.position,
@@ -185,7 +182,6 @@ function getView(
       return {
         ...param,
         valid,
-        connections,
         input,
         output,
         entityType: recipe.entityType,

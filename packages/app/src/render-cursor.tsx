@@ -122,14 +122,6 @@ export const RenderCursor = React.memo(
       <g data-group="cursor">
         {view.type === ViewType.enum.Build && (
           <>
-            {Object.keys(view.connections).map((id) => (
-              <line
-                key={id}
-                stroke={fill}
-                ref={(el) => (lines.current[id] = el)}
-                strokeWidth="var(--stroke-width)"
-              />
-            ))}
             {Object.values(view.input).map((id) => (
               <line
                 key={`input-${id}`}
@@ -179,21 +171,6 @@ function initBuildCursor({
   view: BuildView
   shapes: World['shapes']
 }): () => void {
-  for (const entityId of Object.keys(view.connections)) {
-    const entity = shapes[entityId]
-    invariant(entity)
-    const line = lines[entityId]
-    invariant(line)
-    line.setAttribute(
-      'x2',
-      `${entity.position.x.toFixed(4)}`,
-    )
-    line.setAttribute(
-      'y2',
-      `${entity.position.y.toFixed(4)}`,
-    )
-  }
-
   for (const entityId of Object.values(view.input)) {
     const entity = shapes[entityId]
     invariant(entity)
@@ -218,13 +195,6 @@ function initBuildCursor({
     const x = position.current.x.toFixed(4)
     const y = position.current.y.toFixed(4)
     g.setAttribute('transform', `translate(${x} ${y})`)
-
-    for (const entityId of Object.keys(view.connections)) {
-      const line = lines[entityId]
-      invariant(line)
-      line.setAttribute('x1', x)
-      line.setAttribute('y1', y)
-    }
 
     for (const entityId of Object.values(view.input)) {
       const line = lines[`input-${entityId}`]

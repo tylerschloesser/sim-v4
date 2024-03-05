@@ -39,7 +39,6 @@ import {
   useSetViewSearchParam,
 } from './view.js'
 import {
-  ConnectionType,
   Cursor,
   Entity,
   EntityId,
@@ -83,7 +82,7 @@ function RenderBuildControls({
         setWorld,
         recipe.entityType,
         vec2.clone(camera$.value.position),
-        view.connections,
+        {},
       )
     },
     label: `Prodcue ${view.itemRecipeKey}`,
@@ -114,7 +113,6 @@ function RenderBuildControls({
       setView({
         type: ViewType.enum.Build,
         itemRecipeKey: next.itemRecipeKey,
-        connections: {},
       })
     },
     label: 'Recipe',
@@ -468,9 +466,6 @@ function RenderPatchControls({
       setView({
         type: ViewType.enum.Build,
         itemRecipeKey,
-        connections: {
-          [entity.id]: ConnectionType.enum.Item,
-        },
       })
     },
     label: 'Build Miner',
@@ -516,7 +511,6 @@ function RenderDefaultControls({
       setView({
         type: ViewType.enum.Build,
         itemRecipeKey: recipe.itemRecipeKey,
-        connections: {},
       })
     },
     label: 'Build',
