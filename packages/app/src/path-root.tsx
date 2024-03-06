@@ -23,7 +23,7 @@ export function PathRoot() {
   return (
     <ViewContext.Provider value={{ view }}>
       <RenderViewport />
-      <RenderPanels />
+      <RenderPanels shapes={world.shapes} />
       <RenderInfo
         cursor={cursor}
         cursorEntity={cursorEntity}
