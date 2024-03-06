@@ -4,4 +4,17 @@
   height: 100%;
 
   pointer-events: none;
+
+  transform: translate(50%, 50%);
+}
+
+.panel {
+  position: absolute;
+
+  // prettier-ignore
+  transform: translate3d(
+    calc((-1 * var(--x) + var(--cx)) * -1px * var(--scale)),
+    calc((-1 * var(--y) + var(--cy)) * -1px * var(--scale) - var(--vy) * .1px),
+    0
+  );
 }
