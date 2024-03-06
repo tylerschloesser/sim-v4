@@ -24,7 +24,7 @@ function RenderOutput({
           const itemType = ItemType.parse(key)
           return (
             <div key={key}>
-              {`${itemType}: ${value} [Inventory: ${cursor.inventory[itemType] ?? 0}]`}
+              {`${itemType}: ${Math.floor(value)} [Inventory: ${Math.floor(cursor.inventory[itemType] ?? 0)}]`}
             </div>
           )
         },
@@ -49,7 +49,7 @@ function RenderInput({ cursor, entity }: RenderInputProps) {
           const itemType = ItemType.parse(key)
           return (
             <div key={key}>
-              {`${itemType}: ${value} [Inventory: ${cursor.inventory[itemType] ?? 0}]`}
+              {`${itemType}: ${Math.floor(value)} [Inventory: ${Math.floor(cursor.inventory[itemType] ?? 0)}]`}
             </div>
           )
         },
