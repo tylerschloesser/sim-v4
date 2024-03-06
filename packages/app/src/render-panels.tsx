@@ -54,6 +54,7 @@ const RenderPanel = React.memo(function RenderPanel({
         {
           '--x': `${entity.shape.position.x}`,
           '--y': `${entity.shape.position.y}`,
+          '--r': `${entity.shape.radius}`,
         } as React.CSSProperties
       }
     >

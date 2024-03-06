@@ -13,8 +13,14 @@
 
   // prettier-ignore
   transform: translate3d(
-    calc((-1 * var(--x) + var(--cx)) * -1px * var(--scale)),
-    calc((-1 * var(--y) + var(--cy)) * -1px * var(--scale) - var(--vy) * .1px),
+    calc((-1 * (var(--x) + var(--r)) + var(--cx)) * -1px * var(--scale)),
+    calc((-1 * (var(--y) - var(--r)) + var(--cy)) * -1px * var(--scale) - var(--vy) * .1px),
     0
   );
+
+  padding: 0.5em;
+  margin-left: 0.5em;
+  border: 1px solid var(--black);
+  background: hsla(0, 0%, 50%, 0.5);
+  border-radius: 2px;
 }
