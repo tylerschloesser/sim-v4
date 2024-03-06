@@ -128,8 +128,6 @@ export function buildEntity(
         world.states[id] = {
           type: EntityType.enum.Miner,
           id,
-          fuelTicksRemaining: null,
-          mineTicksRemaining: null,
           input: {},
           output: {},
         }
@@ -148,9 +146,6 @@ export function buildEntity(
         world.states[id] = {
           type: EntityType.enum.Smelter,
           id,
-          recipeId: null,
-          fuelTicksRemaining: null,
-          smeltTicksRemaining: null,
           input: {},
           output: {},
         }
@@ -169,7 +164,6 @@ export function buildEntity(
         world.states[id] = {
           type: EntityType.enum.Generator,
           id,
-          fuelTicksRemaining: null,
           input: {},
           output: {},
         }
@@ -188,8 +182,6 @@ export function buildEntity(
         world.states[id] = {
           type: EntityType.enum.Crafter,
           id,
-          craftTicksRemaining: null,
-          recipeId: null,
           input: {},
           output: {},
         }

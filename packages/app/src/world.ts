@@ -67,9 +67,6 @@ export type SmelterEntityShape = z.infer<
 // prettier-ignore
 export const SmelterEntityState = EntityStateBase.extend({
   type: z.literal(EntityType.enum.Smelter),
-  recipeId: z.string().nullable(),
-  smeltTicksRemaining: z.number().int().positive().nullable(),
-  fuelTicksRemaining: z.number().int().positive().nullable(),
 })
 export type SmelterEntityState = z.infer<
   typeof SmelterEntityState
@@ -118,8 +115,6 @@ export type MinerEntityShape = z.infer<
 // prettier-ignore
 export const MinerEntityState = EntityStateBase.extend({
   type: z.literal(EntityType.enum.Miner),
-  mineTicksRemaining: z.number().int().positive().nullable(),
-  fuelTicksRemaining: z.number().int().positive().nullable(),
 })
 export type MinerEntityState = z.infer<
   typeof MinerEntityState
@@ -144,7 +139,6 @@ export type GeneratorEntityShape = z.infer<
 // prettier-ignore
 export const GeneratorEntityState = EntityStateBase.extend({
   type: z.literal(EntityType.enum.Generator),
-  fuelTicksRemaining: z.number().int().positive().nullable(),
 })
 export type GeneratorEntityState = z.infer<
   typeof GeneratorEntityState
@@ -171,8 +165,6 @@ export type CrafterEntityShape = z.infer<
 // prettier-ignore
 export const CrafterEntityState = EntityStateBase.extend({
   type: z.literal(EntityType.enum.Crafter),
-  recipeId: z.string().nullable(),
-  craftTicksRemaining: z.number().int().positive().nullable(),
 })
 export type CrafterEntityState = z.infer<
   typeof CrafterEntityState

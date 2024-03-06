@@ -1,22 +1,9 @@
 import React, { useContext } from 'react'
-import invariant from 'tiny-invariant'
-import { getConnectedMinerCount } from './patch.js'
 import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { ViewContext } from './view-context.js'
 import { BuildView, ViewType } from './view.js'
-import {
-  CrafterEntity,
-  Cursor,
-  Entity,
-  EntityType,
-  GeneratorEntity,
-  ItemType,
-  MinerEntity,
-  PatchEntity,
-  SmelterEntity,
-  World,
-} from './world.js'
+import { Cursor, Entity, ItemType } from './world.js'
 
 interface RenderOutputProps {
   cursor: Cursor
@@ -71,118 +58,18 @@ function RenderInput({ cursor, entity }: RenderInputProps) {
   )
 }
 
-interface RenderPatchInfoProps {
+interface RenderEntityInfoProps {
   cursor: Cursor
-  entity: PatchEntity
-  shapes: World['shapes']
+  entity: Entity
 }
 
-function RenderPatchInfo({
+function RenderEntityInfo({
   cursor,
   entity,
-  shapes,
-}: RenderPatchInfoProps) {
-  const connectedMinerCount = getConnectedMinerCount(
-    entity,
-    shapes,
-  )
-  return (
-    <>
-      <div>Patch</div>
-      <RenderOutput cursor={cursor} entity={entity} />
-      <div>Miners: {connectedMinerCount}</div>
-    </>
-  )
-}
-
-interface RenderSmelterInfoProps {
-  cursor: Cursor
-  entity: SmelterEntity
-}
-
-function RenderSmelterInfo({
-  cursor,
-  entity,
-}: RenderSmelterInfoProps) {
-  const { state } = entity
+}: RenderEntityInfoProps) {
   return (
     <>
       <div>{entity.type}</div>
-      <div>
-        Fuel Ticks Remaining: {state.fuelTicksRemaining}
-      </div>
-      <div>
-        Smelt Ticks Remaining: {state.smeltTicksRemaining}
-      </div>
-      <RenderInput cursor={cursor} entity={entity} />
-      <RenderOutput cursor={cursor} entity={entity} />
-    </>
-  )
-}
-
-interface RenderMinerInfoProps {
-  cursor: Cursor
-  entity: MinerEntity
-}
-
-function RenderMinerInfo({
-  cursor,
-  entity,
-}: RenderMinerInfoProps) {
-  const { state } = entity
-  return (
-    <>
-      <div>{entity.type}</div>
-      <div>
-        Fuel Ticks Remaining: {state.fuelTicksRemaining}
-      </div>
-      <div>
-        Mine Ticks Remaining: {state.mineTicksRemaining}
-      </div>
-      <RenderInput cursor={cursor} entity={entity} />
-      <RenderOutput cursor={cursor} entity={entity} />
-    </>
-  )
-}
-
-interface RenderGeneratorInfoProps {
-  cursor: Cursor
-  entity: GeneratorEntity
-}
-
-function RenderGeneratorInfo({
-  cursor,
-  entity,
-}: RenderGeneratorInfoProps) {
-  const { state } = entity
-  return (
-    <>
-      <div>{entity.type}</div>
-      <div>
-        Fuel Ticks Remaining: {state.fuelTicksRemaining}
-      </div>
-      <RenderInput cursor={cursor} entity={entity} />
-      <RenderOutput cursor={cursor} entity={entity} />
-    </>
-  )
-}
-
-interface RenderCrafterInfoProps {
-  cursor: Cursor
-  entity: CrafterEntity
-}
-
-function RenderCrafterInfo({
-  cursor,
-  entity,
-}: RenderCrafterInfoProps) {
-  const { state } = entity
-  return (
-    <>
-      <div>{entity.type}</div>
-      <div>
-        Craft Ticks Remaining: {state.craftTicksRemaining}
-      </div>
       <RenderInput cursor={cursor} entity={entity} />
       <RenderOutput cursor={cursor} entity={entity} />
     </>
@@ -241,70 +128,30 @@ function RenderBuildInfo({ view }: RenderBuildInfoProps) {
 export interface RenderInfoProps {
   cursor: Cursor
   cursorEntity: Entity | null
-  shapes: World['shapes']
 }
 
 export const RenderInfo = React.memo(function RenderInfo({
   cursor,
   cursorEntity,
-  shapes,
 }: RenderInfoProps) {
   const { view } = useContext(ViewContext)
+
   return (
     <div className={styles.info}>
       {(() => {
-        if (view.type === ViewType.enum.Build) {
-          return <RenderBuildInfo view={view} />
+        switch (view.type) {
+          case ViewType.enum.Build:
+            return <RenderBuildInfo view={view} />
         }
         if (!cursorEntity) {
           return <RenderDefaultInfo cursor={cursor} />
         }
-
-        switch (cursorEntity.type) {
-          case EntityType.enum.Patch: {
-            return (
-              <RenderPatchInfo
-                cursor={cursor}
-                entity={cursorEntity}
-                shapes={shapes}
-              />
-            )
-          }
-          case EntityType.enum.Smelter: {
-            return (
-              <RenderSmelterInfo
-                cursor={cursor}
-                entity={cursorEntity}
-              />
-            )
-          }
-          case EntityType.enum.Miner: {
-            return (
-              <RenderMinerInfo
-                cursor={cursor}
-                entity={cursorEntity}
-              />
-            )
-          }
-          case EntityType.enum.Generator: {
-            return (
-              <RenderGeneratorInfo
-                cursor={cursor}
-                entity={cursorEntity}
-              />
-            )
-          }
-          case EntityType.enum.Crafter: {
-            return (
-              <RenderCrafterInfo
-                cursor={cursor}
-                entity={cursorEntity}
-              />
-            )
-          }
-          default:
-            invariant(false)
-        }
+        return (
+          <RenderEntityInfo
+            cursor={cursor}
+            entity={cursorEntity}
+          />
+        )
       })()}
     </div>
   )

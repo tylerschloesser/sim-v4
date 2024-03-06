@@ -25,7 +25,6 @@ export function PathRoot() {
       <RenderInfo
         cursor={cursor}
         cursorEntity={cursorEntity}
-        shapes={world.shapes}
       />
       <RenderControls
         camera$={camera$}
