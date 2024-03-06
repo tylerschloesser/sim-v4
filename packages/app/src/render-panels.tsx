@@ -1,19 +1,32 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import styles from './render-panels.module.scss'
-import { World } from './world.js'
+import { Entity, World, getEntity } from './world.js'
 
 interface RenderPanelsProps {
-  shapes: World['shapes']
+  world: World
 }
 
 export const RenderPanels = React.memo(
-  function RenderPanels({ shapes }: RenderPanelsProps) {
+  function RenderPanels({ world }: RenderPanelsProps) {
     return (
       <div className={styles.panels}>
-        {Object.values(shapes).map((shape) => (
-          <Fragment key={shape.id}>{shape.id}</Fragment>
+        {Object.values(world.shapes).map(({ id }) => (
+          <RenderPanel
+            key={id}
+            entity={getEntity(world, id)}
+          />
         ))}
       </div>
     )
   },
 )
+
+interface RenderPanelProps {
+  entity: Entity
+}
+
+const RenderPanel = React.memo(function RenderPanel({
+  entity,
+}: RenderPanelProps) {
+  return <>{entity.id}</>
+})
