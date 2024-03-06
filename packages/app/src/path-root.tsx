@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { AppContext } from './app-context.js'
 import { RenderControls } from './render-controls.js'
 import { RenderInfo } from './render-info.js'
+import { RenderPanels } from './render-panels.js'
 import { RenderViewport } from './render-viewport.js'
 import { ViewContext } from './view-context.js'
 import { useView } from './view.js'
@@ -22,6 +23,7 @@ export function PathRoot() {
   return (
     <ViewContext.Provider value={{ view }}>
       <RenderViewport />
+      <RenderPanels />
       <RenderInfo
         cursor={cursor}
         cursorEntity={cursorEntity}
