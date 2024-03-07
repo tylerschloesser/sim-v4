@@ -201,7 +201,7 @@ export const RenderControls = React.memo(
           )
         case EntityType.enum.Generator:
         case EntityType.enum.Crafter:
-          return <Render />
+          return <RenderEntityControls />
         default:
           invariant(false)
       }
@@ -427,7 +427,12 @@ function RenderDefaultControls({
     label: 'Select',
   }
 
-  return <Render primary={primary} secondary={secondary} />
+  return (
+    <RenderEntityControls
+      primary={primary}
+      secondary={secondary}
+    />
+  )
 }
 
 interface RenderSmelterControlsProps {
@@ -517,7 +522,7 @@ function RenderMinerControls({
   }, [entity.id])
 
   return (
-    <Render
+    <RenderEntityControls
       primary={{
         disabled: !hasCoal,
         onHold: addCoal,
@@ -533,6 +538,18 @@ function RenderMinerControls({
       }}
     />
   )
+}
+
+interface RenderEntityControlsProps {
+  primary?: ButtonProps
+  secondary?: ButtonProps
+}
+
+function RenderEntityControls({
+  primary,
+  secondary,
+}: RenderEntityControlsProps) {
+  return <Render primary={primary} secondary={secondary} />
 }
 
 interface RenderProps {
