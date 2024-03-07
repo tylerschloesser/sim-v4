@@ -40,13 +40,18 @@ export type ViewType = z.infer<typeof ViewType>
 //
 // Default
 //
+const DefaultViewMode = z.enum(['Build', 'Move'])
+type DefaultViewMode = z.infer<typeof DefaultViewMode>
 export const DefaultViewSearchParam = z.strictObject({
   type: z.literal(ViewType.enum.Default),
+  mode: DefaultViewMode.optional(),
 })
 export type DefaultViewSearchParam = z.infer<
   typeof DefaultViewSearchParam
 >
-export const DefaultView = DefaultViewSearchParam
+export const DefaultView = DefaultViewSearchParam.extend({
+  mode: DefaultViewMode,
+})
 export type DefaultView = z.infer<typeof DefaultView>
 
 //
@@ -142,7 +147,10 @@ function getView(
 ): View {
   switch (param.type) {
     case ViewType.enum.Default: {
-      return param
+      return {
+        type: ViewType.enum.Default,
+        mode: param.mode ?? DefaultViewMode.enum.Build,
+      }
     }
     case ViewType.enum.Build: {
       const radius = 0.75
