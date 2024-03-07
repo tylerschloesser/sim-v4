@@ -75,7 +75,10 @@ export function getInputOutput(
         const entry = output[outputType]
         invariant(entry)
 
-        if (peerPeerId === null) {
+        if (
+          peerPeerId === null ||
+          peerPeerId === entityId // in this case we are editing
+        ) {
           entry[peer.id] = true
         } else {
           const peerPeer = shapes[peerPeerId]
