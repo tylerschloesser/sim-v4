@@ -96,9 +96,10 @@ function getConnectionId(
   sourceId: string,
   targetId: string,
 ): string {
-  const ids = [sourceId, targetId]
-  ids.sort()
-  return ids.join('.')
+  if (sourceId < targetId) {
+    return `${sourceId}.${targetId}`
+  }
+  return `${targetId}.${sourceId}`
 }
 
 function mapGenerators(
