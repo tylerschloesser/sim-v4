@@ -562,12 +562,16 @@ function RenderEntityControls({
   secondary,
 }: RenderEntityControlsProps) {
   let tertiary: ButtonProps | undefined = undefined
+  const setView = useSetViewSearchParam()
   if (entity.type !== EntityType.enum.Patch) {
     tertiary = {
       label: 'Edit',
       disabled: false,
       onTap() {
-        console.log('todo', entity.id)
+        setView({
+          type: ViewType.enum.Edit,
+          entityId: entity.id,
+        })
       },
     }
   }

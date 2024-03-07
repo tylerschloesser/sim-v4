@@ -97,7 +97,16 @@ export const EditViewSearchParam = z.strictObject({
 export type EditViewSearchParam = z.infer<
   typeof EditViewSearchParam
 >
-export const EditView = EditViewSearchParam
+export const EditView = EditViewSearchParam.extend({
+  input: z.record(
+    ItemType,
+    z.record(EntityId, z.literal(true)),
+  ),
+  output: z.record(
+    ItemType,
+    z.record(EntityId, z.literal(true)),
+  ),
+})
 export type EditView = z.infer<typeof EditView>
 
 const ViewSearchParam = z.discriminatedUnion('type', [
@@ -188,7 +197,23 @@ function getView(
       return param
     }
     case ViewType.enum.Edit: {
-      return param
+      const shape = shapes[param.entityId]
+      invariant(shape)
+      const itemRecipeKey = ItemRecipeKey.parse(
+        shape.itemType,
+      )
+      const recipe = itemRecipes[itemRecipeKey]
+      const { input, output } = getInputOutput(
+        recipe,
+        camera.position,
+        shapes,
+      )
+
+      return {
+        ...param,
+        input,
+        output,
+      }
     }
   }
 }
