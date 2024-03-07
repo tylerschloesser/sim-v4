@@ -13,7 +13,7 @@ import {
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { AppContext } from './app-context.js'
-import { isBuildValid } from './build.js'
+import { isBuildValid, isEditValid } from './build.js'
 import { Camera } from './camera.js'
 import { getInputOutput } from './connect.js'
 import { inventoryHas } from './inventory.js'
@@ -98,6 +98,7 @@ export type EditViewSearchParam = z.infer<
   typeof EditViewSearchParam
 >
 export const EditView = EditViewSearchParam.extend({
+  valid: z.boolean(),
   input: z.record(
     ItemType,
     z.record(EntityId, z.literal(true)),
@@ -209,8 +210,15 @@ function getView(
         shapes,
       )
 
+      const valid = isEditValid(
+        camera.position,
+        shape,
+        shapes,
+      )
+
       return {
         ...param,
+        valid,
         input,
         output,
       }
