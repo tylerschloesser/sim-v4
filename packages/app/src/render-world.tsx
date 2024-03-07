@@ -7,6 +7,7 @@ import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
 import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
 import { useCameraEffect } from './use-camera-effect.js'
+import { BuildView } from './view.js'
 import { getScale } from './viewport.js'
 import {
   Cursor,
@@ -20,6 +21,7 @@ export interface RenderWorldProps {
   cursor: Cursor
   shapes: World['shapes']
   setWorld: Updater<World>
+  view: BuildView | null
 }
 
 export const RenderWorld = React.memo(function RenderWorld({
