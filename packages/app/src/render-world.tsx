@@ -153,7 +153,8 @@ function mapConnections(
         let variant: RenderEntityConnectionProps['variant'] =
           undefined
         if (
-          view.type === ViewType.enum.Build &&
+          (view.type === ViewType.enum.Build ||
+            view.type === ViewType.enum.Edit) &&
           view.output[itemType]?.[targetId]
         ) {
           variant = 'delete'
