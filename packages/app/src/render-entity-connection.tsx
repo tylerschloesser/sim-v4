@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
+import invariant from 'tiny-invariant'
 import { EntityShape } from './world.js'
 
 export interface RenderEntityConnectionProps {
@@ -11,14 +12,30 @@ export const RenderEntityConnection = React.memo(
     a,
     b,
   }: RenderEntityConnectionProps) {
+    const line = useRef<SVGLineElement>(null)
+
+    useEffect(() => {
+      let handle: number
+      function render(now: number) {
+        invariant(line.current)
+        line.current.style.strokeDashoffset = `calc(var(--stroke-width) * 4 * -2 * ${(now % 1000) / 1000})`
+        handle = requestAnimationFrame(render)
+      }
+      handle = requestAnimationFrame(render)
+      return () => {
+        cancelAnimationFrame(handle)
+      }
+    }, [])
+
     return (
       <g data-group={`entity-connection-${a.id}-${b.id}`}>
         <line
+          ref={line}
           x1={a.position.x}
           y1={a.position.y}
           x2={b.position.x}
           y2={b.position.y}
-          stroke={'hsla(0, 20%, 50%, .5)'}
+          stroke={'hsla(0, 0%, 50%, .5)'}
           strokeWidth="var(--stroke-width)"
           strokeDasharray="calc(var(--stroke-width) * 4)"
         />
