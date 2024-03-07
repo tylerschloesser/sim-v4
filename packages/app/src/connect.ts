@@ -4,6 +4,7 @@ import { Vec2, vec2 } from './vec2.js'
 import { EntityId, ItemType, World } from './world.js'
 
 export function getInputOutput(
+  entityId: EntityId | null,
   recipe: ItemRecipe,
   position: Vec2,
   shapes: World['shapes'],

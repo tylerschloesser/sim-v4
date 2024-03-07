@@ -181,6 +181,7 @@ function getView(
       const recipe = itemRecipes[param.itemRecipeKey]
 
       const { input, output } = getInputOutput(
+        null,
         recipe,
         camera.position,
         shapes,
@@ -205,6 +206,7 @@ function getView(
       )
       const recipe = itemRecipes[itemRecipeKey]
       const { input, output } = getInputOutput(
+        param.entityId,
         recipe,
         camera.position,
         shapes,
