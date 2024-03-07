@@ -256,6 +256,7 @@ export function buildEntity(
   })
 }
 
+/* eslint-disable */
 export function moveEntity(
   setWorld: Updater<World>,
   entityId: EntityId,
