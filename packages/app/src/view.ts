@@ -87,10 +87,24 @@ export type SelectViewSearchParam = z.infer<
 export const SelectView = SelectViewSearchParam
 export type SelectView = z.infer<typeof SelectView>
 
+//
+// Edit
+//
+export const EditViewSearchParam = z.strictObject({
+  type: z.literal(ViewType.enum.Edit),
+  entityId: EntityId,
+})
+export type EditViewSearchParam = z.infer<
+  typeof EditViewSearchParam
+>
+export const EditView = EditViewSearchParam
+export type EditView = z.infer<typeof EditView>
+
 const ViewSearchParam = z.discriminatedUnion('type', [
   DefaultViewSearchParam,
   BuildViewSearchParam,
   SelectViewSearchParam,
+  EditViewSearchParam,
 ])
 type ViewSearchParam = z.infer<typeof ViewSearchParam>
 
@@ -98,6 +112,7 @@ export const View = z.discriminatedUnion('type', [
   DefaultView,
   BuildView,
   SelectView,
+  EditView,
 ])
 export type View = z.infer<typeof View>
 
@@ -170,6 +185,9 @@ function getView(
       }
     }
     case ViewType.enum.Select: {
+      return param
+    }
+    case ViewType.enum.Edit: {
       return param
     }
   }
