@@ -14,6 +14,7 @@ import {
   EntityShape,
   EntityType,
   GeneratorEntityShape,
+  ItemType,
   World,
 } from './world.js'
 
@@ -70,13 +71,16 @@ export const RenderWorld = React.memo(function RenderWorld({
           return null
         }
       })}
-      {mapConnections(shapes, (id, source, target) => (
-        <RenderEntityConnection
-          key={id}
-          a={source}
-          b={target}
-        />
-      ))}
+      {mapConnections(
+        shapes,
+        (id, source, target, variant) => (
+          <RenderEntityConnection
+            key={id}
+            a={source}
+            b={target}
+          />
+        ),
+      )}
       <RenderCursor
         cursor={cursor}
         shapes={shapes}
@@ -122,21 +126,28 @@ function mapConnections(
     id: string,
     source: EntityShape,
     target: EntityShape,
+    variant?: 'delete',
   ) => JSX.Element,
 ): JSX.Element[] {
   const seen = new Set<string>()
   const result = new Array<JSX.Element>()
 
   for (const source of Object.values(shapes)) {
-    for (const targetId of Object.values(source.output)
-      .map((entry) => Object.keys(entry))
-      .flat()) {
-      const id = getConnectionId(source.id, targetId)
-      invariant(!seen.has(id))
-      seen.add(id)
-      const target = shapes[targetId]
-      invariant(target)
-      result.push(cb(id, source, target))
+    for (const [key, targetIds] of Object.entries(
+      source.output,
+    )) {
+      const itemType = ItemType.parse(key)
+
+      let variant: undefined | 'delete' = undefined
+
+      for (const targetId of Object.keys(targetIds)) {
+        const id = getConnectionId(source.id, targetId)
+        invariant(!seen.has(id))
+        seen.add(id)
+        const target = shapes[targetId]
+        invariant(target)
+        result.push(cb(id, source, target, variant))
+      }
     }
   }
 

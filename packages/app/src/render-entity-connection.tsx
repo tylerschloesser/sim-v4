@@ -5,12 +5,14 @@ import { EntityShape } from './world.js'
 export interface RenderEntityConnectionProps {
   a: EntityShape
   b: EntityShape
+  variant?: 'delete'
 }
 
 export const RenderEntityConnection = React.memo(
   function RenderEntityConnection({
     a,
     b,
+    variant,
   }: RenderEntityConnectionProps) {
     if (a.id === b.id) {
       // special case where the entity connects to itself
@@ -38,6 +40,11 @@ export const RenderEntityConnection = React.memo(
       }
     }, [])
 
+    const stroke =
+      variant === 'delete'
+        ? 'hsla(0, 50%, 50%, .5)'
+        : 'hsla(0, 0%, 50%, .5)'
+
     return (
       <g data-group={`entity-connection-${a.id}-${b.id}`}>
         <line
@@ -46,7 +53,7 @@ export const RenderEntityConnection = React.memo(
           y1={a.position.y}
           x2={b.position.x}
           y2={b.position.y}
-          stroke={'hsla(0, 0%, 50%, .5)'}
+          stroke={stroke}
           strokeWidth="var(--stroke-width)"
           strokeDasharray="calc(var(--stroke-width) * 4)"
         />
