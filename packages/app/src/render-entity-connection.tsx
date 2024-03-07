@@ -14,6 +14,7 @@ export const RenderEntityConnection = React.memo(
   }: RenderEntityConnectionProps) {
     const line = useRef<SVGLineElement>(null)
 
+    // TODO this could be the same for all lines
     useEffect(() => {
       let handle: number
       function render(now: number) {
