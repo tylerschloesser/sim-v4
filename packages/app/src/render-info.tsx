@@ -131,11 +131,15 @@ export interface RenderInfoProps {
   cursorEntity: Entity | null
 }
 
+const ENABLE_INFO: boolean = false
+
 export const RenderInfo = React.memo(function RenderInfo({
   cursor,
   cursorEntity,
 }: RenderInfoProps) {
   const { view } = useContext(ViewContext)
+
+  if (!ENABLE_INFO) return null
 
   return (
     <div className={styles.info}>
@@ -147,13 +151,12 @@ export const RenderInfo = React.memo(function RenderInfo({
         if (!cursorEntity) {
           return <RenderDefaultInfo cursor={cursor} />
         }
-        return null
-        // return (
-        //   <RenderEntityInfo
-        //     cursor={cursor}
-        //     entity={cursorEntity}
-        //   />
-        // )
+        return (
+          <RenderEntityInfo
+            cursor={cursor}
+            entity={cursorEntity}
+          />
+        )
       })()}
     </div>
   )
