@@ -75,7 +75,7 @@ const RenderPanel = React.memo(function RenderPanel({
             return Math.floor(count)
           }
           default:
-            return entity.type
+            return `${Math.floor(entity.state.satisfaction * 100)}%`
         }
       })()}
     </div>
