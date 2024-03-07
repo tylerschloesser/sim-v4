@@ -23,6 +23,9 @@ export function isEditValid(
 ): boolean {
   invariant(shapes[shape.id])
   for (const peer of Object.values(shapes)) {
+    if (peer.id === shape.id) {
+      continue
+    }
     const dist = vec2.dist(peer.position, position)
     if (dist < peer.radius + shape.radius) {
       return false

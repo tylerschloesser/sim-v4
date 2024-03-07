@@ -6,13 +6,11 @@ import { RenderCursor } from './render-cursor.js'
 import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
 import { useCameraEffect } from './use-camera-effect.js'
-import { BuildView } from './view.js'
+import { View, ViewType } from './view.js'
 import { getScale } from './viewport.js'
 import {
   Cursor,
   EntityShape,
-  EntityType,
-  GeneratorEntityShape,
   ItemType,
   World,
 } from './world.js'
@@ -21,7 +19,7 @@ export interface RenderWorldProps {
   cursor: Cursor
   shapes: World['shapes']
   setWorld: Updater<World>
-  view: BuildView | null
+  view: View
 }
 
 export const RenderWorld = React.memo(function RenderWorld({
@@ -81,6 +79,10 @@ export const RenderWorld = React.memo(function RenderWorld({
           <RenderEntity
             key={shape.id}
             entityId={shape.id}
+            edit={
+              view.type === ViewType.enum.Edit &&
+              view.entityId === shape.id
+            }
           />
         )
       })}
@@ -100,7 +102,7 @@ function getConnectionId(
 
 function mapConnections(
   shapes: World['shapes'],
-  view: BuildView | null,
+  view: View,
   cb: (
     id: string,
     source: EntityShape,
@@ -118,14 +120,27 @@ function mapConnections(
       const itemType = ItemType.parse(key)
 
       for (const targetId of Object.keys(targetIds)) {
-        let variant: undefined | 'delete' = undefined
-        if (view && view.output[itemType]?.[targetId]) {
-          variant = 'delete'
-        }
-
         const id = getConnectionId(source.id, targetId)
         invariant(!seen.has(id))
         seen.add(id)
+
+        if (
+          view?.type === ViewType.enum.Edit &&
+          (view.entityId === targetId ||
+            view.entityId === source.id)
+        ) {
+          // Entities being edited will have connections rendered by cursor
+          continue
+        }
+
+        let variant: undefined | 'delete' = undefined
+        if (
+          view.type === ViewType.enum.Build &&
+          view.output[itemType]?.[targetId]
+        ) {
+          variant = 'delete'
+        }
+
         const target = shapes[targetId]
         invariant(target)
         result.push(cb(id, source, target, variant))

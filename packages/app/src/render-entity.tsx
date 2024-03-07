@@ -5,10 +5,12 @@ import { EntityId, getEntity } from './world.js'
 
 export interface RenderEntityProps {
   entityId: EntityId
+  edit?: boolean
 }
 
 export function RenderEntity({
   entityId,
+  edit = false,
 }: RenderEntityProps) {
   const { world } = useContext(AppContext)
   const entity = getEntity(world, entityId)
@@ -16,6 +18,7 @@ export function RenderEntity({
   const { x, y } = entity.shape.position
   const r = entity.shape.radius
   const color = getEntityColor(entity)
+
   return (
     <RenderCircle
       id={entityId}
@@ -24,6 +27,7 @@ export function RenderEntity({
       r={r}
       fill={color.fill}
       stroke={color.stroke}
+      opacity={edit ? 0.25 : undefined}
     />
   )
 }
@@ -35,6 +39,7 @@ interface RenderCircleProps {
   r: number
   fill: string
   stroke?: string
+  opacity?: number
 }
 
 const RenderCircle = React.memo(function RenderCircle({
@@ -44,6 +49,7 @@ const RenderCircle = React.memo(function RenderCircle({
   r,
   fill,
   stroke,
+  opacity = 1,
 }: RenderCircleProps) {
   return (
     <g data-group={`entity-${id}`}>
@@ -55,6 +61,7 @@ const RenderCircle = React.memo(function RenderCircle({
         stroke={stroke}
         // TODO set this based on viewport
         strokeWidth=".05px"
+        opacity={opacity}
       />
     </g>
   )

@@ -6,7 +6,6 @@ import styles from './render-viewport.module.scss'
 import { RenderWorld } from './render-world.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { ViewContext } from './view-context.js'
-import { ViewType } from './view.js'
 import { getScale } from './viewport.js'
 
 export function RenderViewport() {
@@ -42,9 +41,7 @@ export function RenderViewport() {
         cursor={world.cursor}
         shapes={world.shapes}
         setWorld={setWorld}
-        view={
-          view.type === ViewType.enum.Build ? view : null
-        }
+        view={view}
       />
     </svg>
   )
