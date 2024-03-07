@@ -132,25 +132,30 @@ export const RenderCursor = React.memo(
 
 function* iterateConnectedEntityIds(
   view: BuildView | EditView,
-) {
+): Generator<{
+  entityId: EntityId
+  direction: 'input' | 'output'
+}> {
   const seen = new Set<EntityId>()
   for (const entityId of Object.values(view.input)
     .map((entry) => Object.keys(entry))
     .flat()) {
-    if (seen.has(entityId)) {
-      continue
-    }
+    invariant(!seen.has(entityId))
+    // if (seen.has(entityId)) {
+    //   continue
+    // }
     seen.add(entityId)
-    yield entityId
+    yield { entityId, direction: 'input' }
   }
   for (const entityId of Object.values(view.output)
     .map((entry) => Object.keys(entry))
     .flat()) {
-    if (seen.has(entityId)) {
-      continue
-    }
+    invariant(!seen.has(entityId))
+    // if (seen.has(entityId)) {
+    //   continue
+    // }
     seen.add(entityId)
-    yield entityId
+    yield { entityId, direction: 'output' }
   }
 }
 
@@ -159,8 +164,10 @@ function mapConnectedEntityIds(
   cb: (id: EntityId) => JSX.Element,
 ): JSX.Element[] {
   const result = new Array<JSX.Element>()
-  for (const id of iterateConnectedEntityIds(view)) {
-    result.push(cb(id))
+  for (const { entityId } of iterateConnectedEntityIds(
+    view,
+  )) {
+    result.push(cb(entityId))
   }
   return result
 }
@@ -180,19 +187,25 @@ function initBuildCursor({
   view: BuildView
   shapes: World['shapes']
 }): () => void {
-  for (const id of iterateConnectedEntityIds(view)) {
-    const entity = shapes[id]
+  for (const {
+    entityId,
+    direction,
+  } of iterateConnectedEntityIds(view)) {
+    const entity = shapes[entityId]
     invariant(entity)
-    const line = lines[id]
+    const line = lines[entityId]
     invariant(line)
-    line.setAttribute(
-      'x2',
-      `${entity.position.x.toFixed(4)}`,
-    )
-    line.setAttribute(
-      'y2',
-      `${entity.position.y.toFixed(4)}`,
-    )
+
+    const x = entity.position.x.toFixed(4)
+    const y = entity.position.y.toFixed(4)
+
+    if (direction === 'output') {
+      line.setAttribute('x2', x)
+      line.setAttribute('y2', y)
+    } else {
+      line.setAttribute('x1', x)
+      line.setAttribute('y1', y)
+    }
   }
 
   const sub = camera$.subscribe((camera) => {
@@ -202,11 +215,19 @@ function initBuildCursor({
     const y = position.current.y.toFixed(4)
     g.setAttribute('transform', `translate(${x} ${y})`)
 
-    for (const id of iterateConnectedEntityIds(view)) {
-      const line = lines[id]
+    for (const {
+      entityId,
+      direction,
+    } of iterateConnectedEntityIds(view)) {
+      const line = lines[entityId]
       invariant(line)
-      line.setAttribute('x1', x)
-      line.setAttribute('y1', y)
+      if (direction === 'output') {
+        line.setAttribute('x1', x)
+        line.setAttribute('y1', y)
+      } else {
+        line.setAttribute('x2', x)
+        line.setAttribute('y2', y)
+      }
     }
   })
 
@@ -230,19 +251,23 @@ function initEditCursor({
   view: EditView
   shapes: World['shapes']
 }): () => void {
-  for (const id of iterateConnectedEntityIds(view)) {
-    const entity = shapes[id]
+  for (const {
+    entityId,
+    direction,
+  } of iterateConnectedEntityIds(view)) {
+    const entity = shapes[entityId]
     invariant(entity)
-    const line = lines[id]
+    const line = lines[entityId]
     invariant(line)
-    line.setAttribute(
-      'x2',
-      `${entity.position.x.toFixed(4)}`,
-    )
-    line.setAttribute(
-      'y2',
-      `${entity.position.y.toFixed(4)}`,
-    )
+    const x = entity.position.x.toFixed(4)
+    const y = entity.position.y.toFixed(4)
+    if (direction === 'output') {
+      line.setAttribute('x2', x)
+      line.setAttribute('y2', y)
+    } else {
+      line.setAttribute('x1', x)
+      line.setAttribute('y1', y)
+    }
   }
 
   const sub = camera$.subscribe((camera) => {
@@ -252,11 +277,19 @@ function initEditCursor({
     const y = position.current.y.toFixed(4)
     g.setAttribute('transform', `translate(${x} ${y})`)
 
-    for (const id of iterateConnectedEntityIds(view)) {
-      const line = lines[id]
+    for (const {
+      entityId,
+      direction,
+    } of iterateConnectedEntityIds(view)) {
+      const line = lines[entityId]
       invariant(line)
-      line.setAttribute('x1', x)
-      line.setAttribute('y1', y)
+      if (direction === 'output') {
+        line.setAttribute('x1', x)
+        line.setAttribute('y1', y)
+      } else {
+        line.setAttribute('x2', x)
+        line.setAttribute('y2', y)
+      }
     }
   })
 
