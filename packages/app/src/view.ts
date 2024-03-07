@@ -107,6 +107,9 @@ export const EditView = EditViewSearchParam.extend({
     ItemType,
     z.record(EntityId, z.literal(true)),
   ),
+  // store entities whose input source has changed because
+  // another source is now closer
+  effects: z.record(EntityId, z.record(ItemType, EntityId)),
 })
 export type EditView = z.infer<typeof EditView>
 
@@ -223,6 +226,7 @@ function getView(
         valid,
         input,
         output,
+        effects: {},
       }
     }
   }
