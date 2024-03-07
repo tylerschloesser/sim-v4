@@ -50,6 +50,8 @@ export const ItemRecipeKey = z.enum([
   ItemType.enum.Stone,
 
   ItemType.enum.IronPlate,
+
+  ItemType.enum.Power,
 ])
 export type ItemRecipeKey = z.infer<typeof ItemRecipeKey>
 
@@ -112,6 +114,17 @@ export const itemRecipes: Record<
     },
     output: {
       [ItemType.enum.IronPlate]: perSecond(1),
+    },
+  },
+
+  [ItemRecipeKey.enum.Power]: {
+    itemRecipeKey: ItemRecipeKey.enum.Power,
+    entityType: EntityType.enum.Generator,
+    input: {
+      [ItemType.enum.Coal]: perSecond(0.1),
+    },
+    output: {
+      [ItemType.enum.Power]: perSecond(1),
     },
   },
 }
