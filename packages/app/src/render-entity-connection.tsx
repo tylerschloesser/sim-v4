@@ -12,6 +12,11 @@ export const RenderEntityConnection = React.memo(
     a,
     b,
   }: RenderEntityConnectionProps) {
+    if (a.id === b.id) {
+      // special case where the entity connects to itself
+      return null
+    }
+
     const line = useRef<SVGLineElement>(null)
 
     // TODO this could be the same for all lines
@@ -19,7 +24,12 @@ export const RenderEntityConnection = React.memo(
       let handle: number
       function render(now: number) {
         invariant(line.current)
-        line.current.style.strokeDashoffset = `calc(var(--stroke-width) * 4 * -2 * ${(now % 1000) / 1000})`
+
+        // negative value don't seem to work in safari,
+        // even though the spec allows it https://www.w3.org/TR/SVG11/painting.html#StrokeDashoffsetProperty
+        //
+        const progress = 2 - ((now % 1000) / 1000) * 2
+        line.current.style.strokeDashoffset = `calc(var(--stroke-width) * 4 * ${progress})`
         handle = requestAnimationFrame(render)
       }
       handle = requestAnimationFrame(render)
