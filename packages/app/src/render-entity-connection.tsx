@@ -5,7 +5,7 @@ import { EntityShape } from './world.js'
 export interface RenderEntityConnectionProps {
   a: EntityShape
   b: EntityShape
-  variant?: 'delete'
+  variant?: 'delete' | 'edit'
 }
 
 export const RenderEntityConnection = React.memo(
@@ -56,6 +56,7 @@ export const RenderEntityConnection = React.memo(
           stroke={stroke}
           strokeWidth="var(--stroke-width)"
           strokeDasharray="calc(var(--stroke-width) * 4)"
+          opacity={variant === 'edit' ? 0.25 : undefined}
         />
       </g>
     )

@@ -3,7 +3,10 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { RenderCursor } from './render-cursor.js'
-import { RenderEntityConnection } from './render-entity-connection.js'
+import {
+  RenderEntityConnection,
+  RenderEntityConnectionProps,
+} from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { View, ViewType } from './view.js'
@@ -109,7 +112,7 @@ function mapConnections(
     id: string,
     source: EntityShape,
     target: EntityShape,
-    variant?: 'delete',
+    variant: RenderEntityConnectionProps['variant'],
   ) => JSX.Element,
 ): JSX.Element[] {
   const seen = new Set<string>()
@@ -126,21 +129,19 @@ function mapConnections(
         invariant(!seen.has(id))
         seen.add(id)
 
-        if (
-          view?.type === ViewType.enum.Edit &&
-          (view.entityId === targetId ||
-            view.entityId === source.id)
-        ) {
-          // Entities being edited will have connections rendered by cursor
-          continue
-        }
-
-        let variant: undefined | 'delete' = undefined
+        let variant: RenderEntityConnectionProps['variant'] =
+          undefined
         if (
           view.type === ViewType.enum.Build &&
           view.output[itemType]?.[targetId]
         ) {
           variant = 'delete'
+        } else if (
+          view?.type === ViewType.enum.Edit &&
+          (view.entityId === targetId ||
+            view.entityId === source.id)
+        ) {
+          variant = 'edit'
         }
 
         const target = shapes[targetId]
