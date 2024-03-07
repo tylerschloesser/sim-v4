@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react'
-import invariant from 'tiny-invariant'
+import React from 'react'
 import { EntityShape } from './world.js'
 
 export interface RenderEntityConnectionProps {
@@ -19,27 +18,6 @@ export const RenderEntityConnection = React.memo(
       return null
     }
 
-    const line = useRef<SVGLineElement>(null)
-
-    // TODO this could be the same for all lines
-    useEffect(() => {
-      let handle: number
-      function render(now: number) {
-        invariant(line.current)
-
-        // negative value don't seem to work in safari,
-        // even though the spec allows it https://www.w3.org/TR/SVG11/painting.html#StrokeDashoffsetProperty
-        //
-        const progress = 2 - ((now % 1000) / 1000) * 2
-        line.current.style.strokeDashoffset = `calc(var(--stroke-width) * 4 * ${progress})`
-        handle = requestAnimationFrame(render)
-      }
-      handle = requestAnimationFrame(render)
-      return () => {
-        cancelAnimationFrame(handle)
-      }
-    }, [])
-
     const stroke =
       variant === 'delete'
         ? 'hsla(0, 50%, 50%, .5)'
@@ -48,7 +26,6 @@ export const RenderEntityConnection = React.memo(
     return (
       <g data-group={`entity-connection-${a.id}-${b.id}`}>
         <line
-          ref={line}
           x1={a.position.x}
           y1={a.position.y}
           x2={b.position.x}
@@ -56,6 +33,7 @@ export const RenderEntityConnection = React.memo(
           stroke={stroke}
           strokeWidth="var(--stroke-width)"
           strokeDasharray="calc(var(--stroke-width) * 4)"
+          strokeDashoffset="var(--stroke-dashoffset)"
           opacity={variant === 'edit' ? 0.25 : undefined}
         />
       </g>

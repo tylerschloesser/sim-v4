@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
@@ -57,6 +57,27 @@ export const RenderWorld = React.memo(function RenderWorld({
 
     root.current.setAttribute('transform', transform)
   })
+
+  useEffect(() => {
+    let handle: number
+    function render(now: number) {
+      invariant(root.current)
+
+      // negative value don't seem to work in safari,
+      // even though the spec allows it https://www.w3.org/TR/SVG11/painting.html#StrokeDashoffsetProperty
+      //
+      const progress = 2 - ((now % 1000) / 1000) * 2
+      root.current.style.setProperty(
+        '--stroke-dashoffset',
+        `calc(var(--stroke-width) * 4 * ${progress})`,
+      )
+      handle = requestAnimationFrame(render)
+    }
+    handle = requestAnimationFrame(render)
+    return () => {
+      cancelAnimationFrame(handle)
+    }
+  }, [])
 
   return (
     <g data-group="world" ref={root}>
