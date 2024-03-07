@@ -68,10 +68,24 @@ export function getInputOutput(
           peer.input[outputType]!,
         ) as EntityId[]
 
+        invariant(entityIds.length <= 1)
+
+        const entry = output[outputType]
+        invariant(entry)
         if (entityIds.length === 0) {
-          const entry = output[outputType]
-          invariant(entry)
           entry[peer.id] = true
+        } else {
+          const peerpeer = shapes[entityIds.at(0)!]
+          invariant(peerpeer)
+          // TODO could cache this
+          const dist = vec2.dist(
+            peer.position,
+            peerpeer.position,
+          )
+          if (dist > dists.get(peer.id)!) {
+            // we are closer than the current input source
+            entry[peer.id] = true
+          }
         }
       }
     }
