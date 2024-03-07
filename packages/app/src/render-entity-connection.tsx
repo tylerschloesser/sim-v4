@@ -18,7 +18,7 @@ export const RenderEntityConnection = React.memo(
           y1={a.position.y}
           x2={b.position.x}
           y2={b.position.y}
-          stroke={'pink'}
+          stroke={'hsla(0, 20%, 50%, .5)'}
           strokeWidth="var(--stroke-width)"
           strokeDasharray="calc(var(--stroke-width) * 4)"
         />
