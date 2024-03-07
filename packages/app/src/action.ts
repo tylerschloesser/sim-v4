@@ -130,6 +130,7 @@ export function buildEntity(
           id,
           input: {},
           output: {},
+          satisfaction: 0,
         }
         break
       }
@@ -148,6 +149,7 @@ export function buildEntity(
           id,
           input: {},
           output: {},
+          satisfaction: 0,
         }
         break
       }
@@ -166,6 +168,7 @@ export function buildEntity(
           id,
           input: {},
           output: {},
+          satisfaction: 0,
         }
         break
       }
@@ -184,6 +187,7 @@ export function buildEntity(
           id,
           input: {},
           output: {},
+          satisfaction: 0,
         }
         break
       }

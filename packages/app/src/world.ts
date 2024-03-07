@@ -52,6 +52,7 @@ const EntityStateBase = z.strictObject({
   id: EntityId,
   input: Inventory,
   output: Inventory,
+  satisfaction: z.number(),
 })
 
 //
@@ -266,6 +267,7 @@ function addPatch({
     output: {
       [itemType]: count,
     },
+    satisfaction: 0,
   }
 
   world.shapes[id] = shape
