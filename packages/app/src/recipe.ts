@@ -128,14 +128,6 @@ export const smelterRecipes: Record<string, SmelterRecipe> =
     },
   }
 
-export function getAvailableEntityRecipes(
-  inventory: Inventory,
-): EntityRecipe[] {
-  return Object.values(entityRecipes).filter((recipe) =>
-    inventoryHas(inventory, recipe.input),
-  )
-}
-
 export function getAvailableItemRecipes(
   inventory: Inventory,
 ): ItemRecipe[] {

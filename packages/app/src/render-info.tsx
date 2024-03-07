@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import { getAvailableEntityRecipes } from './recipe.js'
 import styles from './render-info.module.scss'
 import { ViewContext } from './view-context.js'
 import { BuildView, ViewType } from './view.js'
@@ -84,9 +83,6 @@ interface RenderDefaultInfoProps {
 function RenderDefaultInfo({
   cursor,
 }: RenderDefaultInfoProps) {
-  const availableRecipes = getAvailableEntityRecipes(
-    cursor.inventory,
-  )
   return (
     <>
       <div>
@@ -99,14 +95,6 @@ function RenderDefaultInfo({
             return `${value} ${itemType}`
           })
           .join(', ')}
-      </div>
-      <div>
-        Available Recipes:{' '}
-        {availableRecipes.length === 0
-          ? 'None'
-          : availableRecipes
-              .map((recipe) => recipe.output)
-              .join(',')}
       </div>
     </>
   )
