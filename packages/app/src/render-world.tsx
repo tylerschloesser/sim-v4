@@ -29,6 +29,7 @@ export const RenderWorld = React.memo(function RenderWorld({
   cursor,
   shapes,
   setWorld,
+  view,
 }: RenderWorldProps) {
   const root = useRef<SVGGElement>(null)
   const { viewport } = useContext(AppContext)
@@ -73,11 +74,13 @@ export const RenderWorld = React.memo(function RenderWorld({
       })}
       {mapConnections(
         shapes,
+        view,
         (id, source, target, variant) => (
           <RenderEntityConnection
             key={id}
             a={source}
             b={target}
+            variant={variant}
           />
         ),
       )}
@@ -122,6 +125,7 @@ function mapGenerators(
 
 function mapConnections(
   shapes: World['shapes'],
+  view: BuildView | null,
   cb: (
     id: string,
     source: EntityShape,
@@ -138,9 +142,12 @@ function mapConnections(
     )) {
       const itemType = ItemType.parse(key)
 
-      let variant: undefined | 'delete' = undefined
-
       for (const targetId of Object.keys(targetIds)) {
+        let variant: undefined | 'delete' = undefined
+        if (view && view.output[itemType]?.[targetId]) {
+          variant = 'delete'
+        }
+
         const id = getConnectionId(source.id, targetId)
         invariant(!seen.has(id))
         seen.add(id)
