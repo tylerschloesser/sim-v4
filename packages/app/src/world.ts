@@ -25,8 +25,10 @@ export const Inventory = z.record(ItemType, z.number())
 export type Inventory = z.infer<typeof Inventory>
 
 export const EntityType = z.enum([
-  'Smelter',
   'Patch',
+  'Science',
+
+  'Smelter',
   'Miner',
   'Generator',
   'Crafter',
@@ -62,7 +64,6 @@ const EntityStateBase = z.strictObject({
 //
 export const SmelterEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Smelter),
-  itemType: ItemType,
 })
 export type SmelterEntityShape = z.infer<
   typeof SmelterEntityShape
@@ -110,7 +111,6 @@ export type PatchEntity = z.infer<typeof PatchEntity>
 //
 export const MinerEntityShape = EntityShapeBase.extend({
   type: z.literal(EntityType.enum.Miner),
-  itemType: ItemType,
 })
 export type MinerEntityShape = z.infer<
   typeof MinerEntityShape
