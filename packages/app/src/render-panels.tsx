@@ -3,7 +3,12 @@ import invariant from 'tiny-invariant'
 import styles from './render-panels.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { Entity, World, getEntity } from './world.js'
+import {
+  Entity,
+  EntityType,
+  World,
+  getEntity,
+} from './world.js'
 
 interface RenderPanelsProps {
   world: World
