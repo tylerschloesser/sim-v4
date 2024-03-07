@@ -28,6 +28,10 @@ export function RenderViewport() {
       '--stroke-width',
       `${((1 / scale) * 2).toFixed(4)}`,
     )
+    root.current.style.setProperty(
+      '--stroke-dasharray',
+      'calc(var(--stroke-width) * 4)',
+    )
   })
 
   return (

@@ -116,6 +116,8 @@ export const RenderCursor = React.memo(
                 stroke={fill}
                 ref={(el) => (lines.current[id] = el)}
                 strokeWidth="var(--stroke-width)"
+                strokeDasharray="var(--stroke-dasharray)"
+                strokeDashoffset="var(--stroke-dashoffset)"
               />
             ))}
           </>

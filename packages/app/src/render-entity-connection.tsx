@@ -32,7 +32,7 @@ export const RenderEntityConnection = React.memo(
           y2={b.position.y}
           stroke={stroke}
           strokeWidth="var(--stroke-width)"
-          strokeDasharray="calc(var(--stroke-width) * 4)"
+          strokeDasharray="var(--stroke-dasharray)"
           strokeDashoffset="var(--stroke-dashoffset)"
           opacity={variant === 'edit' ? 0.25 : undefined}
         />
