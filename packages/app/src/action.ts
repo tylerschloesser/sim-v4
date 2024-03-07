@@ -255,3 +255,11 @@ export function buildEntity(
     }
   })
 }
+
+export function moveEntity(
+  setWorld: Updater<World>,
+  entityId: EntityId,
+  position: Vec2,
+  input: EntityShape['input'],
+  output: EntityShape['output'],
+): void {}

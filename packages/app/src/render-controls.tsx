@@ -15,6 +15,7 @@ import { Updater } from 'use-immer'
 import {
   buildEntity,
   minePatch,
+  moveEntity,
   moveFromCursorToEntityInput,
   moveFromEntityOutputToCursor,
 } from './action.js'
@@ -31,6 +32,7 @@ import { vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
 import {
   BuildView,
+  EditView,
   SelectView,
   ViewType,
   useSetViewSearchParam,
@@ -51,6 +53,44 @@ export interface RenderControlsProps {
   cursor: Cursor
   cursorEntity: Entity | null
   setWorld: Updater<World>
+}
+
+interface RenderEditControlsProps {
+  camera$: BehaviorSubject<Camera>
+  cursor: Cursor
+  setWorld: Updater<World>
+  view: EditView
+}
+
+function RenderEditControls({
+  camera$,
+  setWorld,
+  view,
+}: RenderEditControlsProps) {
+  const setView = useSetViewSearchParam()
+
+  const primary: ButtonProps = {
+    disabled: !view.valid,
+    onTap() {
+      moveEntity(
+        setWorld,
+        view.entityId,
+        vec2.clone(camera$.value.position),
+        view.input,
+        view.output,
+      )
+    },
+    label: 'Move',
+  }
+
+  const secondary: ButtonProps = {
+    onTap() {
+      setView(null)
+    },
+    label: 'Back',
+  }
+
+  return <Render primary={primary} secondary={secondary} />
 }
 
 interface RenderBuildControlsProps {
@@ -170,6 +210,16 @@ export const RenderControls = React.memo(
       }
       case ViewType.enum.Select: {
         return <RenderSelectControls view={view} />
+      }
+      case ViewType.enum.Edit: {
+        return (
+          <RenderEditControls
+            camera$={camera$}
+            cursor={cursor}
+            setWorld={setWorld}
+            view={view}
+          />
+        )
       }
     }
 
