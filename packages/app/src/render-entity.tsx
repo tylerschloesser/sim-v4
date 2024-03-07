@@ -5,12 +5,12 @@ import { EntityId, getEntity } from './world.js'
 
 export interface RenderEntityProps {
   entityId: EntityId
-  edit?: boolean
+  variant?: 'edit'
 }
 
 export function RenderEntity({
   entityId,
-  edit = false,
+  variant,
 }: RenderEntityProps) {
   const { world } = useContext(AppContext)
   const entity = getEntity(world, entityId)
@@ -27,7 +27,7 @@ export function RenderEntity({
       r={r}
       fill={color.fill}
       stroke={color.stroke}
-      opacity={edit ? 0.25 : undefined}
+      opacity={variant === 'edit' ? 0.25 : undefined}
     />
   )
 }

@@ -79,9 +79,11 @@ export const RenderWorld = React.memo(function RenderWorld({
           <RenderEntity
             key={shape.id}
             entityId={shape.id}
-            edit={
+            variant={
               view.type === ViewType.enum.Edit &&
               view.entityId === shape.id
+                ? 'edit'
+                : undefined
             }
           />
         )
