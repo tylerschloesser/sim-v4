@@ -4,7 +4,12 @@ import invariant from 'tiny-invariant'
 import styles from './render-panels.module.scss'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import { Entity, World, getEntity } from './world.js'
+import {
+  Entity,
+  EntityType,
+  World,
+  getEntity,
+} from './world.js'
 
 interface RenderPanelsProps {
   world: World
@@ -50,7 +55,10 @@ const RenderPanel = React.memo(function RenderPanel({
 }: RenderPanelProps) {
   return (
     <div
-      className={classNames(styles.panel)}
+      className={classNames(styles.panel, {
+        [styles['panel--patch'] as string]:
+          entity.type === EntityType.enum.Patch,
+      })}
       style={
         {
           '--x': `${entity.shape.position.x}`,
@@ -59,7 +67,17 @@ const RenderPanel = React.memo(function RenderPanel({
         } as React.CSSProperties
       }
     >
-      {entity.id}
+      {(() => {
+        switch (entity.type) {
+          case EntityType.enum.Patch: {
+            const { itemType } = entity.shape
+            const count = entity.state.output[itemType] ?? 0
+            return Math.floor(count)
+          }
+          default:
+            return entity.type
+        }
+      })()}
     </div>
   )
 })

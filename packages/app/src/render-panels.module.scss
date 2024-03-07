@@ -12,6 +12,7 @@
   position: absolute;
 
   font-size: 0.8em;
+  line-height: 0.8em;
 
   // prettier-ignore
   transform: translate3d(
@@ -25,4 +26,11 @@
   border: 1px solid var(--black);
   background: hsla(0, 0%, 50%, 0.5);
   border-radius: 2px;
+
+  &--patch {
+    padding: 0;
+    border: none;
+    background: none;
+    opacity: 0.5;
+  }
 }
