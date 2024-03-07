@@ -63,6 +63,7 @@ interface RenderEntityInfoProps {
   entity: Entity
 }
 
+// eslint-disable-next-line
 function RenderEntityInfo({
   cursor,
   entity,
@@ -146,12 +147,13 @@ export const RenderInfo = React.memo(function RenderInfo({
         if (!cursorEntity) {
           return <RenderDefaultInfo cursor={cursor} />
         }
-        return (
-          <RenderEntityInfo
-            cursor={cursor}
-            entity={cursorEntity}
-          />
-        )
+        return null
+        // return (
+        //   <RenderEntityInfo
+        //     cursor={cursor}
+        //     entity={cursorEntity}
+        //   />
+        // )
       })()}
     </div>
   )

@@ -11,6 +11,8 @@
 .panel {
   position: absolute;
 
+  font-size: 0.8em;
+
   // prettier-ignore
   transform: translate3d(
     calc((-1 * (var(--x) + var(--r)) + var(--cx)) * -1px * var(--scale)),
