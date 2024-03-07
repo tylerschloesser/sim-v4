@@ -5,7 +5,6 @@ import { AppContext } from './app-context.js'
 import { RenderCursor } from './render-cursor.js'
 import { RenderEntityConnection } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
-import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { BuildView } from './view.js'
 import { getScale } from './viewport.js'
@@ -60,18 +59,6 @@ export const RenderWorld = React.memo(function RenderWorld({
 
   return (
     <g data-group="world" ref={root}>
-      {mapGenerators(shapes, (shape) => {
-        if (cursor.entityId === shape.id) {
-          return (
-            <RenderGeneratorPowerArea
-              key={shape.id}
-              shape={shape}
-            />
-          )
-        } else {
-          return null
-        }
-      })}
       {mapConnections(
         shapes,
         view,
@@ -109,18 +96,6 @@ function getConnectionId(
     return `${sourceId}.${targetId}`
   }
   return `${targetId}.${sourceId}`
-}
-
-function mapGenerators(
-  shapes: World['shapes'],
-  cb: (shape: GeneratorEntityShape) => JSX.Element | null,
-): (JSX.Element | null)[] {
-  return Object.values(shapes)
-    .filter(
-      (shape): shape is GeneratorEntityShape =>
-        shape.type === EntityType.enum.Generator,
-    )
-    .map((entity) => cb(entity))
 }
 
 function mapConnections(

@@ -10,16 +10,10 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
 import { getClosestShape } from './closest.js'
-import { RenderGeneratorPowerArea } from './render-generator-power-area.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
-import { BuildView, ViewType } from './view.js'
-import {
-  Cursor,
-  EntityId,
-  EntityType,
-  World,
-} from './world.js'
+import { BuildView, EditView, ViewType } from './view.js'
+import { Cursor, EntityId, World } from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor
@@ -57,6 +51,16 @@ export const RenderCursor = React.memo(
             shapes,
           })
         }
+        case ViewType.enum.Edit: {
+          return initEditCursor({
+            position,
+            camera$,
+            g: g.current,
+            lines: lines.current,
+            view,
+            shapes,
+          })
+        }
         case ViewType.enum.Select: {
           return initDefaultCursor({
             position,
@@ -84,7 +88,8 @@ export const RenderCursor = React.memo(
     let fill: string
 
     switch (view.type) {
-      case ViewType.enum.Build: {
+      case ViewType.enum.Build:
+      case ViewType.enum.Edit: {
         fill = view.valid
           ? 'hsla(120, 50%, 50%, .5)'
           : 'hsla(0, 50%, 50%, .5)'
@@ -102,7 +107,8 @@ export const RenderCursor = React.memo(
 
     return (
       <g data-group="cursor">
-        {view.type === ViewType.enum.Build && (
+        {(view.type === ViewType.enum.Build ||
+          view.type === ViewType.enum.Edit) && (
           <>
             {mapConnectedEntityIds(view, (id) => (
               <line
@@ -116,18 +122,15 @@ export const RenderCursor = React.memo(
         )}
         <g ref={g}>
           <circle r={cursor.radius} fill={fill} />
-          {view.type === ViewType.enum.Build &&
-            view.entityType ===
-              EntityType.enum.Generator && (
-              <RenderGeneratorPowerArea />
-            )}
         </g>
       </g>
     )
   },
 )
 
-function* iterateConnectedEntityIds(view: BuildView) {
+function* iterateConnectedEntityIds(
+  view: BuildView | EditView,
+) {
   const seen = new Set<EntityId>()
   for (const entityId of Object.values(view.input)
     .map((entry) => Object.keys(entry))
@@ -150,7 +153,7 @@ function* iterateConnectedEntityIds(view: BuildView) {
 }
 
 function mapConnectedEntityIds(
-  view: BuildView,
+  view: BuildView | EditView,
   cb: (id: EntityId) => JSX.Element,
 ): JSX.Element[] {
   const result = new Array<JSX.Element>()
@@ -180,10 +183,6 @@ function initBuildCursor({
     invariant(entity)
     const line = lines[id]
     invariant(line)
-    // if (!line) {
-    //   // may happen because lines are added asyncronously by react
-    //   continue
-    // }
     line.setAttribute(
       'x2',
       `${entity.position.x.toFixed(4)}`,
@@ -204,10 +203,56 @@ function initBuildCursor({
     for (const id of iterateConnectedEntityIds(view)) {
       const line = lines[id]
       invariant(line)
-      // if (!line) {
-      //   // may happen because lines are added asyncronously by react
-      //   continue
-      // }
+      line.setAttribute('x1', x)
+      line.setAttribute('y1', y)
+    }
+  })
+
+  return () => {
+    sub.unsubscribe()
+  }
+}
+
+function initEditCursor({
+  position,
+  camera$,
+  g,
+  lines,
+  view,
+  shapes,
+}: {
+  position: MutableRefObject<Vec2>
+  camera$: BehaviorSubject<Camera>
+  g: SVGGElement
+  lines: Record<string, SVGLineElement | null>
+  view: EditView
+  shapes: World['shapes']
+}): () => void {
+  for (const id of iterateConnectedEntityIds(view)) {
+    const entity = shapes[id]
+    invariant(entity)
+    const line = lines[id]
+    invariant(line)
+    line.setAttribute(
+      'x2',
+      `${entity.position.x.toFixed(4)}`,
+    )
+    line.setAttribute(
+      'y2',
+      `${entity.position.y.toFixed(4)}`,
+    )
+  }
+
+  const sub = camera$.subscribe((camera) => {
+    position.current = vec2.clone(camera.position)
+
+    const x = position.current.x.toFixed(4)
+    const y = position.current.y.toFixed(4)
+    g.setAttribute('transform', `translate(${x} ${y})`)
+
+    for (const id of iterateConnectedEntityIds(view)) {
+      const line = lines[id]
+      invariant(line)
       line.setAttribute('x1', x)
       line.setAttribute('y1', y)
     }
