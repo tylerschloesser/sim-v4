@@ -39,6 +39,8 @@ export function tickWorld(setWorld: Updater<World>): void {
       invariant(satisfaction >= 0)
       invariant(satisfaction <= 1)
 
+      entity.state.satisfaction = satisfaction
+
       if (satisfaction === 0) {
         continue
       }
