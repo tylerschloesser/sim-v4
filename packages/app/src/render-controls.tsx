@@ -201,7 +201,9 @@ export const RenderControls = React.memo(
           )
         case EntityType.enum.Generator:
         case EntityType.enum.Crafter:
-          return <RenderEntityControls />
+          return (
+            <RenderEntityControls entity={cursorEntity} />
+          )
         default:
           invariant(false)
       }
@@ -388,7 +390,13 @@ function RenderPatchControls({
     label: 'Build Miner',
   }
 
-  return <Render primary={primary} secondary={secondary} />
+  return (
+    <RenderEntityControls
+      entity={entity}
+      primary={primary}
+      secondary={secondary}
+    />
+  )
 }
 
 interface RenderDefaultControlsProps {
@@ -427,12 +435,7 @@ function RenderDefaultControls({
     label: 'Select',
   }
 
-  return (
-    <RenderEntityControls
-      primary={primary}
-      secondary={secondary}
-    />
-  )
+  return <Render primary={primary} secondary={secondary} />
 }
 
 interface RenderSmelterControlsProps {
@@ -492,7 +495,13 @@ function RenderSmelterControls({
     label: 'Take All',
   }
 
-  return <Render primary={primary} secondary={secondary} />
+  return (
+    <RenderEntityControls
+      entity={entity}
+      primary={primary}
+      secondary={secondary}
+    />
+  )
 }
 
 interface RenderMinerControlsProps {
@@ -523,6 +532,7 @@ function RenderMinerControls({
 
   return (
     <RenderEntityControls
+      entity={entity}
       primary={{
         disabled: !hasCoal,
         onHold: addCoal,
@@ -541,15 +551,34 @@ function RenderMinerControls({
 }
 
 interface RenderEntityControlsProps {
+  entity: Entity
   primary?: ButtonProps
   secondary?: ButtonProps
 }
 
 function RenderEntityControls({
+  entity,
   primary,
   secondary,
 }: RenderEntityControlsProps) {
-  return <Render primary={primary} secondary={secondary} />
+  let tertiary: ButtonProps | undefined = undefined
+  if (entity.type !== EntityType.enum.Patch) {
+    tertiary = {
+      label: 'Edit',
+      disabled: false,
+      onTap() {
+        console.log('todo', entity.id)
+      },
+    }
+  }
+
+  return (
+    <Render
+      primary={primary}
+      secondary={secondary}
+      tertiary={tertiary}
+    />
+  )
 }
 
 interface RenderProps {
