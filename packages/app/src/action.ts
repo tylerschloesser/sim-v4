@@ -102,6 +102,32 @@ export function buildEntity(
 
     const id = getNextEntityId(world)
 
+    // check if this build is a closer output to other inputs,
+    // in which case we start by removing the existing connections
+    for (const [key, value] of Object.entries(output)) {
+      const itemType = ItemType.parse(key)
+      for (const peerId of Object.keys(value)) {
+        const peer = world.shapes[peerId]
+        invariant(peer)
+
+        if (peer.input[itemType]) {
+          invariant(
+            Object.keys(peer.input[itemType]!).length <= 1,
+          )
+          const peerPeerId = Object.keys(
+            peer.input[itemType]!,
+          ).at(0)
+          if (peerPeerId) {
+            const peerPeer = world.shapes[peerPeerId]
+            invariant(peerPeer)
+            invariant(peerPeer.output[itemType]![peerId])
+            delete peerPeer.output[itemType]![peerId]
+            delete peer.input[itemType]![peerPeerId]
+          }
+        }
+      }
+    }
+
     for (const key of Object.keys(output)) {
       const outputType = ItemType.parse(key)
       if (input[outputType]) {
