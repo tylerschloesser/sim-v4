@@ -99,6 +99,8 @@ export function getInputOutput(
             },
           )
 
+          console.log(closerId)
+
           if (closerId) {
             let current = effects[peer.id]
             if (current) {
@@ -149,7 +151,10 @@ function getCloserInputSource(
   let result = { ...current }
 
   for (const shape of Object.values(shapes)) {
-    if (!shape.output[itemType]) {
+    if (
+      shape.id === current.entityId ||
+      !shape.output[itemType]
+    ) {
       continue
     }
 
