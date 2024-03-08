@@ -174,5 +174,25 @@ function mapConnections(
     }
   }
 
+  if (view.type === ViewType.enum.Edit) {
+    for (const [targetId, value] of Object.entries(
+      view.effects,
+    )) {
+      const target = shapes[targetId]
+      invariant(target)
+
+      for (const sourceId of Object.values(value)) {
+        const source = shapes[sourceId]
+        invariant(source)
+
+        const id = getConnectionId(sourceId, targetId)
+        invariant(!seen.has(id))
+        seen.add(id)
+
+        result.push(cb(id, source, target, undefined))
+      }
+    }
+  }
+
   return result
 }

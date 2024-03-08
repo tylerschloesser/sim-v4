@@ -4,7 +4,7 @@ import { EntityShape } from './world.js'
 export interface RenderEntityConnectionProps {
   a: EntityShape
   b: EntityShape
-  variant?: 'delete' | 'edit'
+  variant?: 'delete' | 'edit' | 'valid' | 'invalid'
 }
 
 export const RenderEntityConnection = React.memo(
@@ -18,10 +18,21 @@ export const RenderEntityConnection = React.memo(
       return null
     }
 
-    const stroke =
-      variant === 'delete'
-        ? 'hsla(0, 50%, 50%, .5)'
-        : 'hsla(0, 0%, 50%, .5)'
+    let stroke: string
+    switch (variant) {
+      case 'invalid':
+      case 'delete': {
+        stroke = 'hsla(0, 50%, 50%, .5)'
+        break
+      }
+      case 'valid': {
+        stroke = 'hsla(120, 50%, 50%, .5)'
+        break
+      }
+      default: {
+        stroke = 'hsla(0, 0%, 50%, .5)'
+      }
+    }
 
     return (
       <g data-group={`entity-connection-${a.id}-${b.id}`}>
