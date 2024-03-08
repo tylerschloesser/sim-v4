@@ -189,7 +189,10 @@ function mapConnections(
         invariant(!seen.has(id))
         seen.add(id)
 
-        result.push(cb(id, source, target, undefined))
+        const variant: RenderEntityConnectionProps['variant'] =
+          view.valid ? 'valid' : 'invalid'
+
+        result.push(cb(id, source, target, variant))
       }
     }
   }
