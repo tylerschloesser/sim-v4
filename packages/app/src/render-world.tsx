@@ -186,7 +186,15 @@ function mapConnections(
         invariant(source)
 
         const id = getConnectionId(sourceId, targetId)
-        invariant(!seen.has(id))
+
+        // invariant(!seen.has(id))
+        if (seen.has(id)) {
+          // TODO this happens because we complete the edit before updating the view
+          // so during the intermediate render, this connection appears twice
+          // Not sure of an elegant way to avoid this
+          continue
+        }
+
         seen.add(id)
 
         const variant: RenderEntityConnectionProps['variant'] =

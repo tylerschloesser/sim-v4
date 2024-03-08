@@ -78,6 +78,7 @@ function RenderEditControls({
         vec2.clone(camera$.value.position),
         view,
       )
+      setView(null)
     },
     label: 'Move',
   }

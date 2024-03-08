@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { getInputOutput } from './connect.js'
 import {
   inventoryAdd,
   inventoryMove,
@@ -129,10 +130,11 @@ export function buildEntity(
       }
     }
 
+    // check if we should connect this entity to itself
+    // (special case for coal miners)
     for (const key of Object.keys(output)) {
       const outputType = ItemType.parse(key)
       if (input[outputType]) {
-        // connect this entity to itself
         invariant(
           Object.keys(input[outputType]!).length === 0,
         )
@@ -262,4 +264,106 @@ export function moveEntity(
   entityId: EntityId,
   position: Vec2,
   view: EditView,
-): void {}
+): void {
+  const { input, output, effects } = view
+
+  setWorld((world) => {
+    const entity = world.shapes[entityId]
+    invariant(entity)
+    entity.position = { ...position }
+
+    // remove existing inputs (except from this entities output)
+    for (const [key, value] of Object.entries(
+      entity.input,
+    )) {
+      const inputType = ItemType.parse(key)
+
+      for (const peerId of Object.keys(value)) {
+        if (peerId === entityId) {
+          // ignore connections to itself
+          continue
+        }
+
+        const peer = world.shapes[peerId]
+        invariant(peer)
+
+        invariant(peer.output[inputType]![entityId])
+
+        delete entity.input[inputType]![peerId]
+        delete peer.output[inputType]![entityId]
+      }
+    }
+
+    // remove existing outputs (except from this entities input)
+    for (const [key, value] of Object.entries(
+      entity.output,
+    )) {
+      const outputType = ItemType.parse(key)
+
+      for (const peerId of Object.keys(value)) {
+        if (peerId === entityId) {
+          // ignore connections to itself
+          continue
+        }
+
+        const peer = world.shapes[peerId]
+        invariant(peer)
+
+        invariant(peer.input[outputType]![entityId])
+
+        delete entity.output[outputType]![peerId]
+        delete peer.input[outputType]![entityId]
+      }
+    }
+
+    // add inputs
+    for (const [key, value] of Object.entries(input)) {
+      const inputType = ItemType.parse(key)
+      for (const peerId of Object.keys(value)) {
+        const peer = world.shapes[peerId]
+        invariant(peer?.output[inputType])
+        invariant(!peer.output[inputType]![entityId])
+        peer.output[inputType]![entityId] = true
+        entity.input[inputType]![peerId] = true
+      }
+    }
+
+    // add outputs
+    for (const [key, value] of Object.entries(output)) {
+      const outputType = ItemType.parse(key)
+      for (const peerId of Object.keys(value)) {
+        const peer = world.shapes[peerId]
+        invariant(peer?.input[outputType])
+        invariant(!peer.input[outputType]![entityId])
+        peer.input[outputType]![entityId] = true
+        entity.output[outputType]![peerId] = true
+      }
+    }
+
+    // handle effects
+    for (const [targetId, value] of Object.entries(
+      effects,
+    )) {
+      for (const [key, sourceId] of Object.entries(value)) {
+        const itemType = ItemType.parse(key)
+
+        const target = world.shapes[targetId]
+        invariant(target)
+        const source = world.shapes[sourceId]
+        invariant(source)
+
+        invariant(target.input[itemType])
+        // this should have been deleted above
+        invariant(!target.input[itemType]![entityId])
+
+        invariant(!target.input[itemType]![sourceId])
+
+        target.input[itemType]![sourceId] = true
+
+        invariant(source.output[itemType])
+        invariant(!source.output[itemType]![targetId])
+        source.output[itemType]![targetId] = true
+      }
+    }
+  })
+}
