@@ -7,6 +7,7 @@ import {
 } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { Vec2 } from './vec2.js'
+import { BuildView, EditView } from './view.js'
 import {
   EntityId,
   EntityShape,
@@ -91,9 +92,9 @@ export function buildEntity(
   entityType: EntityType,
   itemType: ItemType,
   position: Vec2,
-  input: EntityShape['input'],
-  output: EntityShape['output'],
+  view: BuildView,
 ): void {
+  const { input, output } = view
   const recipe = entityRecipes[entityType]
   invariant(recipe)
 
@@ -256,11 +257,9 @@ export function buildEntity(
   })
 }
 
-/* eslint-disable */
 export function moveEntity(
   setWorld: Updater<World>,
   entityId: EntityId,
   position: Vec2,
-  input: EntityShape['input'],
-  output: EntityShape['output'],
+  view: EditView,
 ): void {}

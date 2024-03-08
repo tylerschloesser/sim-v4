@@ -76,8 +76,7 @@ function RenderEditControls({
         setWorld,
         view.entityId,
         vec2.clone(camera$.value.position),
-        view.input,
-        view.output,
+        view,
       )
     },
     label: 'Move',
@@ -121,8 +120,7 @@ function RenderBuildControls({
         recipe.entityType,
         view.itemRecipeKey,
         vec2.clone(camera$.value.position),
-        view.input,
-        view.output,
+        view,
       )
     },
     label: `${recipe.itemRecipeKey} ${recipe.entityType}`,
