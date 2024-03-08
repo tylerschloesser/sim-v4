@@ -265,6 +265,7 @@ export function useView(): View {
   )
 
   const [view, setView] = useState(initialView)
+  const setViewSearchParam = useSetViewSearchParam()
 
   useSubscribeEffect(
     camera$,
@@ -284,7 +285,7 @@ export function useView(): View {
 
   useEffect(() => {
     if (view === null) {
-      setView(DEFAULT_VIEW)
+      setViewSearchParam(DEFAULT_VIEW_SEARCH_PARAM)
     }
   }, [view])
 
