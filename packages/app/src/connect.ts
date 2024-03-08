@@ -50,11 +50,17 @@ export function getInputOutput(
       needsInput.delete(inputType)
     }
   }
+
   for (const outputType of needsOutput) {
     output[outputType] = {}
   }
 
   for (const peer of sorted) {
+    if (peer.id === entityId) {
+      // during edit, ignore the entity we are moving
+      continue
+    }
+
     if (needsInput.size === 0 && needsOutput.size === 0) {
       break
     }
