@@ -99,8 +99,6 @@ export function getInputOutput(
             },
           )
 
-          console.log(closerId)
-
           if (closerId) {
             let current = effects[peer.id]
             if (current) {
