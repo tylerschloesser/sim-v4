@@ -341,8 +341,28 @@ export function moveEntity(
         invariant(!peer.input[outputType]![entityId])
 
         if (Object.keys(peer.input[outputType]!).length) {
-          // TODO we are a closer input for this entity
+          // we are a closer input for this entity
           // remove the currently connected entity
+
+          const currentSourceId = Object.keys(
+            peer.input[outputType]!,
+          ).at(0)
+          invariant(currentSourceId)
+
+          const currentSource =
+            world.shapes[currentSourceId]
+          invariant(currentSource)
+          invariant(
+            currentSource.output[outputType]![peerId],
+          )
+
+          delete peer.input[outputType]![currentSourceId]
+          delete currentSource.output[outputType]![peerId]
+
+          invariant(
+            Object.keys(peer.input[outputType]!).length ===
+              0,
+          )
         }
 
         peer.input[outputType]![entityId] = true
