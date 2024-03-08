@@ -154,7 +154,8 @@ function mapConnections(
           undefined
         if (
           (view.type === ViewType.enum.Build ||
-            view.type === ViewType.enum.Edit) &&
+            (view.type === ViewType.enum.Edit &&
+              source.id !== view.entityId)) &&
           view.output[itemType]?.[targetId]
         ) {
           variant = 'delete'
