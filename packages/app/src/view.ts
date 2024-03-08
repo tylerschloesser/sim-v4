@@ -183,12 +183,14 @@ function getView(
 
       const recipe = itemRecipes[param.itemRecipeKey]
 
-      const { input, output } = getInputOutput(
+      const { input, output, effects } = getInputOutput(
         null,
         recipe,
         camera.position,
         shapes,
+        'build',
       )
+      invariant(Object.keys(effects).length === 0)
 
       return {
         ...param,
@@ -208,11 +210,12 @@ function getView(
         shape.itemType,
       )
       const recipe = itemRecipes[itemRecipeKey]
-      const { input, output } = getInputOutput(
+      const { input, output, effects } = getInputOutput(
         param.entityId,
         recipe,
         camera.position,
         shapes,
+        'edit',
       )
 
       const valid = isEditValid(
@@ -226,8 +229,7 @@ function getView(
         valid,
         input,
         output,
-        // TODO
-        effects: {},
+        effects,
       }
     }
   }

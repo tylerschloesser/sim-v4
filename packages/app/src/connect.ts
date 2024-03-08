@@ -8,9 +8,14 @@ export function getInputOutput(
   recipe: ItemRecipe,
   position: Vec2,
   shapes: World['shapes'],
+  context: 'build' | 'edit',
 ): {
   input: Partial<Record<ItemType, Record<EntityId, true>>>
   output: Partial<Record<ItemType, Record<EntityId, true>>>
+  effects: Record<
+    EntityId,
+    Partial<Record<ItemType, EntityId>>
+  >
 } {
   const dists = new Map<EntityId, number>()
   for (const shape of Object.values(shapes)) {
@@ -32,12 +37,12 @@ export function getInputOutput(
     ),
   )
 
-  const input: Partial<
-    Record<ItemType, Record<EntityId, true>>
-  > = {}
-  const output: Partial<
-    Record<ItemType, Record<EntityId, true>>
-  > = {}
+  // prettier-ignore
+  const input: ReturnType<typeof getInputOutput>['input'] = {}
+  // prettier-ignore
+  const output: ReturnType<typeof getInputOutput>['output'] = {}
+  // prettier-ignore
+  const effects: ReturnType<typeof getInputOutput>['effects'] = {}
 
   for (const inputType of needsInput) {
     input[inputType] = {}
@@ -75,11 +80,39 @@ export function getInputOutput(
         const entry = output[outputType]
         invariant(entry)
 
-        if (
-          peerPeerId === null ||
-          peerPeerId === entityId // in this case we are editing
-        ) {
+        if (peerPeerId === null) {
           entry[peer.id] = true
+        } else if (peerPeerId === entityId) {
+          // in this case we are editing
+          invariant(context === 'edit')
+
+          const dist = dists.get(peer.id)
+          invariant(typeof dist === 'number')
+
+          const closerId = getCloserInputSource(
+            peer.id,
+            outputType,
+            shapes,
+            {
+              entityId,
+              dist,
+            },
+          )
+
+          if (closerId) {
+            let current = effects[peer.id]
+            if (current) {
+              invariant(!current[outputType])
+            } else {
+              current = {}
+            }
+            effects[peer.id] = {
+              ...current,
+              [outputType]: closerId,
+            }
+          } else {
+            entry[peer.id] = true
+          }
         } else {
           const peerPeer = shapes[peerPeerId]
           invariant(peerPeer)
@@ -100,5 +133,34 @@ export function getInputOutput(
   return {
     input,
     output,
+    effects,
   }
+}
+
+function getCloserInputSource(
+  entityId: EntityId,
+  itemType: ItemType,
+  shapes: World['shapes'],
+  current: { entityId: EntityId; dist: number },
+): EntityId | null {
+  const entity = shapes[entityId]
+  invariant(entity)
+
+  let result = { ...current }
+
+  for (const shape of Object.values(shapes)) {
+    if (!shape.output[itemType]) {
+      continue
+    }
+
+    const dist = vec2.dist(entity.position, shape.position)
+    if (dist < result.dist) {
+      result = { entityId: shape.id, dist }
+    }
+  }
+
+  if (result.entityId !== current.entityId) {
+    return result.entityId
+  }
+  return null
 }
