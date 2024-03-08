@@ -8,10 +8,11 @@ import {
 } from './inventory.js'
 import { entityRecipes } from './recipe.js'
 import { validateWorld } from './validate.js'
-import { Vec2 } from './vec2.js'
+import { Vec2, vec2 } from './vec2.js'
 import { BuildView, EditView } from './view.js'
 import {
   EntityId,
+  EntityShape,
   EntityType,
   Inventory,
   ItemType,
@@ -442,7 +443,32 @@ export function destroyEntity(
         invariant(target.input[itemType]![entityId])
         delete target.input[itemType]![entityId]
 
-        // TODO add closest connection back
+        // attempt to find the next closest input
+        let closest: {
+          source: EntityShape
+          dist: number
+        } | null = null
+        for (const source of Object.values(world.shapes)) {
+          if (source.id === entityId) {
+            continue
+          }
+          if (!source.output[itemType]) {
+            continue
+          }
+          const dist = vec2.dist(
+            target.position,
+            source.position,
+          )
+          if (!closest || dist < closest.dist) {
+            closest = { source, dist }
+          }
+        }
+        if (closest) {
+          const { source } = closest
+          invariant(!source.output[itemType]![targetId])
+          source.output[itemType]![targetId] = true
+          target.input[itemType]![source.id] = true
+        }
       }
     }
 
