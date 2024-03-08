@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash-es'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
@@ -94,7 +95,9 @@ export function buildEntity(
   position: Vec2,
   view: BuildView,
 ): void {
-  const { input, output } = view
+  const input = cloneDeep(view.input)
+  const output = cloneDeep(view.output)
+
   const recipe = entityRecipes[entityType]
   invariant(recipe)
 
