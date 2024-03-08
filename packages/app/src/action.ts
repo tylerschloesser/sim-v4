@@ -1,17 +1,16 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { getInputOutput } from './connect.js'
 import {
   inventoryAdd,
   inventoryMove,
   inventorySub,
 } from './inventory.js'
 import { entityRecipes } from './recipe.js'
+import { validateWorld } from './validate.js'
 import { Vec2 } from './vec2.js'
 import { BuildView, EditView } from './view.js'
 import {
   EntityId,
-  EntityShape,
   EntityType,
   Inventory,
   ItemType,
@@ -256,6 +255,8 @@ export function buildEntity(
         value[id] = true
       }
     }
+
+    validateWorld(world)
   })
 }
 
@@ -365,5 +366,7 @@ export function moveEntity(
         source.output[itemType]![targetId] = true
       }
     }
+
+    validateWorld(world)
   })
 }
