@@ -6,10 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import {
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { AppContext } from './app-context.js'
@@ -24,6 +21,7 @@ import {
 } from './recipe.js'
 import { useSubscribeEffect } from './use-subscribe-effect.js'
 import {
+  Cursor,
   EntityId,
   EntityType,
   ItemType,
@@ -133,6 +131,10 @@ const DEFAULT_VIEW_SEARCH_PARAM: DefaultViewSearchParam = {
   type: ViewType.enum.Default,
 }
 
+const DEFAULT_VIEW: DefaultView = {
+  type: ViewType.enum.Default,
+}
+
 function useViewSearchParam(): ViewSearchParam {
   const [search] = useSearchParams()
   return useMemo(() => {
@@ -164,11 +166,14 @@ export function useSetViewSearchParam(): (
   )
 }
 
+// allow this function to return null if the view is invalid
+// which can happen if the url params get out of sync with the world
 function getView(
   param: ViewSearchParam,
   camera: Camera,
+  cursor: Cursor,
   shapes: World['shapes'],
-): View {
+): View | null {
   switch (param.type) {
     case ViewType.enum.Default: {
       return param
@@ -182,6 +187,14 @@ function getView(
       )
 
       const recipe = itemRecipes[param.itemRecipeKey]
+
+      const entityRecipe = entityRecipes[recipe.entityType]
+      invariant(entityRecipe)
+      if (
+        !inventoryHas(cursor.inventory, entityRecipe.input)
+      ) {
+        return null
+      }
 
       const { input, output, effects } = getInputOutput(
         null,
@@ -205,7 +218,11 @@ function getView(
     }
     case ViewType.enum.Edit: {
       const shape = shapes[param.entityId]
-      invariant(shape)
+
+      if (!shape) {
+        return null
+      }
+
       const itemRecipeKey = ItemRecipeKey.parse(
         shape.itemType,
       )
@@ -242,7 +259,8 @@ export function useView(): View {
   const param = useViewSearchParam()
 
   const initialView = useMemo(
-    () => getView(param, camera$.value, world.shapes),
+    () =>
+      getView(param, camera$.value, cursor, world.shapes),
     [],
   )
 
@@ -252,33 +270,23 @@ export function useView(): View {
     camera$,
     (camera) => {
       setView((prev) => {
-        const next = getView(param, camera, world.shapes)
+        const next = getView(
+          param,
+          camera,
+          cursor,
+          world.shapes,
+        )
         return isEqual(next, prev) ? prev : next
       })
     },
-    [param, world.shapes],
+    [param, cursor, world.shapes],
   )
 
-  const navigate = useNavigate()
   useEffect(() => {
-    switch (view.type) {
-      case ViewType.enum.Build: {
-        const itemRecipe = itemRecipes[view.itemRecipeKey]
-        invariant(itemRecipe)
-        const entityRecipe =
-          entityRecipes[itemRecipe.entityType]
-        invariant(entityRecipe)
-        if (
-          !inventoryHas(
-            cursor.inventory,
-            entityRecipe.input,
-          )
-        ) {
-          navigate('..')
-        }
-      }
+    if (view === null) {
+      setView(DEFAULT_VIEW)
     }
-  }, [view, cursor])
+  }, [view])
 
-  return view
+  return view ?? DEFAULT_VIEW
 }
