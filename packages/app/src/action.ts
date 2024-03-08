@@ -399,3 +399,65 @@ export function moveEntity(
     validateWorld(world)
   })
 }
+
+export function destroyEntity(
+  setWorld: Updater<World>,
+  entityId: EntityId,
+): void {
+  setWorld((world) => {
+    const shape = world.shapes[entityId]
+    invariant(shape)
+
+    for (const [key, value] of Object.entries(
+      shape.input,
+    )) {
+      const itemType = ItemType.parse(key)
+      for (const sourceId of Object.keys(value)) {
+        if (sourceId === entityId) {
+          // ignore self-connections
+          continue
+        }
+
+        const source = world.shapes[sourceId]
+        invariant(source)
+
+        invariant(source.output[itemType]![entityId])
+        delete source.output[itemType]![entityId]
+      }
+    }
+
+    for (const [key, value] of Object.entries(
+      shape.output,
+    )) {
+      const itemType = ItemType.parse(key)
+      for (const targetId of Object.keys(value)) {
+        if (targetId === entityId) {
+          // ignore self-connections
+          continue
+        }
+
+        const target = world.shapes[targetId]
+        invariant(target)
+
+        invariant(target.input[itemType]![entityId])
+        delete target.input[itemType]![entityId]
+
+        // TODO add closest connection back
+      }
+    }
+
+    delete world.shapes[entityId]
+
+    invariant(world.states[entityId])
+    delete world.states[entityId]
+
+    if (world.cursor.entityId === entityId) {
+      world.cursor.entityId = null
+    }
+
+    const recipe = entityRecipes[shape.type]
+    invariant(recipe)
+
+    inventoryAdd(world.cursor.inventory, recipe.input)
+  })
+}

@@ -14,6 +14,7 @@ import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
   buildEntity,
+  destroyEntity,
   minePatch,
   moveEntity,
   moveFromCursorToEntityInput,
@@ -90,7 +91,20 @@ function RenderEditControls({
     label: 'Back',
   }
 
-  return <Render primary={primary} secondary={secondary} />
+  const tertiary: ButtonProps = {
+    onTap() {
+      destroyEntity(setWorld, view.entityId)
+    },
+    label: 'Destroy',
+  }
+
+  return (
+    <Render
+      primary={primary}
+      secondary={secondary}
+      tertiary={tertiary}
+    />
+  )
 }
 
 interface RenderBuildControlsProps {
