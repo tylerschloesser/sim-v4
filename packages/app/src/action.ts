@@ -339,6 +339,12 @@ export function moveEntity(
         const peer = world.shapes[peerId]
         invariant(peer?.input[outputType])
         invariant(!peer.input[outputType]![entityId])
+
+        if (Object.keys(peer.input[outputType]!).length) {
+          // TODO we are a closer input for this entity
+          // remove the currently connected entity
+        }
+
         peer.input[outputType]![entityId] = true
         entity.output[outputType]![peerId] = true
       }
