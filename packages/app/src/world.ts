@@ -40,7 +40,7 @@ export type EntityType = z.infer<typeof EntityType>
 const EntityShapeBase = z.strictObject({
   id: EntityId,
   position: Vec2,
-  radius: z.literal(0.75),
+  radius: z.number().positive(),
 
   itemType: ItemType,
 
@@ -244,7 +244,7 @@ function addPatch({
 }: {
   world: World
   position: Vec2
-  radius: 0.75
+  radius: number
   itemType: ItemType
   count: number
 }): void {
@@ -284,8 +284,8 @@ function initWorld(seed: string = ''): World {
   const cursor: Cursor = {
     entityId: null,
     inventory: {
-      [ItemType.enum.Stone]: 1_000,
-      [ItemType.enum.IronPlate]: 1_000,
+      // [ItemType.enum.Stone]: 1_000,
+      // [ItemType.enum.IronPlate]: 1_000,
     },
     radius: 1,
   }
@@ -303,15 +303,17 @@ function initWorld(seed: string = ''): World {
     itemType: ItemType,
     count: number,
   ): void {
-    const dist = 4 + rng.next() * 4
+    const dist = 16 + rng.next() * 8
 
     const position = { x: dist, y: 0 }
     vec2.rotate(position, angle)
 
+    const radius = 2 + rng.next() * 2
+
     addPatch({
       world,
       position,
-      radius: 0.75,
+      radius,
       itemType,
       count,
     })
