@@ -1,6 +1,12 @@
 import React, { useContext } from 'react'
 import styles from './render-info.module.scss'
-import { Cursor, Entity, ItemType, Task } from './types.js'
+import {
+  Cursor,
+  Entity,
+  ItemType,
+  Task,
+  TaskType,
+} from './types.js'
 import { ViewContext } from './view-context.js'
 import { BuildView, ViewType } from './view.js'
 
@@ -128,6 +134,14 @@ export const RenderInfo = React.memo(function RenderInfo({
   cursorEntity,
 }: RenderInfoProps) {
   const { view } = useContext(ViewContext)
+
+  if (task) {
+    return (
+      <div className={styles.task}>
+        Mine {task.count} {task.itemType}
+      </div>
+    )
+  }
 
   if (!ENABLE_INFO) return null
 
