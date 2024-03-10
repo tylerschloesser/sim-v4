@@ -18,4 +18,17 @@
 
 .task {
   position: absolute;
+  --size: 25vmin;
+  margin: 1em;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 100%;
+
+  font-size: 0.8em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: hsla(0, 0%, 20%, 1);
 }

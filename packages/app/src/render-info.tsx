@@ -138,7 +138,9 @@ export const RenderInfo = React.memo(function RenderInfo({
   if (task) {
     return (
       <div className={styles.task}>
-        Task: Mine {task.count} {task.itemType}
+        <span>Mine</span>
+        <span>{task.count}</span>
+        <span>{task.itemType}</span>
       </div>
     )
   }

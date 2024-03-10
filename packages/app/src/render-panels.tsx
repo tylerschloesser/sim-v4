@@ -1,18 +1,31 @@
 import classNames from 'classnames'
 import React, { useRef } from 'react'
 import invariant from 'tiny-invariant'
+import { ZoomLevel } from './app-context.js'
 import styles from './render-panels.module.scss'
-import { Entity, EntityType, World } from './types.js'
+import {
+  Cursor,
+  Entity,
+  EntityType,
+  ItemType,
+  World,
+} from './types.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
 import { getEntity } from './world.js'
 
 interface RenderPanelsProps {
   world: World
+  cursor: Cursor
+  zoomLevel: ZoomLevel
 }
 
 export const RenderPanels = React.memo(
-  function RenderPanels({ world }: RenderPanelsProps) {
+  function RenderPanels({
+    world,
+    cursor,
+    zoomLevel,
+  }: RenderPanelsProps) {
     const ref = useRef<HTMLDivElement>(null)
 
     useCameraEffect((camera, viewport) => {
@@ -35,6 +48,7 @@ export const RenderPanels = React.memo(
           <RenderPanel
             key={id}
             entity={getEntity(world, id)}
+            zoomLevel={zoomLevel}
           />
         ))}
       </div>
@@ -44,10 +58,12 @@ export const RenderPanels = React.memo(
 
 interface RenderPanelProps {
   entity: Entity
+  zoomLevel: ZoomLevel
 }
 
 const RenderPanel = React.memo(function RenderPanel({
   entity,
+  zoomLevel,
 }: RenderPanelProps) {
   return (
     <div
@@ -87,6 +103,17 @@ const RenderPanel = React.memo(function RenderPanel({
                 %
                 <br />
                 {itemType}: {Math.floor(count)}
+                {zoomLevel === 'high' && (
+                  <>
+                    <br />
+                    Coal:{' '}
+                    {Math.floor(
+                      entity.state.input[
+                        ItemType.enum.Coal
+                      ] ?? 0,
+                    )}
+                  </>
+                )}
               </>
             )
           }

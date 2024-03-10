@@ -6,7 +6,7 @@ import {
 import { BehaviorSubject, Subscription } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
-import { AppContext } from './app-context.js'
+import { AppContext, ZoomLevel } from './app-context.js'
 import styles from './app.module.scss'
 import { Camera, loadCamera, saveCamera } from './camera.js'
 import { PathRoot } from './path-root.js'
@@ -74,6 +74,10 @@ export function App() {
     null,
   )
 
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(
+    camera$.value.zoom < 0.5 ? 'low' : 'high',
+  )
+
   useTickWorld(setWorld)
 
   useEffect(() => {
@@ -93,6 +97,12 @@ export function App() {
 
     subs.push(camera$.subscribe(saveCamera))
     subs.push(viewport$.subscribe(setViewport))
+
+    subs.push(
+      camera$.subscribe((camera) => {
+        setZoomLevel(camera.zoom < 0.5 ? 'low' : 'high')
+      }),
+    )
 
     const ro = new ResizeObserver((entries) => {
       invariant(entries.length === 1)
@@ -121,6 +131,7 @@ export function App() {
       {viewport && (
         <AppContext.Provider
           value={{
+            zoomLevel,
             camera$,
             viewport,
             world,

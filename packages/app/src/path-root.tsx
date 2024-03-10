@@ -10,7 +10,7 @@ import { useView } from './view.js'
 import { getEntity } from './world.js'
 
 export function PathRoot() {
-  const { camera$, world, setWorld } =
+  const { zoomLevel, camera$, world, setWorld } =
     useContext(AppContext)
   const view = useView()
 
@@ -23,7 +23,11 @@ export function PathRoot() {
   return (
     <ViewContext.Provider value={{ view }}>
       <RenderViewport />
-      <RenderPanels world={world} />
+      <RenderPanels
+        zoomLevel={zoomLevel}
+        cursor={cursor}
+        world={world}
+      />
       <RenderInfo
         task={world.task}
         cursor={cursor}
