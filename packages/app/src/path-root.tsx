@@ -35,6 +35,7 @@ export function PathRoot() {
         cursorEntity={cursorEntity}
       />
       <RenderControls
+        debris$={debris$}
         camera$={camera$}
         cursor={cursor}
         cursorEntity={cursorEntity}

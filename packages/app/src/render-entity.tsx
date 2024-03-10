@@ -171,6 +171,11 @@ const RenderCircle = React.memo(
         <g data-group="debris">
           {[...debris].map((id) => (
             <rect
+              x={x}
+              y={y}
+              width={r / 2}
+              height={r / 2}
+              fill="green"
               key={id}
               ref={(rect) => {
                 if (rect) {

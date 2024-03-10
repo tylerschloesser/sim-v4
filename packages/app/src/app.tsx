@@ -5,7 +5,7 @@ import {
 } from 'react-router-dom'
 import {
   BehaviorSubject,
-  Observable,
+  Subject,
   Subscription,
 } from 'rxjs'
 import invariant from 'tiny-invariant'
@@ -78,7 +78,7 @@ export function App() {
     null,
   )
 
-  const [debris$] = useState(new Observable<EntityId>())
+  const [debris$] = useState(new Subject<EntityId>())
 
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(
     camera$.value.zoom < 0.5 ? 'low' : 'high',

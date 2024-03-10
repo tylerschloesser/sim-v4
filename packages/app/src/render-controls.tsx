@@ -9,7 +9,7 @@ import {
   useNavigate,
   useSearchParams,
 } from 'react-router-dom'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
@@ -32,6 +32,7 @@ import styles from './render-controls.module.scss'
 import {
   Cursor,
   Entity,
+  EntityId,
   EntityType,
   ItemType,
   MinerEntity,
@@ -50,6 +51,7 @@ import {
 } from './view.js'
 
 export interface RenderControlsProps {
+  debris$: Subject<EntityId>
   camera$: BehaviorSubject<Camera>
   cursor: Cursor
   cursorEntity: Entity | null
@@ -203,6 +205,7 @@ function RenderSelectControls({
 
 export const RenderControls = React.memo(
   function RenderControls({
+    debris$,
     camera$,
     cursor,
     cursorEntity,
@@ -241,6 +244,7 @@ export const RenderControls = React.memo(
         case EntityType.enum.Patch:
           return (
             <RenderPatchControls
+              debris$={debris$}
               cursor={cursor}
               entity={cursorEntity}
               setWorld={setWorld}
@@ -399,12 +403,14 @@ function RenderTertiaryButton({
 }
 
 interface RenderPatchControlsProps {
+  debris$: Subject<EntityId>
   cursor: Cursor
   entity: PatchEntity
   setWorld: Updater<World>
 }
 
 function RenderPatchControls({
+  debris$,
   cursor,
   entity,
   setWorld,
@@ -416,6 +422,7 @@ function RenderPatchControls({
   const mine = useCallback(() => {
     invariant(cursor.entityId)
     minePatch(setWorld, cursor.entityId)
+    debris$.next(entity.id)
   }, [cursor.entityId])
 
   const itemRecipeKey: ItemRecipeKey = (() => {

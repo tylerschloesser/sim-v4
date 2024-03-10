@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { BehaviorSubject, Observable } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import { Updater } from 'use-immer'
 import { Camera } from './camera.js'
 import { EntityId, World } from './types.js'
@@ -8,7 +8,7 @@ import { Viewport } from './viewport.js'
 export type ZoomLevel = 'high' | 'low'
 
 export interface IAppContext {
-  debris$: Observable<EntityId>
+  debris$: Subject<EntityId>
   camera$: BehaviorSubject<Camera>
   viewport: Viewport
   world: World
