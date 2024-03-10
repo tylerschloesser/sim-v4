@@ -25,6 +25,7 @@ export function PathRoot() {
       <RenderViewport />
       <RenderPanels world={world} />
       <RenderInfo
+        task={world.task}
         cursor={cursor}
         cursorEntity={cursorEntity}
       />
