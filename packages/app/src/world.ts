@@ -1,7 +1,7 @@
-import Prando from 'prando'
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
-import { Vec2, vec2 } from './vec2.js'
+import { initWorld } from './init-world.js'
+import { Vec2 } from './vec2.js'
 
 export const EntityId = z.string()
 export type EntityId = z.infer<typeof EntityId>
@@ -216,8 +216,32 @@ export const Cursor = z.strictObject({
 })
 export type Cursor = z.infer<typeof Cursor>
 
+export const TaskId = z.string()
+export type TaskId = z.infer<typeof TaskId>
+
+export const TaskType = z.enum(['Mine'])
+export type TaskType = z.infer<typeof TaskType>
+
+export const MineTask = z.strictObject({
+  id: TaskId,
+  type: z.literal(TaskType.enum.Mine),
+  itemType: z.union([
+    z.literal(ItemType.enum.Coal),
+    z.literal(ItemType.enum.IronOre),
+    z.literal(ItemType.enum.Stone),
+  ]),
+  count: z.number(),
+  progress: z.number(),
+})
+export type MineTask = z.infer<typeof MineTask>
+
+export const Task = z.discriminatedUnion('type', [MineTask])
+export type Task = z.infer<typeof Task>
+
 export const World = z.strictObject({
   tick: z.number().int().nonnegative(),
+
+  taskId: TaskId,
 
   cursor: Cursor,
 
@@ -233,112 +257,6 @@ export function getNextEntityId(world: World): EntityId {
   invariant(!world.shapes[next])
   invariant(!world.states[next])
   return next
-}
-
-function addPatch({
-  world,
-  position,
-  radius,
-  itemType,
-  count,
-}: {
-  world: World
-  position: Vec2
-  radius: number
-  itemType: ItemType
-  count: number
-}): void {
-  const id = getNextEntityId(world)
-
-  const type = EntityType.enum.Patch
-
-  const shape: PatchEntityShape = {
-    id,
-    type,
-    itemType,
-    input: {},
-    output: {
-      [itemType]: {},
-    },
-    position,
-    radius,
-  }
-
-  const state: PatchEntityState = {
-    id,
-    type,
-    input: {},
-    output: {
-      [itemType]: count,
-    },
-    satisfaction: 0,
-  }
-
-  world.shapes[id] = shape
-  world.states[id] = state
-}
-
-function initWorld(seed: string = ''): World {
-  const rng = new Prando(seed)
-
-  const cursor: Cursor = {
-    entityId: null,
-    inventory: {
-      // [ItemType.enum.Stone]: 1_000,
-      // [ItemType.enum.IronPlate]: 1_000,
-    },
-    radius: 1,
-  }
-
-  const world: World = {
-    tick: 0,
-    cursor,
-    shapes: {},
-    states: {},
-    nextEntityId: 0,
-  }
-
-  function generatePatch(
-    angle: number,
-    itemType: ItemType,
-    count: number,
-  ): void {
-    const dist = 16 + rng.next() * 8
-
-    const position = { x: dist, y: 0 }
-    vec2.rotate(position, angle)
-
-    const radius = 2 + rng.next() * 2
-
-    addPatch({
-      world,
-      position,
-      radius,
-      itemType,
-      count,
-    })
-  }
-
-  {
-    const count = 1_000
-    generatePatch(
-      Math.PI * -0.5 * rng.next(),
-      ItemType.enum.MineableCoal,
-      count,
-    )
-    generatePatch(
-      Math.PI * 0.5 * rng.next(),
-      ItemType.enum.MineableIronOre,
-      count,
-    )
-    generatePatch(
-      Math.PI * -0.5 + Math.PI * -0.5 * rng.next(),
-      ItemType.enum.MineableStone,
-      count,
-    )
-  }
-
-  return world
 }
 
 export function loadWorld(): World {
