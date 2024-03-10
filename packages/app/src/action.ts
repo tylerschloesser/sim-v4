@@ -7,12 +7,14 @@ import {
   inventorySub,
 } from './inventory.js'
 import { entityRecipes } from './recipe.js'
+import { tasks } from './tasks.js'
 import {
   EntityId,
   EntityShape,
   EntityType,
   Inventory,
   ItemType,
+  TaskType,
   World,
 } from './types.js'
 import { validateWorld } from './validate.js'
@@ -70,7 +72,26 @@ export function minePatch(
       [mineableType]: 1,
     })
     inventoryAdd(world.cursor.inventory, { [itemType]: 1 })
+
+    if (
+      world.task.type === TaskType.enum.Mine &&
+      world.task.itemType === itemType
+    ) {
+      invariant(world.task.count > 0)
+      world.task.count -= 1
+      if (world.task.count <= 0) {
+        completeCurrentTask(world)
+      }
+    }
   })
+}
+
+function completeCurrentTask(world: World): void {
+  const { task } = world
+  const nextTaskId = `${parseInt(task.id) + 1}`
+  const nextTask = tasks[nextTaskId]
+  invariant(nextTask)
+  world.task = nextTask
 }
 
 export function moveFromCursorToEntityInput(
