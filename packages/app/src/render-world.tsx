@@ -8,15 +8,15 @@ import {
   RenderEntityConnectionProps,
 } from './render-entity-connection.js'
 import { RenderEntity } from './render-entity.js'
-import { useCameraEffect } from './use-camera-effect.js'
-import { View, ViewType } from './view.js'
-import { getScale } from './viewport.js'
 import {
   Cursor,
   EntityShape,
   ItemType,
   World,
-} from './world.js'
+} from './types.js'
+import { useCameraEffect } from './use-camera-effect.js'
+import { View, ViewType } from './view.js'
+import { getScale } from './viewport.js'
 
 export interface RenderWorldProps {
   cursor: Cursor

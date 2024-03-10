@@ -29,15 +29,6 @@ import {
   itemRecipes,
 } from './recipe.js'
 import styles from './render-controls.module.scss'
-import { vec2 } from './vec2.js'
-import { ViewContext } from './view-context.js'
-import {
-  BuildView,
-  EditView,
-  SelectView,
-  ViewType,
-  useSetViewSearchParam,
-} from './view.js'
 import {
   Cursor,
   Entity,
@@ -47,7 +38,16 @@ import {
   PatchEntity,
   SmelterEntity,
   World,
-} from './world.js'
+} from './types.js'
+import { vec2 } from './vec2.js'
+import { ViewContext } from './view-context.js'
+import {
+  BuildView,
+  EditView,
+  SelectView,
+  ViewType,
+  useSetViewSearchParam,
+} from './view.js'
 
 export interface RenderControlsProps {
   camera$: BehaviorSubject<Camera>

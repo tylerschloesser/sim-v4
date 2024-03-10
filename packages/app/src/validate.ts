@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant'
-import { World } from './world.js'
+import { World } from './types.js'
 
 // TODO ensure every entity input is the closest output
 export function validateWorld(world: World): void {

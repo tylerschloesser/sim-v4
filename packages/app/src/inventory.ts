@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant'
-import { Inventory, ItemType } from './world.js'
+import { Inventory, ItemType } from './types.js'
 
 export function inventoryHas(
   inventory: Inventory,

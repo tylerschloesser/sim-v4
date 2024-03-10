@@ -10,10 +10,10 @@ import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { Camera } from './camera.js'
 import { getClosestShape } from './closest.js'
+import { Cursor, EntityId, World } from './types.js'
 import { Vec2, vec2 } from './vec2.js'
 import { ViewContext } from './view-context.js'
 import { BuildView, EditView, ViewType } from './view.js'
-import { Cursor, EntityId, World } from './world.js'
 
 export interface RenderCursorProps {
   cursor: Cursor

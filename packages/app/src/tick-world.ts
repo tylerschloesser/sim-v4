@@ -1,12 +1,8 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { ItemRecipeKey, itemRecipes } from './recipe.js'
-import {
-  EntityType,
-  ItemType,
-  World,
-  getEntity,
-} from './world.js'
+import { EntityType, ItemType, World } from './types.js'
+import { getEntity } from './world.js'
 
 export function tickWorld(setWorld: Updater<World>): void {
   setWorld((world) => {

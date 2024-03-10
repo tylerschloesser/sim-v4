@@ -7,7 +7,7 @@ import {
   EntityType,
   ItemType,
   PatchEntity,
-} from './world.js'
+} from './types.js'
 
 const rng = new Prando(1)
 

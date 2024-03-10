@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
 import { ItemRecipe } from './recipe.js'
+import { EntityId, ItemType, World } from './types.js'
 import { Vec2, vec2 } from './vec2.js'
-import { EntityId, ItemType, World } from './world.js'
 
 export function getInputOutput(
   entityId: EntityId | null,

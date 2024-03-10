@@ -1,5 +1,5 @@
 import React from 'react'
-import { EntityShape } from './world.js'
+import { EntityShape } from './types.js'
 
 export interface RenderEntityConnectionProps {
   a: EntityShape

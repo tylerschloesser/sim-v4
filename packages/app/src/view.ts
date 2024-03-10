@@ -19,14 +19,14 @@ import {
   entityRecipes,
   itemRecipes,
 } from './recipe.js'
-import { useSubscribeEffect } from './use-subscribe-effect.js'
 import {
   Cursor,
   EntityId,
   EntityType,
   ItemType,
   World,
-} from './world.js'
+} from './types.js'
+import { useSubscribeEffect } from './use-subscribe-effect.js'
 
 export const ViewType = z.enum([
   'Default',

@@ -2,14 +2,10 @@ import classNames from 'classnames'
 import React, { useRef } from 'react'
 import invariant from 'tiny-invariant'
 import styles from './render-panels.module.scss'
+import { Entity, EntityType, World } from './types.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { getScale } from './viewport.js'
-import {
-  Entity,
-  EntityType,
-  World,
-  getEntity,
-} from './world.js'
+import { getEntity } from './world.js'
 
 interface RenderPanelsProps {
   world: World

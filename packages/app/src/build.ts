@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
+import { EntityShape, World } from './types.js'
 import { Vec2, vec2 } from './vec2.js'
-import { EntityShape, World } from './world.js'
 
 export function isBuildValid(
   position: Vec2,

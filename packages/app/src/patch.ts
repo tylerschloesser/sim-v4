@@ -4,7 +4,7 @@ import {
   ItemType,
   PatchEntity,
   World,
-} from './world.js'
+} from './types.js'
 
 export function getPatchItemType(
   patch: PatchEntity,

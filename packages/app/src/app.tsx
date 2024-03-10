@@ -13,10 +13,11 @@ import { PathRoot } from './path-root.js'
 import { PathSettings } from './path-settings.js'
 import { handlePointer } from './pointer.js'
 import { tickWorld } from './tick-world.js'
+import { World } from './types.js'
 import { ViewType } from './view.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
-import { World, loadWorld, saveWorld } from './world.js'
+import { loadWorld, saveWorld } from './world.js'
 
 function rectToViewport(rect: DOMRect): Viewport {
   return {

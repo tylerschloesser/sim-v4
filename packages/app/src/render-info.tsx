@@ -1,8 +1,8 @@
 import React, { useContext } from 'react'
 import styles from './render-info.module.scss'
+import { Cursor, Entity, ItemType } from './types.js'
 import { ViewContext } from './view-context.js'
 import { BuildView, ViewType } from './view.js'
-import { Cursor, Entity, ItemType } from './world.js'
 
 interface RenderOutputProps {
   cursor: Cursor

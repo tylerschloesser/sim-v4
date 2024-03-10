@@ -1,6 +1,6 @@
 import { Camera } from './camera.js'
+import { EntityShape, World } from './types.js'
 import { vec2 } from './vec2.js'
-import { EntityShape, World } from './world.js'
 
 export function getClosestShape(
   camera: Camera,

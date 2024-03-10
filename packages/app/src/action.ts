@@ -7,9 +7,6 @@ import {
   inventorySub,
 } from './inventory.js'
 import { entityRecipes } from './recipe.js'
-import { validateWorld } from './validate.js'
-import { Vec2, vec2 } from './vec2.js'
-import { BuildView, EditView } from './view.js'
 import {
   EntityId,
   EntityShape,
@@ -17,9 +14,11 @@ import {
   Inventory,
   ItemType,
   World,
-  getEntity,
-  getNextEntityId,
-} from './world.js'
+} from './types.js'
+import { validateWorld } from './validate.js'
+import { Vec2, vec2 } from './vec2.js'
+import { BuildView, EditView } from './view.js'
+import { getEntity, getNextEntityId } from './world.js'
 
 export function moveFromEntityOutputToCursor(
   setWorld: Updater<World>,

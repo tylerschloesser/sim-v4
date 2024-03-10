@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
 import * as z from 'zod'
 import { inventoryHas } from './inventory.js'
-import { EntityType, Inventory, ItemType } from './world.js'
+import { EntityType, Inventory, ItemType } from './types.js'
 
 export const EntityRecipe = z.strictObject({
   input: z.record(ItemType, z.number()),

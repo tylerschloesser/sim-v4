@@ -4,7 +4,7 @@ import {
   Task,
   TaskId,
   TaskType,
-} from './world.js'
+} from './types.js'
 
 export const tasks: Record<TaskId, Task> = {}
 

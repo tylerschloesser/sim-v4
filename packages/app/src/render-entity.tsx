@@ -8,9 +8,10 @@ import React, {
 import { AppContext } from './app-context.js'
 import { getEntityColor } from './color.js'
 import styles from './render-entity.module.scss'
+import { EntityId, EntityType } from './types.js'
 import { useCameraEffect } from './use-camera-effect.js'
 import { vec2 } from './vec2.js'
-import { EntityId, EntityType, getEntity } from './world.js'
+import { getEntity } from './world.js'
 
 export interface RenderEntityProps {
   entityId: EntityId
