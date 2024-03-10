@@ -1,11 +1,12 @@
 import React, { useContext } from 'react'
+import { Observable } from 'rxjs'
 import styles from './render-info.module.scss'
 import {
   Cursor,
   Entity,
+  EntityId,
   ItemType,
   Task,
-  TaskType,
 } from './types.js'
 import { ViewContext } from './view-context.js'
 import { BuildView, ViewType } from './view.js'
@@ -121,6 +122,7 @@ function RenderBuildInfo({ view }: RenderBuildInfoProps) {
 }
 
 export interface RenderInfoProps {
+  debris$: Observable<EntityId>
   task: Task
   cursor: Cursor
   cursorEntity: Entity | null

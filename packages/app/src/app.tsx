@@ -3,7 +3,11 @@ import {
   RouterProvider,
   createBrowserRouter,
 } from 'react-router-dom'
-import { BehaviorSubject, Subscription } from 'rxjs'
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+} from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext, ZoomLevel } from './app-context.js'
@@ -13,7 +17,7 @@ import { PathRoot } from './path-root.js'
 import { PathSettings } from './path-settings.js'
 import { handlePointer } from './pointer.js'
 import { tickWorld } from './tick-world.js'
-import { World } from './types.js'
+import { EntityId, World } from './types.js'
 import { ViewType } from './view.js'
 import { Viewport } from './viewport.js'
 import { handleWheel } from './wheel.js'
@@ -74,6 +78,8 @@ export function App() {
     null,
   )
 
+  const [debris$] = useState(new Observable<EntityId>())
+
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(
     camera$.value.zoom < 0.5 ? 'low' : 'high',
   )
@@ -132,6 +138,7 @@ export function App() {
         <AppContext.Provider
           value={{
             zoomLevel,
+            debris$,
             camera$,
             viewport,
             world,

@@ -10,7 +10,7 @@ import { useView } from './view.js'
 import { getEntity } from './world.js'
 
 export function PathRoot() {
-  const { zoomLevel, camera$, world, setWorld } =
+  const { zoomLevel, debris$, camera$, world, setWorld } =
     useContext(AppContext)
   const view = useView()
 
@@ -29,6 +29,7 @@ export function PathRoot() {
         world={world}
       />
       <RenderInfo
+        debris$={debris$}
         task={world.task}
         cursor={cursor}
         cursorEntity={cursorEntity}

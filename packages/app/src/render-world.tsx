@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react'
+import { Observable } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import { AppContext } from './app-context.js'
@@ -10,6 +11,7 @@ import {
 import { RenderEntity } from './render-entity.js'
 import {
   Cursor,
+  EntityId,
   EntityShape,
   ItemType,
   World,
@@ -19,6 +21,7 @@ import { View, ViewType } from './view.js'
 import { getScale } from './viewport.js'
 
 export interface RenderWorldProps {
+  debris$: Observable<EntityId>
   cursor: Cursor
   shapes: World['shapes']
   setWorld: Updater<World>
@@ -26,6 +29,7 @@ export interface RenderWorldProps {
 }
 
 export const RenderWorld = React.memo(function RenderWorld({
+  debris$,
   cursor,
   shapes,
   setWorld,
@@ -102,6 +106,7 @@ export const RenderWorld = React.memo(function RenderWorld({
         return (
           <RenderEntity
             key={shape.id}
+            debris$={debris$}
             entityId={shape.id}
             variant={
               view.type === ViewType.enum.Edit &&

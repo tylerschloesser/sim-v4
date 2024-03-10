@@ -10,7 +10,7 @@ import { getScale } from './viewport.js'
 
 export function RenderViewport() {
   const root = useRef<SVGSVGElement>(null)
-  const { viewport, world, setWorld } =
+  const { debris$, viewport, world, setWorld } =
     useContext(AppContext)
   const { x: vx, y: vy } = viewport.size
   const viewBox = [-vx / 2, -vy / 2, vx, vy].join(' ')
@@ -42,6 +42,7 @@ export function RenderViewport() {
     >
       <RenderGrid viewport={viewport} />
       <RenderWorld
+        debris$={debris$}
         cursor={world.cursor}
         shapes={world.shapes}
         setWorld={setWorld}
