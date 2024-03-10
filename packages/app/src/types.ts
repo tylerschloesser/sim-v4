@@ -239,7 +239,7 @@ export type Task = z.infer<typeof Task>
 export const World = z.strictObject({
   tick: z.number().int().nonnegative(),
 
-  taskId: TaskId,
+  task: Task,
 
   cursor: Cursor,
 

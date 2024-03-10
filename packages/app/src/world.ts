@@ -12,7 +12,6 @@ import {
   ItemType,
   PatchEntityShape,
   PatchEntityState,
-  TaskId,
   World,
 } from './types.js'
 import { Vec2, vec2 } from './vec2.js'
@@ -29,13 +28,16 @@ export function initWorld(seed: string = ''): World {
     radius: 1,
   }
 
+  const task = Object.values(tasks).at(0)
+  invariant(task)
+
   const world: World = {
     tick: 0,
     cursor,
     shapes: {},
     states: {},
     nextEntityId: 0,
-    taskId: TaskId.parse(Object.keys(tasks).at(0)),
+    task,
   }
 
   function generatePatch(
