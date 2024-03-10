@@ -68,7 +68,13 @@ const RenderPanel = React.memo(function RenderPanel({
           case EntityType.enum.Patch: {
             const { itemType } = entity.shape
             const count = entity.state.output[itemType] ?? 0
-            return Math.floor(count)
+            return (
+              <>
+                {itemType.replace(/^Mineable/, '')}
+                <br />
+                {Math.floor(count)}
+              </>
+            )
           }
           default: {
             const { itemType } = entity.shape
