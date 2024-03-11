@@ -117,6 +117,8 @@ interface DebrisState {
   y: number
   vx: number
   vy: number
+  ax: number
+  ay: number
   w: number
   vw: number
   o: number
@@ -141,9 +143,14 @@ const Debris = React.memo(function Debris(
       const now = self.performance.now()
       const angle = ((now % 1000) / 1000) * Math.PI * 2
 
-      const v = vec2.init(6, 0)
+      const v = vec2.init(20, 0)
       vec2.rotate(v, angle)
       const { x: vx, y: vy } = v
+
+      const a = vec2.clone(v)
+      vec2.mul(a, -2)
+      const { x: ax, y: ay } = a
+
       const vw = random(0.5, 2, true) * Math.PI * 2
       const vo = -1
       state.current.set(id, {
@@ -152,6 +159,8 @@ const Debris = React.memo(function Debris(
         y: 0,
         vx,
         vy,
+        ax,
+        ay,
         w: 0,
         vw,
         o: 1,
@@ -215,9 +224,14 @@ const RenderCircle = React.memo(
         const elapsed = (now - last) / 1000
         last = now
         for (const value of state.current.values()) {
+          value.vx += value.ax * elapsed
+          value.vy += value.ay * elapsed
+
           value.x += value.vx * elapsed
           value.y += value.vy * elapsed
+
           value.w += value.vw * elapsed
+
           value.ref.setAttribute(
             'transform',
             `translate(${value.x} ${value.y}) rotate(${radiansToDegrees(value.w)} ${x} ${y})`,
