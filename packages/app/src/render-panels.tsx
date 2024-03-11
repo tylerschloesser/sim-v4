@@ -23,7 +23,6 @@ interface RenderPanelsProps {
 export const RenderPanels = React.memo(
   function RenderPanels({
     world,
-    cursor,
     zoomLevel,
   }: RenderPanelsProps) {
     const ref = useRef<HTMLDivElement>(null)
