@@ -138,7 +138,9 @@ const Debris = React.memo(function Debris(
 
   const ref = useCallback((rect: SVGRectElement | null) => {
     if (rect) {
-      const angle = random(0, Math.PI * 2, true)
+      const now = self.performance.now()
+      const angle = ((now % 1000) / 1000) * Math.PI * 2
+
       const v = vec2.init(6, 0)
       vec2.rotate(v, angle)
       const { x: vx, y: vy } = v
