@@ -178,7 +178,7 @@ const Debris = React.memo(function Debris(
       y={y - r / 8}
       width={r / 4}
       height={r / 4}
-      fill="green"
+      fill="gray"
       key={id}
       ref={ref}
     ></rect>
