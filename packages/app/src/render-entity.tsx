@@ -1,6 +1,9 @@
+import { random } from 'lodash-es'
 import React, {
   ForwardedRef,
+  MutableRefObject,
   forwardRef,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -107,6 +110,62 @@ export function RenderEntity({
   )
 }
 
+interface DebrisProps {
+  id: string
+  x: number
+  y: number
+  r: number
+  state: MutableRefObject<
+    Map<
+      string,
+      {
+        ref: SVGRectElement
+        x: number
+        y: number
+        vx: number
+        vy: number
+      }
+    >
+  >
+}
+const Debris = React.memo(function Debris(
+  props: DebrisProps,
+) {
+  // eslint-disable-next-line
+  const { id, x, y, r, state } = props
+
+  const ref = useCallback((rect: SVGRectElement | null) => {
+    if (rect) {
+      const angle = random(0, Math.PI * 2, true)
+      const v = vec2.init(6, 0)
+      vec2.rotate(v, angle)
+      const { x: vx, y: vy } = v
+      state.current.set(id, {
+        ref: rect,
+        x: 0,
+        y: 0,
+        vx,
+        vy,
+      })
+    } else {
+      // invariant(state.current.has(id))
+      state.current.delete(id)
+    }
+  }, [])
+
+  return (
+    <rect
+      x={x - r / 8}
+      y={y - r / 8}
+      width={r / 4}
+      height={r / 4}
+      fill="green"
+      key={id}
+      ref={ref}
+    ></rect>
+  )
+})
+
 interface RenderCircleProps {
   id: string
   x: number
@@ -130,15 +189,22 @@ const RenderCircle = React.memo(
           ref: SVGRectElement
           x: number
           y: number
+          vx: number
+          vy: number
         }
       >(),
     )
 
     useEffect(() => {
       let handle: number
+      let last = self.performance.now()
       function render() {
+        const now = self.performance.now()
+        const elapsed = (now - last) / 1000
+        last = now
         for (const value of state.current.values()) {
-          value.x += 0.01
+          value.x += value.vx * elapsed
+          value.y += value.vy * elapsed
           value.ref.setAttribute(
             'transform',
             `translate(${value.x} ${value.y})`,
@@ -169,27 +235,15 @@ const RenderCircle = React.memo(
     return (
       <g data-group={`entity-${id}`}>
         <g data-group="debris">
-          {[...debris].map((id) => (
-            <rect
+          {[...debris].map((debrisId) => (
+            <Debris
+              id={debrisId}
               x={x}
               y={y}
-              width={r / 2}
-              height={r / 2}
-              fill="green"
-              key={id}
-              ref={(rect) => {
-                if (rect) {
-                  state.current.set(id, {
-                    ref: rect,
-                    x: 0,
-                    y: 0,
-                  })
-                } else {
-                  invariant(state.current.has(id))
-                  state.current.delete(id)
-                }
-              }}
-            ></rect>
+              r={r}
+              state={state}
+              key={debrisId}
+            />
           ))}
         </g>
         <circle
