@@ -18,3 +18,7 @@ export function smooth(k: number, pow: number = 3) {
   invariant(k <= 1)
   return 1 - (1 - k) ** pow
 }
+
+export function radiansToDegrees(radians: number): number {
+  return (radians * 180) / Math.PI
+}

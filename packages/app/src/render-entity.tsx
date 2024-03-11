@@ -14,6 +14,7 @@ import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import { AppContext } from './app-context.js'
 import { getEntityColor } from './color.js'
+import { radiansToDegrees } from './math.js'
 import styles from './render-entity.module.scss'
 import { EntityId, EntityType } from './types.js'
 import { useCameraEffect } from './use-camera-effect.js'
@@ -124,6 +125,8 @@ interface DebrisProps {
         y: number
         vx: number
         vy: number
+        w: number
+        vw: number
       }
     >
   >
@@ -140,12 +143,15 @@ const Debris = React.memo(function Debris(
       const v = vec2.init(6, 0)
       vec2.rotate(v, angle)
       const { x: vx, y: vy } = v
+      const vw = random(0.5, 2, true) * Math.PI * 2
       state.current.set(id, {
         ref: rect,
         x: 0,
         y: 0,
         vx,
         vy,
+        w: 0,
+        vw,
       })
     } else {
       // invariant(state.current.has(id))
@@ -182,6 +188,19 @@ const RenderCircle = React.memo(
     props: RenderCircleProps,
     ref: ForwardedRef<SVGCircleElement>,
   ) {
+    /* eslint-disable react/prop-types */
+    const {
+      id,
+      x,
+      y,
+      r,
+      fill,
+      stroke,
+      opacity = 1,
+      debris,
+    } = props
+    /* eslint-enable react/prop-types */
+
     const state = useRef(
       new Map<
         string,
@@ -191,6 +210,8 @@ const RenderCircle = React.memo(
           y: number
           vx: number
           vy: number
+          w: number
+          vw: number
         }
       >(),
     )
@@ -205,9 +226,10 @@ const RenderCircle = React.memo(
         for (const value of state.current.values()) {
           value.x += value.vx * elapsed
           value.y += value.vy * elapsed
+          value.w += value.vw * elapsed
           value.ref.setAttribute(
             'transform',
-            `translate(${value.x} ${value.y})`,
+            `translate(${value.x} ${value.y}) rotate(${radiansToDegrees(value.w)} ${x} ${y})`,
           )
         }
 
@@ -218,19 +240,6 @@ const RenderCircle = React.memo(
         self.cancelAnimationFrame(handle)
       }
     }, [])
-
-    /* eslint-disable react/prop-types */
-    const {
-      id,
-      x,
-      y,
-      r,
-      fill,
-      stroke,
-      opacity = 1,
-      debris,
-    } = props
-    /* eslint-enable react/prop-types */
 
     return (
       <g data-group={`entity-${id}`}>
