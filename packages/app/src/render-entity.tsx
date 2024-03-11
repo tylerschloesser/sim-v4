@@ -1,4 +1,4 @@
-import { random } from 'lodash-es'
+import { clamp, random } from 'lodash-es'
 import React, {
   ForwardedRef,
   MutableRefObject,
@@ -111,25 +111,24 @@ export function RenderEntity({
   )
 }
 
+interface DebrisState {
+  ref: SVGRectElement
+  x: number
+  y: number
+  vx: number
+  vy: number
+  w: number
+  vw: number
+  o: number
+  vo: number
+}
+
 interface DebrisProps {
   id: string
   x: number
   y: number
   r: number
-  state: MutableRefObject<
-    Map<
-      string,
-      {
-        ref: SVGRectElement
-        x: number
-        y: number
-        vx: number
-        vy: number
-        w: number
-        vw: number
-      }
-    >
-  >
+  state: MutableRefObject<Map<string, DebrisState>>
 }
 const Debris = React.memo(function Debris(
   props: DebrisProps,
@@ -144,6 +143,7 @@ const Debris = React.memo(function Debris(
       vec2.rotate(v, angle)
       const { x: vx, y: vy } = v
       const vw = random(0.5, 2, true) * Math.PI * 2
+      const vo = -1
       state.current.set(id, {
         ref: rect,
         x: 0,
@@ -152,6 +152,8 @@ const Debris = React.memo(function Debris(
         vy,
         w: 0,
         vw,
+        o: 1,
+        vo,
       })
     } else {
       // invariant(state.current.has(id))
@@ -201,20 +203,7 @@ const RenderCircle = React.memo(
     } = props
     /* eslint-enable react/prop-types */
 
-    const state = useRef(
-      new Map<
-        string,
-        {
-          ref: SVGRectElement
-          x: number
-          y: number
-          vx: number
-          vy: number
-          w: number
-          vw: number
-        }
-      >(),
-    )
+    const state = useRef(new Map<string, DebrisState>())
 
     useEffect(() => {
       let handle: number
@@ -230,6 +219,11 @@ const RenderCircle = React.memo(
           value.ref.setAttribute(
             'transform',
             `translate(${value.x} ${value.y}) rotate(${radiansToDegrees(value.w)} ${x} ${y})`,
+          )
+          value.o += value.vo * elapsed
+          value.ref.setAttribute(
+            'opacity',
+            `${clamp(value.o, 0, 1)}`,
           )
         }
 
